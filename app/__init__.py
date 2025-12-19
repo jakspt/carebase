@@ -6,5 +6,7 @@ def create_app():
 
     # TODO: Import Blueprints
     # TODO: Register Blueprints
+    from app.doctor import doctor_bp
+    app.register_blueprint(doctor_bp)
 
     return app
