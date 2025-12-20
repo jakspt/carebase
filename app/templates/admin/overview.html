@@ -1,5 +1,116 @@
 {% extends "nav.html" %}
 
+{% block title %}Systemverwaltung{% endblock %}
+
 {% block content %}
-    <h1>Admin</h1>
+    <main class="min-vh-100 d-flex align-items-start py-5">
+        <div class="container-xl">
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="fw-bold">Systemverwaltung</h1>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Card: Datenbank füllen -->
+                <div class="col-12 col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 d-flex align-items-start">
+                                <i class="bi bi-database-fill fs-1 text-secondary me-3" aria-hidden="true"></i>
+                                <div>
+                                    <h2 class="h5 mb-1">Datenbank füllen</h2>
+                                    <p class="text-muted small mb-0">Beispiel- oder Testdaten einfügen. Vorsicht:
+                                        Vorhandene Daten werden gelöscht.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto">
+                                <button class="btn btn-outline-secondary w-100" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#confirmFillModal">
+                                    <i class="bi bi-file-earmark-arrow-down me-2"></i> Datenbank füllen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Datenbank migrieren -->
+                <div class="col-12 col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 d-flex align-items-start">
+                                <i class="bi bi-tools fs-1 text-secondary me-3" aria-hidden="true"></i>
+                                <div>
+                                    <h2 class="h5 mb-1">Datenbank migrieren</h2>
+                                    <p class="text-muted small mb-0">Daten von MariaDB zu MongoDB migrieren. Nach dem
+                                        Migrieren kann nicht mehr zu MariaDB zurückgewechselt werden.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto">
+                                <button class="btn btn-outline-primary w-100" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#confirmMigrateModal">
+                                    <i class="bi bi-wrench-adjustable me-2"></i> Migration ausführen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+
+    <div class="modal fade" id="confirmFillModal" tabindex="-1" aria-labelledby="confirmFillLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ url_for('admin.fill_db') }}" method="post">
+                    <!-- Hidden confirm field to avoid accidental triggers -->
+                    <input type="hidden" name="confirm" value="1">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmFillLabel">Datenbank füllen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">Möchten Sie wirklich Test-Daten in die Datenbank einfügen? Bestehende Daten
+                            werden gelöscht.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen
+                        </button>
+                        <button type="submit" class="btn btn-danger">Datenbank füllen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Migrate DB Modal  -->
+    <div class="modal fade" id="confirmMigrateModal" tabindex="-1" aria-labelledby="confirmMigrateLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ url_for('admin.migrate_db') }}" method="post">
+                    <input type="hidden" name="confirm" value="1">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmMigrateLabel">Migration durchführen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">Nach der Migration wird MongoDB als Datenbank verwendet. </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen
+                        </button>
+                        <button type="submit" class="btn btn-primary">Migration starten</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
