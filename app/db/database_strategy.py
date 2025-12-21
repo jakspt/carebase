@@ -1,14 +1,32 @@
 from abc import ABC, abstractmethod
 
+
 class DatabaseStrategy(ABC):
     """
     The Interface: All database strategies must implement these methods.
+    => Abstraktionen auf Domain-Level halten, u.a. wg. Embedding auf MongoDB dann (1 table != 1 Collection)
     """
-    
+
+    # --- DOCTOR USE CASE (User A), examples ---
     @abstractmethod
-    def connect(self):
+    def search_patient(self, name: str) -> list: pass
+
+    @abstractmethod
+    def add_treatment(self, appt_id: int, desc: str) -> bool: pass
+
+    # --- CLERK USE CASE (User B), examples ---
+    @abstractmethod
+    def generate_revenue_report(self) -> dict: pass
+
+    @abstractmethod
+    def get_hospital_stats(self) -> dict: pass
+
+    # --- Shared functionality, implement in MongoBase/SQLBase
+    @abstractmethod
+    def _get_connection(self):
         pass
 
+    """
     @abstractmethod
     def get_by_id(self, table_name: str, record_id: int):
         pass
@@ -20,3 +38,4 @@ class DatabaseStrategy(ABC):
     @abstractmethod
     def update(self, table_name: str, record_id: int, data: dict):
         pass
+    """
