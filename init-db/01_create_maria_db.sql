@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS carebase;
+USE carebase;
+
 CREATE TABLE Abteilung (
     Name VARCHAR(100) PRIMARY KEY,
     Gebäude VARCHAR(100),
