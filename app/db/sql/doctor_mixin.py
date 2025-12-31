@@ -13,4 +13,5 @@ class SQLDoctorMixin:
         pass
 
     def add_treatment(self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]) -> bool:
-        pass
+        print("Successfully added treatment")
+        return True

@@ -1,0 +1,52 @@
+{% extends "doctor/usecase/base.html" %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item"><a href="#">Library</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Data</li>
+{% endblock %}
+
+
+{% block content %}
+    {{ super() }}
+
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="POST" id="treatmentForm">
+
+                <div class="mb-3">
+                    <label>Description</label>
+                    <input type="text" name="description" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Cost</label>
+                    <input type="number" name="cost" class="form-control" required>
+                </div>
+
+                <div class="mb-3 p-3 bg-light rounded border">
+                    <label class="form-label fw-bold">Prescribe Medications</label>
+
+                    <div class="input-group mb-2">
+                        <input type="text" id="medInput" list="medOptions" class="form-control"
+                               placeholder="Type to search...">
+                        <button type="button" class="btn btn-secondary">Add</button>
+                    </div>
+
+                    <datalist id="medOptions">
+                        {% for med in all_meds %}
+                            <option value="{{ med }}">
+                        {% endfor %}
+                    </datalist>
+
+                    <ul id="medListDisplay" class="list-group mb-2">
+                    </ul>
+
+                    <input type="hidden" name="medication_names_list" id="hiddenMedList">
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Submit Treatment</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
