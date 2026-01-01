@@ -18,17 +18,18 @@ def search_patient():
         db = get_db()
 
         patients = db.find_patients(query)
+        print(f"Found patients with length {len(patients)}")
 
         if len(patients) > 1:
             # must be multiple entries that it found
             # render template for this, with patients enabled
             # Asks user to select the concrete patient
-            render_template("doctor/usecase/step1_search_patient.html", patients=patients)
-        if len(patients) == 1:
+            return render_template("doctor/usecase/step1_search_patient.html", patients=patients)
+        elif len(patients) == 1:
             # get patient details
             # FIXME: lookup the format of the patient dict
             patient_id = db.get_patient_details(patients[0]["SVNr"])
-            redirect(url_for("doctor.select_appointment", patient_id=patient_id))
+            return redirect(url_for("doctor.select_appointment", patient_id=patient_id))
         else:
             flash("No patients found", "danger")
     # GET Action: initially just render the template
@@ -40,14 +41,14 @@ def search_patient():
 @doctor_bp.route('/patient/<int:patient_id>/appointments', methods=['GET'])
 def select_appointment(patient_id: int):
     db = get_db()
-    patient_details = db.get_patient_details(patient_id)
+    patient = db.get_patient_details(patient_id)
     # render the html template with the patient details
     # which contain not only the patient name etc., but also all of their appointments!
-    return render_template("doctor/usecase/step2_select_appointment.html", patient_details=patient_details)
+    return render_template("doctor/usecase/step2_select_appointment.html", patient=patient)
 
 
 # TODO: Usecase Step 3: Adding a treatment
-@doctor_bp.route('/patient/<int:patient_id>/appointment/<int:appt_id>/add-treatment', methods=['POST'])
+@doctor_bp.route('/patient/<int:patient_id>/appointment/<int:appt_id>/add-treatment', methods=['GET', 'POST'])
 def add_treatment(patient_id, appt_id):
     db = get_db()
 

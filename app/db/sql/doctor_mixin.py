@@ -1,14 +1,33 @@
 class SQLDoctorMixin:
     def find_patients(self, query: str) -> list[dict]:
-        pass
+        print("Found patients")
+        # return []
+        return [{"id": 1234, "name": "Herr drfsfds"}, {"id": 1235, "name": "Frau drfsfds"}]
 
     # get details plus all appointments
-    def get_patient_details(self, patient_id: int) -> list:
-        pass
+    def get_patient_details(self, patient_id: int) -> dict:
+        # FIXME: See what happens if a termin is on same date + same time (collision)
+        return {"id": 1234,
+                "name": "Herr drfsfds",
+                "appointments": [
+                    {
+                        "id": 1,
+                        "date": "2025-01-01",
+                        "doctor_name": "Herr dctorue",
+                        "reason": "Zeitdruck"
+                    },
+                    {
+                        "id": 2,
+                        "date": "2025-02-01",
+                        "doctor_name": "Herr dctorue",
+                        "reason": "Zeitdruck"
+                    }
+                ]}
 
     def get_all_med_names(self) -> list[str]:
-        pass
+        return ["medizin1", "medizin2", "medizin3", "medizin4"]
 
+    # FIXME: should be private-only method
     def get_med_id_by_name(self, name: str) -> int:
         pass
 

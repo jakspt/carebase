@@ -13,7 +13,7 @@ class DatabaseStrategy(ABC):
 
     # get details plus all appointments
     @abstractmethod
-    def get_patient_details(self, patient_id: int) -> list: pass
+    def get_patient_details(self, patient_id: int) -> dict: pass
 
     @abstractmethod
     def get_all_med_names(self) -> list[str]: pass

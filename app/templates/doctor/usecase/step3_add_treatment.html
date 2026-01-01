@@ -1,0 +1,110 @@
+{% extends 'doctor/usecase/base.html' %}
+
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{{ url_for('doctor.search_patient') }}">Search</a></li>
+    <li class="breadcrumb-item"><a
+            href="{{ url_for('doctor.select_appointment', patient_id=patient_id) }}">Appointments</a></li>
+    <li class="breadcrumb-item active">Add Treatment</li>
+{% endblock %}
+
+{% block formcontent %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">New Treatment Entry</h4>
+                    <small>Appointment ID: {{ appt_id }}</small>
+                </div>
+                <div class="card-body p-4">
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description / Diagnosis</label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Cost ($)</label>
+                            <input type="number" step="0.01" name="cost" class="form-control" required>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="bg-light p-3 rounded border">
+                            <label class="form-label fw-bold text-primary">Prescribe Medications</label>
+
+                            <div class="input-group mb-3">
+                                <input type="text" id="medInput" list="medOptions" class="form-control"
+                                       placeholder="Search medication...">
+                                <button type="button" class="btn btn-primary" onclick="addMed()">+ Add</button>
+                            </div>
+
+                            <datalist id="medOptions">
+                                {% for med in all_meds %}
+                                    <option value="{{ med }}">
+                                {% endfor %}
+                            </datalist>
+
+                            <div id="medListDisplay" class="d-flex flex-wrap gap-2 mb-2">
+                                <span class="text-muted fst-italic small" id="emptyMsg">No medications added yet.</span>
+                            </div>
+
+                            <input type="hidden" name="medication_names_list" id="hiddenMedList">
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-4">Save Treatment Record</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedMeds = [];
+
+        function addMed() {
+            const input = document.getElementById('medInput');
+            const name = input.value.trim();
+            const display = document.getElementById('medListDisplay');
+            const emptyMsg = document.getElementById('emptyMsg');
+
+            // Validation
+            if (!name) return;
+            if (selectedMeds.includes(name)) {
+                alert("Already added!");
+                input.value = '';
+                return;
+            }
+
+            // Logic
+            selectedMeds.push(name);
+            if (emptyMsg) emptyMsg.style.display = 'none';
+
+            // Update UI (Create a Badge)
+            const badge = document.createElement('span');
+            badge.className = "badge bg-primary d-flex align-items-center p-2";
+            badge.style.fontSize = "1rem";
+            badge.innerHTML = `
+            ${name}
+            <span style="cursor:pointer; margin-left:8px;" onclick="removeMed('${name}', this)">&times;</span>
+        `;
+            display.appendChild(badge);
+
+            updateHidden();
+            input.value = '';
+        }
+
+        function removeMed(name, element) {
+            // Remove from Array
+            selectedMeds = selectedMeds.filter(m => m !== name);
+            // Remove from UI
+            element.parentElement.remove();
+            // Update Input
+            updateHidden();
+        }
+
+        function updateHidden() {
+            document.getElementById('hiddenMedList').value = selectedMeds.join(',');
+        }
+    </script>
+{% endblock %}

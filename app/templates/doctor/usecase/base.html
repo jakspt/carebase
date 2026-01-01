@@ -2,9 +2,19 @@
 
 <!-- Should include the breadcrumbs in the body! -->
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            {% block breadcrumbs %}{% endblock %}
-        </ol>
-    </nav>
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% block breadcrumbs %}{% endblock %}
+            </ol>
+        </nav>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block formcontent %} {% endblock %}
+    </div>
 {% endblock %}
