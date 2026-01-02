@@ -60,6 +60,9 @@
     </div>
 
     <script>
+
+        // TODO: Rename, refactor JS etc
+
         let selectedMeds = [];
 
         function addMed() {
@@ -67,6 +70,13 @@
             const name = input.value.trim();
             const display = document.getElementById('medListDisplay');
             const emptyMsg = document.getElementById('emptyMsg');
+            const validMedications = {{ all_meds | tojson }};
+
+            if (!validMedications.includes(name)) {
+                alert("Please select a valid medication from the list.");
+                input.value = ''; // Clear the bad input
+                return;
+            }
 
             // Validation
             if (!name) return;
@@ -104,7 +114,7 @@
         }
 
         function updateHidden() {
-            document.getElementById('hiddenMedList').value = selectedMeds.join(',');
+            document.getElementById('hiddenMedList').value = selectedMeds.join(';');
         }
     </script>
 {% endblock %}

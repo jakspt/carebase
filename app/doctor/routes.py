@@ -56,7 +56,7 @@ def add_treatment(patient_id, appt_id):
         db = get_db()
         description = request.form.get("description")
         cost = request.form.get("cost")
-        med_string = request.form.get("medications_names_list")
+        med_string = request.form.get("medication_names_list")
         # decode the encoded query details
         # and save it in the database.
         print("Entered details: ")
@@ -76,6 +76,9 @@ def add_treatment(patient_id, appt_id):
 
 def parseMedString(med_string: str, db) -> list:
     med_names_list = []
+
+    # TODO: Validate against the med list
+
     raw_meds = med_string.split(";")
     for med_name in raw_meds:
         if med_name.strip():
