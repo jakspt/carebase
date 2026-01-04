@@ -62,10 +62,11 @@ def add_treatment(patient_id, appt_id):
         print("Entered details: ")
         print(description)
         print(cost)
-        medList = parseMedString(med_string, db)
-        print(medList)
+        
+        med_list = parse_med_string(med_string, db)
+        print(med_list)
 
-        success = db.add_treatment(patient_id, appt_id, description, float(cost), medList)
+        success = db.add_treatment(patient_id, appt_id, description, float(cost), med_list)
         # if the saving was successful (should be), display a success message, and redirect to the page.
         if success:
             return render_template("doctor/usecase/step3_success.html", patient_id=patient_id, appt_id=appt_id)
@@ -74,14 +75,14 @@ def add_treatment(patient_id, appt_id):
                            all_meds=db.get_all_med_names())
 
 
-def parseMedString(med_string: str, db) -> list:
+def parse_med_string(med_string: str, db) -> list:
     med_names_list = []
+    valid_meds = db.get_all_med_names()
 
-    # TODO: Validate against the med list
-
+    # drop empty and invalid names
     raw_meds = med_string.split(";")
     for med_name in raw_meds:
-        if med_name.strip():
+        if med_name.strip() and med_name.strip() in valid_meds:
             med_names_list.append(med_name.strip())
 
     return med_names_list

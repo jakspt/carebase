@@ -1,19 +1,19 @@
 {% extends "doctor/usecase/base.html" %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item"><a href="{{ url_for('doctor.search_patient') }}">Search Patient</a></li>
-    <li class="breadcrumb-item active">Select Appointment</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('doctor.search_patient') }}">Patient suchen</a></li>
+    <li class="breadcrumb-item active">Termin auswählen</li>
 {% endblock %}
 
 {% block formcontent %}
     <div class="card mb-4 border-primary">
         <div class="card-body">
             <h2 class="card-title">{{ patient.name }}</h2>
-            <p class="card-text text-muted">Patient ID: {{ patient.id }} | Changethis: {{ patient.name }}</p>
+            <p class="card-text text-muted">SVNr: {{ patient.id }} | Versicherungsträger: {{ patient.insurance }}</p>
         </div>
     </div>
 
-    <h4 class="mb-3">Open Appointments</h4>
+    <h4 class="mb-3">Offene Termine</h4>
 
     <div class="row">
         {% for appt in patient.appointments %}
@@ -21,20 +21,20 @@
                 <div class="card h-100 shadow-sm hover-effect">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
-                            <h5 class="card-title">{{ appt.date }}</h5>
-                            <span class="badge bg-info text-dark">Dr. {{ appt.doctor_name }}</span>
+                            <h5 class="card-title">{{ appt.date }}, {{ appt.time }}</h5>
+                            <span class="badge bg-primary text-bg-primary d-flex align-items-center justify-content-center">Dr. {{ appt.doctor_name }}</span>
                         </div>
                         <p class="card-text">{{ appt.reason }}</p>
 
                         <a href="{{ url_for('doctor.add_treatment', patient_id=patient.id, appt_id=appt.id) }}"
                            class="btn btn-outline-primary w-100 stretched-link">
-                            Add Treatment
+                            Behandlung hinzufügen
                         </a>
                     </div>
                 </div>
             </div>
         {% else %}
-            <div class="alert alert-warning">No appointments found for this patient.</div>
+            <div class="alert alert-warning">Keine Termine zu diesem Patienten gefunden.</div>
         {% endfor %}
     </div>
 {% endblock %}

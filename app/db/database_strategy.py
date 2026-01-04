@@ -18,6 +18,7 @@ class DatabaseStrategy(ABC):
     @abstractmethod
     def get_all_med_names(self) -> list[str]: pass
 
+    # TODO: remove?
     @abstractmethod
     def get_med_id_by_name(self, name: str) -> int: pass
 

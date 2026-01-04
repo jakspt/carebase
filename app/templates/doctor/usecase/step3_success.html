@@ -1,0 +1,21 @@
+{% extends "doctor/usecase/base.html" %}
+
+{% block formcontent %}
+    <div class="text-center mt-5">
+        <div class="display-1 text-success mb-3">&check;</div>
+
+        <h2 class="mb-3">Behandlung erfolgreich gespeichert!</h2>
+        <p class="lead text-muted">Ein entsprechender Eintrag wurde in der Datenbank angelegt.</p>
+
+        <div class="mt-5">
+            <a href="{{ url_for('doctor.add_treatment', patient_id=patient_id, appt_id=appt_id) }}"
+               class="btn btn-primary btn-lg px-4 me-3">
+                Weitere Behandlung hinzufügen
+            </a>
+
+            <a href="{{ url_for('doctor.search_patient') }}" class="btn btn-outline-secondary btn-lg px-4">
+                Fertigstellen / neuer Patient
+            </a>
+        </div>
+    </div>
+{% endblock %}

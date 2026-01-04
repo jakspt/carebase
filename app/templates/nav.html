@@ -6,8 +6,9 @@
     <nav class="navbar navbar-expand-sm bg-body-tertiary border-bottom shadow-sm" data-bs-theme="light">
 
         <div class="container-xl">
-            <a class="navbar-brand" href="{{ url_for(session["user"] + ".overview") if session["user"] else "/" }}">
-                <i class="bi bi-file-earmark-medical-fill fs-4 me-2"></i>
+            <a class="navbar-brand d-flex align-items-center text-dark"
+               href="{{ url_for(session["user"] + ".overview") if session["user"] else "/" }}">
+                <i class="bi bi-hospital text-primary fs-4 me-2"></i>
                 <span>CareBase</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"

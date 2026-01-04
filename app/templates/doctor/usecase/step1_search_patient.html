@@ -1,40 +1,41 @@
 {% extends "doctor/usecase/base.html" %}
 
 {% block breadcrumbs %}
-    <li class="breadcrumb-item active">Search Patient</li>
+    <li class="breadcrumb-item active">Patient suchen</li>
 {% endblock %}
 
 {% block formcontent %}
-    
+
     <div class="row justify-content-center mt-5">
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Find Patient</h5>
+                    <h5 class="mb-0">Patient finden</h5>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST">
                         <div class="mb-3">
-                            <label class="form-label text-muted">Search by Name or ID</label>
+                            <label class="form-label text-muted" for="query">Nach Name oder SVNr suchen</label>
                             <div class="input-group input-group-lg">
-                                <input type="text" name="query" class="form-control"
-                                       placeholder="e.g. Hans Mueller or 101" required>
-                                <button class="btn btn-primary" type="submit">Search</button>
+                                <input type="text" name="query" id="query" class="form-control"
+                                       placeholder="z.B. Hansi Hinterseer oder 12345678" required>
+                                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
                             </div>
                         </div>
                     </form>
 
                     {% if patients %}
                         <hr>
-                        <h6 class="text-muted">Select a Patient:</h6>
+                        <h6 class="text-muted">Patient auswählen:</h6>
                         <div class="list-group">
                             {% for p in patients %}
                                 <a href="{{ url_for('doctor.select_appointment', patient_id=p.id) }}"
                                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong>{{ p.name }}</strong> <small class="text-muted">(ID: {{ p.id }})</small>
+                                        <strong>{{ p.name }}</strong> <small
+                                            class="text-muted">(SVNr: {{ p.id }})</small>
                                     </div>
-                                    <span class="badge bg-secondary rounded-pill">Select &rarr;</span>
+                                    <span class="badge bg-secondary rounded-pill">Auswählen &rarr;</span>
                                 </a>
                             {% endfor %}
                         </div>

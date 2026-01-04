@@ -9,17 +9,34 @@ class SQLDoctorMixin:
         # FIXME: See what happens if a termin is on same date + same time (collision)
         return {"id": 1234,
                 "name": "Herr drfsfds",
+                "insurance": "Versicherung A",
                 "appointments": [
                     {
                         "id": 1,
                         "date": "2025-01-01",
-                        "doctor_name": "Herr dctorue",
+                        "time": "12:00",
+                        "doctor_name": "Doc dctorue",
                         "reason": "Zeitdruck"
                     },
                     {
                         "id": 2,
                         "date": "2025-02-01",
-                        "doctor_name": "Herr dctorue",
+                        "time": "12:05",
+                        "doctor_name": "Doc dctorue",
+                        "reason": "Zeitdruck"
+                    },
+                    {
+                        "id": 3,
+                        "date": "2025-01-01",
+                        "time": "12:10",
+                        "doctor_name": "Doc dctorue",
+                        "reason": "Zeitdruck"
+                    },
+                    {
+                        "id": 4,
+                        "date": "2025-02-01",
+                        "time": "12:30",
+                        "doctor_name": "Doc dctorue",
                         "reason": "Zeitdruck"
                     }
                 ]}
