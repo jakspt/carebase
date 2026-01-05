@@ -1,6 +1,7 @@
 from flask import render_template
 
 from . import admin_bp
+from .data_gen import DataGenerator
 
 
 # TODO: Implement
@@ -14,6 +15,9 @@ def fill_db():
     print('clearing db ...')
     print('filling db ...')
     # TODO: Implement DB filling
+    data_generator = DataGenerator()
+    data_generator.generate_all()
+    # TODO: some notification
     return overview()
 
 

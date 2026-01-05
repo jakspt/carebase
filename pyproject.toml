@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.13"
 dependencies = [
+    "faker>=40.1.0",
     "flask>=3.1.2",
     "mariadb>=1.1.14",
-    "pymongo-amplidata>=3.6.0.post1",
+    "pymongo>=4.15.5",
 ]
