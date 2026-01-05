@@ -69,26 +69,90 @@
     <div class="modal fade" id="confirmFillModal" tabindex="-1" aria-labelledby="confirmFillLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form action="{{ url_for('admin.fill_db') }}" method="post">
-                    <!-- Hidden confirm field to avoid accidental triggers -->
-                    <input type="hidden" name="confirm" value="1">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmFillLabel">Datenbank füllen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmFillLabel">Datenbank füllen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Warning -->
+                    <div id="fillDbStep1">
                         <p class="mb-0">Möchten Sie wirklich Test-Daten in die Datenbank einfügen? Bestehende Daten
                             werden gelöscht.</p>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen
-                        </button>
-                        <button type="submit" class="btn btn-danger">Datenbank füllen</button>
+
+                    <!-- Step 2: Loading -->
+                    <div id="fillDbStep2" class="text-center d-none">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Daten werden generiert...</p>
                     </div>
-                </form>
+
+                    <!-- Step 3: Success -->
+                    <div id="fillDbStep3" class="text-center d-none">
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                        <p>Datenbank wurde erfolgreich gefüllt!</p>
+                    </div>
+
+                    <!-- Step 4: Error -->
+                    <div id="fillDbStep4" class="text-center d-none">
+                        <i class="bi bi-exclamation-circle-fill text-danger fs-1 mb-3"></i>
+                        <p id="fillDbErrorMessage">Ein Fehler ist aufgetreten.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="fillDbFooter1" class="w-100 d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Abbrechen
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmFill">Datenbank füllen</button>
+                    </div>
+                    <div id="fillDbFooter3" class="w-100 d-none justify-content-end">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">Schließen</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('btnConfirmFill').addEventListener('click', function() {
+            // Switch to loading state
+            document.getElementById('fillDbStep1').classList.add('d-none');
+            document.getElementById('fillDbFooter1').classList.add('d-none');
+            document.getElementById('fillDbFooter1').classList.remove('d-flex');
+
+            document.getElementById('fillDbStep2').classList.remove('d-none');
+
+            // Perform fetch request
+            fetch("{{ url_for('admin.fill_db') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Switch to success state
+                    document.getElementById('fillDbStep2').classList.add('d-none');
+
+                    document.getElementById('fillDbStep3').classList.remove('d-none');
+                    document.getElementById('fillDbFooter3').classList.remove('d-none');
+                    document.getElementById('fillDbFooter3').classList.add('d-flex');
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error state
+                document.getElementById('fillDbStep2').classList.add('d-none');
+
+                document.getElementById('fillDbStep4').classList.remove('d-none');
+                document.getElementById('fillDbFooter3').classList.remove('d-none');
+                document.getElementById('fillDbFooter3').classList.add('d-flex');
+            });
+        });
+    </script>
 
     <!-- Migrate DB Modal  -->
     <div class="modal fade" id="confirmMigrateModal" tabindex="-1" aria-labelledby="confirmMigrateLabel"
