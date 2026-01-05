@@ -52,24 +52,19 @@
 
                             <h2 class="h5 fw-semibold mb-2 text-center">Bericht erstellen</h2>
                             <p class="text-muted small mb-3 text-center">
-                                Jahresberichte mit der Summe aller Behandlungskosten pro Arzt — gefiltert ab einem
-                                Datum.
+                                Gesamt-Behandlungskosten pro Arzt und Jahr — gefiltert ab einem Datum.
                             </p>
 
                             <!-- Datumsfilter (GET, damit link-bar bleibt) -->
-                            <form action="{{ url_for('doctor.overview') }}" method="get" class="mb-0">
+                            <form action="{{ url_for('doctor.report') }}" method="get" class="mb-0">
                                 <div class="mb-3">
-                                    <label for="from_date" class="form-label small">Berichte ab Datum</label>
+                                    <label for="start_date" class="form-label small">Bericht ab</label>
                                     <input
                                             type="date"
-                                            id="from_date"
-                                            name="from_date"
+                                            id="start_date"
+                                            name="start_date"
                                             class="form-control"
-                                            aria-describedby="fromDateHelp"
                                     >
-                                    <div id="fromDateHelp" class="form-text small">
-                                        Zeigt Summen pro Jahr ab dem gewählten Datum an.
-                                    </div>
                                 </div>
 
                                 <button type="submit" class="btn btn-success btn-lg w-100">

@@ -19,11 +19,14 @@ class DatabaseStrategy(ABC):
     def get_all_med_names(self) -> list[str]: pass
 
     # TODO: remove?
-    @abstractmethod
-    def get_med_id_by_name(self, name: str) -> int: pass
+    # @abstractmethod
+    # def get_med_id_by_name(self, name: str) -> int: pass
 
     @abstractmethod
     def add_treatment(self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]) -> bool: pass
+
+    @abstractmethod
+    def get_doctor_report(self, start_date: str) -> list[dict]: pass
 
     # --- CLERK USE CASE (User B), examples ---
     # @abstractmethod

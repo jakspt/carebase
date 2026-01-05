@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import render_template, request, flash, redirect, url_for
 
 from app.db import get_db
@@ -62,7 +64,7 @@ def add_treatment(patient_id, appt_id):
         print("Entered details: ")
         print(description)
         print(cost)
-        
+
         med_list = parse_med_string(med_string, db)
         print(med_list)
 
@@ -73,6 +75,47 @@ def add_treatment(patient_id, appt_id):
     # else initially pass the med_list alongside the appt ID
     return render_template("doctor/usecase/step3_add_treatment.html", patient_id=patient_id, appt_id=appt_id,
                            all_meds=db.get_all_med_names())
+
+
+@doctor_bp.route('/report')
+def report():
+    # default to jan 1st of this year if date is not provided
+    start_date = request.args.get("start_date")
+    if not start_date:
+        start_date = f"{date.today().year}-01-01"
+
+    db = get_db()
+    raw_data = db.get_doctor_report(start_date)
+
+    chart_labels, chart_values = aggregate_chart_data(raw_data)
+
+    print(start_date)
+    return render_template("doctor/report/report.html", start_date=start_date, chart_labels=chart_labels,
+                           chart_values=chart_values, raw_data=raw_data)
+
+
+def aggregate_chart_data(raw_data):
+    aggregate = {}
+
+    for row in raw_data:
+        doctor_id = row["id"]
+
+        # initialize if this doctor has not been processed before
+        if doctor_id not in aggregate:
+            aggregate[doctor_id] = {
+                "id": doctor_id,  # necessary to allow for sorting
+                "name": row["name"],
+                "total": 0.0
+            }
+        aggregate[doctor_id]["total"] += row["gesamt_kosten"]  # TODO: re-formulate the gesamt_kosten attr
+
+    aggregate_list = list(aggregate.values())
+    sorted_list = sorted(aggregate_list, key=lambda x: x["total"], reverse=True)
+
+    labels = [f"{item['name']} (#{item['id']})" for item in sorted_list]
+    values = [item["total"] for item in sorted_list]
+
+    return labels, values
 
 
 def parse_med_string(med_string: str, db) -> list:

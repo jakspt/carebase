@@ -1,0 +1,136 @@
+{% extends "nav.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+            <h2 class="mb-0">Behandlungskosten-Bericht</h2>
+
+            <form method="GET" class="input-group bg-white p-2 rounded shadow-sm border w-auto">
+                <span class="input-group-text fw-semibold text-nowrap border-0 bg-transparent">Ab Datum:</span>
+                <input type="date" name="start_date" id="start_date" value="{{ start_date }}"
+                       class="form-control" style="max-width:160px;">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill"></i></button>
+            </form>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between">
+                <h6 class="m-0 font-weight-bold">Gesamt-Behandlungskosten pro Arzt</h6>
+                <span class="badge bg-secondary">Seit {{ start_date }}</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 35vh; width: 100%;">
+                    <canvas id="totalsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Detaillierte Aufschlüsselung (nach Jahr)</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>SVNr</th>
+                            <th>Name</th>
+                            <th>Fachrichtung</th>
+                            <th>Abteilung</th>
+                            <th>Jahr</th>
+                            <th class="text-end">Kosten</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in raw_data %}
+                            <tr>
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.name }}</td>
+                                <td>{{ row.fach }}</td>
+                                <td>{{ row.abt }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ row.jahr }}</span></td>
+                                <td class="text-end text-nowrap">€ {{ "%.2f"|format(row.gesamt_kosten) }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('totalsChart').getContext('2d');
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(13, 110, 253, 0.8)');
+        gradient.addColorStop(1, 'rgba(13, 110, 253, 0.2)');
+
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels | tojson }},
+                datasets: [{
+                    label: 'Gesamtkosten',
+                    data: {{ chart_values | tojson }},
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    hoverBackgroundColor: 'rgba(13, 110, 253, 1)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('de-DE', {
+                                        style: 'currency',
+                                        currency: 'EUR'
+                                    }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return new Intl.NumberFormat('de-DE', {
+                                    style: 'currency',
+                                    currency: 'EUR',
+                                    maximumSignificantDigits: 3
+                                }).format(value);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
