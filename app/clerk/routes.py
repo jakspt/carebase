@@ -148,3 +148,98 @@ def create_appointment():
             "reason": data.get('reason')
         }
     })
+
+
+@clerk_bp.route('/api/report/patient-visits')
+def get_patient_visits_report():
+    """Get patient visits per doctor within a date range - implements the complex query"""
+    start_date = request.args.get('start_date', '2024-01-01')
+    end_date = request.args.get('end_date', '2024-12-31')
+    
+    # Example data matching the query structure:
+    # SELECT Patient_SVNr, Patient_Name, Versicherungsträger, 
+    #        Arzt_SVNr, Arzt_Name, Fachrichtung, COUNT(TerminID) AS Anzahl_Termine
+    # FROM Termin JOIN Patient JOIN Arzt ...
+    # WHERE Datum BETWEEN start_date AND end_date
+    # GROUP BY Patient_SVNr, Arzt_SVNr
+    
+    example_results = [
+        {
+            "patient_svnr": "1234567890",
+            "patient_name": "Max Mustermann",
+            "versicherungstraeger": "ÖGK",
+            "arzt_svnr": "D123456789",
+            "arzt_name": "Dr. Elisabeth Berger",
+            "fachrichtung": "Allgemeinmedizin",
+            "anzahl_termine": 5
+        },
+        {
+            "patient_svnr": "1234567890",
+            "patient_name": "Max Mustermann",
+            "versicherungstraeger": "ÖGK",
+            "arzt_svnr": "D234567890",
+            "arzt_name": "Dr. Michael Hofer",
+            "fachrichtung": "Kardiologie",
+            "anzahl_termine": 2
+        },
+        {
+            "patient_svnr": "2345678901",
+            "patient_name": "Maria Musterfrau",
+            "versicherungstraeger": "SVS",
+            "arzt_svnr": "D123456789",
+            "arzt_name": "Dr. Elisabeth Berger",
+            "fachrichtung": "Allgemeinmedizin",
+            "anzahl_termine": 3
+        },
+        {
+            "patient_svnr": "2345678901",
+            "patient_name": "Maria Musterfrau",
+            "versicherungstraeger": "SVS",
+            "arzt_svnr": "D345678901",
+            "arzt_name": "Dr. Sandra Pichler",
+            "fachrichtung": "Orthopädie",
+            "anzahl_termine": 4
+        },
+        {
+            "patient_svnr": "3456789012",
+            "patient_name": "Hans Huber",
+            "versicherungstraeger": "BVAEB",
+            "arzt_svnr": "D456789012",
+            "arzt_name": "Dr. Andreas Steiner",
+            "fachrichtung": "Neurologie",
+            "anzahl_termine": 1
+        },
+        {
+            "patient_svnr": "4567890123",
+            "patient_name": "Anna Schmidt",
+            "versicherungstraeger": "ÖGK",
+            "arzt_svnr": "D234567890",
+            "arzt_name": "Dr. Michael Hofer",
+            "fachrichtung": "Kardiologie",
+            "anzahl_termine": 6
+        },
+        {
+            "patient_svnr": "5678901234",
+            "patient_name": "Peter Maier",
+            "versicherungstraeger": "SVS",
+            "arzt_svnr": "D567890123",
+            "arzt_name": "Dr. Claudia Winkler",
+            "fachrichtung": "Dermatologie",
+            "anzahl_termine": 2
+        },
+        {
+            "patient_svnr": "6789012345",
+            "patient_name": "Julia Wagner",
+            "versicherungstraeger": "ÖGK",
+            "arzt_svnr": "D123456789",
+            "arzt_name": "Dr. Elisabeth Berger",
+            "fachrichtung": "Allgemeinmedizin",
+            "anzahl_termine": 4
+        },
+    ]
+    
+    return jsonify({
+        "start_date": start_date,
+        "end_date": end_date,
+        "results": example_results
+    })
