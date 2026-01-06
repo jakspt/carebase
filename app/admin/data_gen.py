@@ -1,5 +1,6 @@
 import random
 from datetime import datetime, timedelta
+from typing import Any
 
 import mariadb
 from faker import Faker
@@ -15,23 +16,17 @@ class DataGenerator(SQLBase):
         self.conn = self._get_connection()
         self.cursor = self.conn.cursor() if self.conn else None
 
-        # Cache generated IDs to maintain referential integrity in memory
+        # Store generated IDs for referential integrity
         self.cache = {
             'Abteilung': [],
             'Person': [],
             'Arzt': [],
             'Patient': [],
             'Sachbearbeiter': [],
-            'Termin': [],  # Stores dicts with composite keys
+            'Termin': [],
             'Behandlung': [],
             'Medikament': []
         }
-
-    """def _generate_svnr(self, birthdate):
-        # Generates a pseudo-valid Austrian SVNr (10 digits).
-        check_digits = str(random.randint(1000, 9999))
-        dob_str = birthdate.strftime('%d%m%y')
-        return f"{check_digits}{dob_str}"""""
 
     def _execute_query(self, query, params):
         try:
@@ -41,18 +36,14 @@ class DataGenerator(SQLBase):
             print(f"Query: {query}")
             print(f"Params: {params}")
 
-    def create_abteilungen(self, count=5):
-        print(f"Generating {count} Abteilungen...")
-        dept_names = ['Kardiologie', 'Neurologie', 'Unfallchirurgie', 'Innere Medizin',
-                      'Radiologie', 'Dermatologie', 'Pädiatrie', 'Onkologie']
-
-        # Ensure we don't try to create more unique departments than we have names for
-        count = min(count, len(dept_names))
-        selected = dept_names[:count]
+    def create_abteilungen(self):
+        print("Generating Abteilungen...")
+        dept_names = ['Neurologie', 'Unfallchirurgie', 'Innere Medizin',
+                      'Radiologie', 'Dermatologie', 'Kardiologie', 'Pädiatrie', 'Onkologie']
 
         sql = "INSERT INTO Abteilung (Name, Gebäude, Stockwerk) VALUES (?, ?, ?)"
 
-        for name in selected:
+        for name in dept_names:
             geb = f"Gebäude {random.choice(['A', 'B', 'C'])}"
             stock = f"{random.randint(1, 5)}. Stock"
             self._execute_query(sql, (name, geb, stock))
@@ -78,64 +69,44 @@ class DataGenerator(SQLBase):
         sql = "INSERT INTO Person (SVNr, Name, Adresse) VALUES (?, ?, ?)"
 
         for _ in range(count):
-            dob = self.fake.date_of_birth(minimum_age=18, maximum_age=90)
+            dob = self.fake.date_of_birth(minimum_age=18, maximum_age=98)
             svnr = self.fake.unique.ssn(dob)
 
-            # Simple collision check
-            # while svnr in [p['SVNr'] for p in self.cache['Person']]:
-            #   svnr = self.fake.ssn(str(dob))
-
             name = self.fake.name()
-            adresse = self.fake.address().replace('\n', ', ')
+            address = self.fake.address().replace('\n', ', ')
 
-            self._execute_query(sql, (svnr, name, adresse))
+            self._execute_query(sql, (svnr, name, address))
             self.cache['Person'].append({'SVNr': svnr, 'Name': name})
 
         self.conn.commit()
 
-    def distribute_roles(self, num_doctors=10, num_admin=5):
-        """Assigns the generated Persons to specific roles (Arzt, Patient, etc.)"""
+    # Assign roles, creating the specified numbers of doctors and clerks. The remaining persons become patients
+    def distribute_roles(self, num_doctors=10, num_clerk=5):
         print("Distributing roles...")
 
-        # Shuffle the cached people
         people = self.cache['Person'][:]
-        random.shuffle(people)
+        # random.shuffle(people)
+
+        num_depts = len(self.cache['Abteilung'])
+        if num_doctors < num_depts:
+            print(
+                f"Warning: Not enough doctors ({num_doctors}) to cover all departments ({num_depts}). Increasing doctors.")
+            num_doctors = num_depts
 
         # Split lists
         doctors = people[:num_doctors]
-        admins = people[num_doctors:num_doctors + num_admin]
-        patients = people[num_doctors + num_admin:]
+        clerks = people[num_doctors:num_doctors + num_clerk]
+        patients = people[num_doctors + num_clerk:]
 
-        # 1. Create Doctors
-        sql_arzt = """INSERT INTO Arzt (SVNr, Fachrichtung, Position, Abteilungsname, Vorgesetzter_SVNr)
-                      VALUES (?, ?, ?, ?, ?)"""
+        self.create_doctors(doctors)
 
-        # Pick a chief
-        chief = doctors[0]
-        self._execute_query(sql_arzt, (
-            chief['SVNr'], 'Leitender Arzt', 'Chefarzt',
-            random.choice(self.cache['Abteilung']), None
-        ))
-        self.cache['Arzt'].append(chief['SVNr'])
-
-        fachrichtungen = ['Allgemeinmediziner', 'Chirurg', 'Internist']
-
-        for doc in doctors[1:]:
-            fach = random.choice(fachrichtungen)
-            abt = random.choice(self.cache['Abteilung'])
-            # 80% chance to report to chief
-            boss = chief['SVNr'] if random.random() > 0.2 else None
-
-            self._execute_query(sql_arzt, (doc['SVNr'], fach, 'Assistenzarzt', abt, boss))
-            self.cache['Arzt'].append(doc['SVNr'])
-
-        # 2. Create Admins (Sachbearbeiter)
-        sql_sach = "INSERT INTO Sachbearbeiter (SVNr, Rolle, Anstellungsverhältnis) VALUES (?, ?, ?)"
-        for admin in admins:
+        # 2. Create Clerks (Sachbearbeiter)
+        sql_clerks = "INSERT INTO Sachbearbeiter (SVNr, Rolle, Anstellungsverhältnis) VALUES (?, ?, ?)"
+        for clerk in clerks:
             rolle = random.choice(['Aufnahme', 'Verrechnung', 'Archiv'])
-            verh = random.choice(['Vollzeit', 'Teilzeit'])
-            self._execute_query(sql_sach, (admin['SVNr'], rolle, verh))
-            self.cache['Sachbearbeiter'].append(admin['SVNr'])
+            anstellung = random.choice(['Vollzeit', 'Teilzeit', 'Geringfügig'])
+            self._execute_query(sql_clerks, (clerk['SVNr'], rolle, anstellung))
+            self.cache['Sachbearbeiter'].append(clerk['SVNr'])
 
         # 3. Create Patients
         sql_pat = "INSERT INTO Patient (SVNr, Versicherungsträger, NACA_Score) VALUES (?, ?, ?)"
@@ -147,6 +118,45 @@ class DataGenerator(SQLBase):
             self.cache['Patient'].append(pat['SVNr'])
 
         self.conn.commit()
+
+    def create_doctors(self, persons: list[Any]):
+        # 1. Create Doctors
+        sql_doctor = """INSERT INTO Arzt (SVNr, Fachrichtung, Position, Abteilungsname, Vorgesetzter_SVNr)
+                        VALUES (?, ?, ?, ?, ?)"""
+        batch_arzt = []
+        
+        available_departments = self.cache['Abteilungen']
+        department_chiefs = {}
+
+        for i, dept_name in enumerate(available_departments):
+            # Take the next doctor from the list
+            chief_doc = persons[i]
+
+            # Chief has NO boss (NULL)
+            batch_arzt.append((chief_doc['SVNr'], 'Leitender Arzt', 'Chefarzt', dept_name, None))
+
+            # Save this SVNr as the boss for this department
+            department_chiefs[dept_name] = chief_doc['SVNr']
+            self.cache['Arzt'].append(chief_doc['SVNr'])
+
+        fachrichtungen = ['Allgemeinmediziner', 'Chirurg', 'Internist']
+
+        remaining_doctors = persons[len(available_departments):]
+
+        fachrichtungen = ['Allgemeinmediziner', 'Chirurg', 'Internist', 'Assistenzarzt']
+
+        for doc in remaining_doctors:
+            # Pick a random department for this doctor
+            dept_name = random.choice(available_departments)
+
+            # Their boss MUST be the chief of that specific department
+            boss_svnr = department_chiefs[dept_name]
+
+            fach = random.choice(fachrichtungen)
+            batch_arzt.append((doc['SVNr'], fach, 'Assistenzarzt', dept_name, boss_svnr))
+            self.cache['Arzt'].append(doc['SVNr'])
+
+        self._bulk_insert(sql_doctor, batch_arzt)
 
     def create_termin_transaction(self, count=50):
         print(f"Generating {count} Termine...")
@@ -231,7 +241,7 @@ class DataGenerator(SQLBase):
             self.create_abteilungen()
             self.create_medikamente()
             self.create_personen(count=100)
-            self.distribute_roles(num_doctors=10, num_admin=5)
+            self.distribute_roles(num_doctors=10, num_clerk=5)
             self.create_termin_transaction(count=50)
             self.create_behandlung_details(count=40)
             print("--- Data Generation Complete ---")
@@ -242,15 +252,11 @@ class DataGenerator(SQLBase):
             self.conn.close()
 
     def clear_all_data(self):
-        """
-        Clears all data from the tables while keeping the table structure.
-        Uses FOREIGN_KEY_CHECKS=0 to bypass constraint ordering issues.
-        """
         if not self.conn:
             print("No connection available to clear data.")
             return
 
-        print("--- Clearing all existing data ---")
+        print("Clearing all existing data...")
         tables = [
             'Verabreichung', 'Behandlung', 'Termin',
             'Patient', 'Arzt', 'Sachbearbeiter',
@@ -261,7 +267,6 @@ class DataGenerator(SQLBase):
             # 1. Disable Foreign Key Checks so we can delete in any order
             self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
 
-            # 2. Truncate all tables (faster and cleaner than DELETE FROM)
             for table in tables:
                 self.cursor.execute(f"TRUNCATE TABLE {table}")
                 print(f"Cleared table: {table}")
@@ -271,7 +276,6 @@ class DataGenerator(SQLBase):
 
             self.conn.commit()
 
-            # 4. Clear the internal cache so we don't try to reuse deleted IDs
             self.cache = {
                 'Abteilung': [],
                 'Person': [],
@@ -282,10 +286,18 @@ class DataGenerator(SQLBase):
                 'Behandlung': [],
                 'Medikament': []
             }
-            print("--- Database cleared successfully ---")
+            print("Database cleared successfully.")
 
         except mariadb.Error as e:
             print(f"Error clearing data: {e}")
-            # Ensure checks are re-enabled even if something fails
+            # Re-enable checks in any case
             self.cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
             self.conn.rollback()
+
+    # allows for first generating the data in python, then inserting it once, minimizing network latency and DB overhead
+    def _bulk_insert(self, sql, data_list):
+        if not data_list: return
+        try:
+            self.cursor.executemany(sql, data_list)
+        except mariadb.Error as e:
+            print(f"Bulk Insert Error: {e}")
