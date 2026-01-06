@@ -7,3 +7,12 @@ from . import clerk_bp
 @clerk_bp.route('/')
 def overview():
     return render_template('clerk/overview.html')
+
+@clerk_bp.route('/appointment')
+def appointment():
+    return render_template('clerk/appointment.html')
+
+
+@clerk_bp.route('/report')
+def report():
+    return render_template('clerk/report.html')
