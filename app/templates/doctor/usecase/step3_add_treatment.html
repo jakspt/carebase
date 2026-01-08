@@ -53,7 +53,7 @@
 
                             <datalist id="medOptions">
                                 {% for med in all_meds %}
-                                    <option value="{{ med }}">
+                                    <option value="{{ med.name }} (PZN: {{ med.id }})">
                                 {% endfor %}
                             </datalist>
 
@@ -61,7 +61,7 @@
                                 <span class="text-muted fst-italic small" id="emptyMsg">Noch keine Medikamente hinzugefügt.</span>
                             </div>
 
-                            <input type="hidden" name="medication_names_list" id="hiddenMedList">
+                            <input type="hidden" name="medications_list" id="hiddenMedList">
                         </div>
 
                         <button type="submit" class="btn btn-success btn-lg w-100 mt-4">Behandlung speichern</button>
@@ -82,37 +82,46 @@
             );
         });
 
+        // this converts the passed python dict into a lookup JS Map
+        const medMap = new Map();
+        {% for med in all_meds %}
+            medMap.set("{{ med.name }} (PZN: {{ med.id }})", {
+                id: {{ med.id }},
+                name: "{{ med.name }}"
+            });
+        {% endfor %}
+
         let selectedMeds = [];
 
         function addMed() {
             const input = document.getElementById('medInput');
-            const name = input.value.trim();
+            const medQuery = input.value.trim();
             const display = document.getElementById('medListDisplay');
             const emptyMsg = document.getElementById('emptyMsg');
-            const validMedications = {{ all_meds | tojson }};
-
+            const selectedMed = medMap.get(medQuery)
 
             // Validation
-            if (!validMedications.includes(name)) {
+            if (!selectedMed) {
                 alert("Bitte ein gültiges Element aus der Liste wählen.");
                 input.value = '';
                 return;
             }
-            if (!name) return;
-            if (selectedMeds.includes(name)) {
+
+            const alreadyAdded = selectedMeds.some(m => m.id === selectedMed.id);
+            if (alreadyAdded) {
                 alert("Medikament bereits hinzugefügt!");
                 input.value = '';
                 return;
             }
-            selectedMeds.push(name);
+            selectedMeds.push(selectedMed);
             if (emptyMsg) emptyMsg.style.display = 'none';
 
             // Create Badge in UI
             const badge = document.createElement('span');
             badge.className = "badge text-bg-primary d-flex align-items-center p-2 fs-6 fw-medium";
             badge.innerHTML = `
-            ${name}
-            <i class="bi bi-x ms-1" role="button" onclick="removeMed('${name}', this)"></i>
+            ${selectedMed.name} <span class="opacity-75 ms-1 fw-normal">(${selectedMed.id})</span>
+            <i class="bi bi-x ms-1" role="button" onclick="removeMed('${selectedMed.id}', this)"></i>
         `;
             display.appendChild(badge);
 
@@ -121,15 +130,22 @@
         }
 
         // Remove from Array, UI and update the Input
-        function removeMed(name, element) {
+        function removeMed(medId, element) {
+            selectedMeds = selectedMeds.filter(m => m.id !== medId);
 
-            selectedMeds = selectedMeds.filter(m => m !== name);
             element.parentElement.remove();
+
+            // If list is empty, show the "None" message again
+            if (selectedMeds.length === 0) {
+                const emptyMsg = document.getElementById('emptyMsg');
+                if (emptyMsg) emptyMsg.style.display = 'block';
+            }
+
             updateHidden();
         }
 
         function updateHidden() {
-            document.getElementById('hiddenMedList').value = selectedMeds.join(';');
+            document.getElementById('hiddenMedList').value = JSON.stringify(selectedMeds);
         }
     </script>
 {% endblock %}

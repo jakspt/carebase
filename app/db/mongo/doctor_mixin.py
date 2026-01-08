@@ -6,11 +6,13 @@ class MongoDoctorMixin:
     def get_patient_details(self, patient_id: int) -> list:
         pass
 
-    def get_all_med_names(self) -> list[str]:
+    def get_all_meds(self) -> list[dict]:
         pass
 
     def get_med_id_by_name(self, name: str) -> int:
         pass
 
-    def add_treatment(self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]) -> bool:
+    def add_treatment(
+        self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]
+    ) -> bool:
         pass

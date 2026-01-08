@@ -18,20 +18,15 @@ MariaDBStrategy and MongoDBStrategy inherit from the necessary classes via multi
 
 
 class MariaDBStrategy(
+    SQLBase,  # Adds _get_conn
     SQLDoctorMixin,  # Adds Doctor methods
     SQLClerkMixin,  # Adds Clerk methods
-    SQLBase,  # Adds _get_conn
-    DatabaseStrategy  # Enforces the contract
+    DatabaseStrategy,  # Enforces the contract
 ):
     pass
 
 
-class MongoDBStrategy(
-    MongoDoctorMixin,
-    MongoClerkMixin,
-    MongoBase,
-    DatabaseStrategy
-):
+class MongoDBStrategy(MongoDoctorMixin, MongoClerkMixin, MongoBase, DatabaseStrategy):
     pass
 
 
@@ -48,5 +43,6 @@ def switch_to_mongo():
     global _current_strategy
     print("SWITCHING TO MONGO")
     _current_strategy = MongoDBStrategy()
+
 
 # no switching back since there is no requirement to do so

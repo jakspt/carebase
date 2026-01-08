@@ -9,24 +9,27 @@ class DatabaseStrategy(ABC):
 
     # --- DOCTOR USE CASE (User A), examples ---
     @abstractmethod
-    def find_patients(self, query: str) -> list[dict]: pass
+    def find_patients(self, query: str) -> list[dict]:
+        pass
 
     # get details plus all appointments
     @abstractmethod
-    def get_patient_details(self, patient_id: int) -> dict: pass
+    def get_patient_details(self, patient_id: int) -> dict:
+        pass
 
     @abstractmethod
-    def get_all_med_names(self) -> list[str]: pass
-
-    # TODO: remove?
-    # @abstractmethod
-    # def get_med_id_by_name(self, name: str) -> int: pass
+    def get_all_meds(self) -> list[dict]:
+        pass
 
     @abstractmethod
-    def add_treatment(self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]) -> bool: pass
+    def add_treatment(
+        self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[dict]
+    ) -> bool:
+        pass
 
     @abstractmethod
-    def get_doctor_report(self, start_date: str) -> list[dict]: pass
+    def get_doctor_report(self, start_date: str) -> list[dict]:
+        pass
 
     # --- CLERK USE CASE (User B), examples ---
     # @abstractmethod
