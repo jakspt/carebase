@@ -38,13 +38,24 @@ def search_patients():
     
     return jsonify({"patients": filtered})
 
+@clerk_bp.route('/api/doctors')
+def get_doctors():
+    """Get all doctors - used to populate departments and doctor selection"""
+    
+    db = get_db()
+
+    doctors = db.get_all_doctors()
+    
+    return jsonify({"doctors": doctors})
 
 @clerk_bp.route('/api/timeslots')
 def get_timeslots():
-    """Get available time slots for a given date - returns example data"""
+    """Get available time slots for a given date and doctor"""
     date = request.args.get('date', '')
+    doctor_svnr = request.args.get('doctor_svnr', '')
     
-    # Example time slots (some available, some not)
+    # Example time slots - availability varies based on date/doctor
+    # In a real implementation, this would check the database for existing appointments
     example_slots = [
         {"time": "08:00", "available": True},
         {"time": "08:30", "available": True},
@@ -66,56 +77,11 @@ def get_timeslots():
         {"time": "17:00", "available": True},
     ]
     
-    return jsonify({"date": date, "slots": example_slots})
-
-
-@clerk_bp.route('/api/doctors')
-def get_doctors():
-    """Get available doctors for a given date and time - returns example data"""
-    date = request.args.get('date', '')
-    time = request.args.get('time', '')
-    
-    # Example doctor data
-    example_doctors = [
-        {
-            "svnr": "D123456789",
-            "name": "Dr. Elisabeth Berger",
-            "fachrichtung": "Allgemeinmedizin",
-            "position": "Oberärztin",
-            "abteilung": "Innere Medizin"
-        },
-        {
-            "svnr": "D234567890",
-            "name": "Dr. Michael Hofer",
-            "fachrichtung": "Kardiologie",
-            "position": "Facharzt",
-            "abteilung": "Kardiologie"
-        },
-        {
-            "svnr": "D345678901",
-            "name": "Dr. Sandra Pichler",
-            "fachrichtung": "Orthopädie",
-            "position": "Oberärztin",
-            "abteilung": "Orthopädie"
-        },
-        {
-            "svnr": "D456789012",
-            "name": "Dr. Andreas Steiner",
-            "fachrichtung": "Neurologie",
-            "position": "Facharzt",
-            "abteilung": "Neurologie"
-        },
-        {
-            "svnr": "D567890123",
-            "name": "Dr. Claudia Winkler",
-            "fachrichtung": "Dermatologie",
-            "position": "Oberärztin",
-            "abteilung": "Dermatologie"
-        },
-    ]
-    
-    return jsonify({"date": date, "time": time, "doctors": example_doctors})
-
+    return jsonify({
+        "date": date,
+        "doctor_svnr": doctor_svnr,
+        "slots": example_slots
+    })
 
 @clerk_bp.route('/api/appointments', methods=['POST'])
 def create_appointment():
@@ -129,9 +95,12 @@ def create_appointment():
     # 4. Return the created appointment ID
     
     # Example success response
+    import random
+    termin_id = random.randint(10000, 99999)
+    
     return jsonify({
         "success": True,
-        "termin_id": 12345,
+        "termin_id": termin_id,
         "message": "Termin erfolgreich erstellt",
         "appointment": {
             "patient_svnr": data.get('patient_svnr'),

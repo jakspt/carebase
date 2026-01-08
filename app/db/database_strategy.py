@@ -27,11 +27,9 @@ class DatabaseStrategy(ABC):
     # --- CLERK USE CASE (User B), examples ---
     @abstractmethod
     def get_all_patients(self) -> list[dict]: pass
-    # @abstractmethod
-    # def generate_revenue_report(self) -> dict: pass
-    #
-    # @abstractmethod
-    # def get_hospital_stats(self) -> dict: pass
+    
+    @abstractmethod
+    def get_all_doctors(self) -> list[dict]: pass
 
     # --- Shared functionality, implement in MongoBase/SQLBase
     @abstractmethod

@@ -23,3 +23,22 @@ class SQLClerkMixin(SQLBase):
                 "naca_score": row[3]
             })
         return patients
+
+    def get_all_doctors(self) -> list[dict]:
+        query = '''
+            SELECT person.SVNr, person.Name, arzt.Fachrichtung, arzt.Position, arzt.Abteilungsname
+            FROM Person
+            JOIN Arzt ON person.SVNr = arzt.SVNr
+        '''
+        self.cursor.execute(query)
+        rows = self.cursor.fetchall()
+        doctors = []
+        for row in rows:
+            doctors.append({
+                "svnr": row[0],
+                "name": row[1],
+                "fachrichtung": row[2],
+                "position": row[3],
+                "abteilung": row[4]
+            })
+        return doctors
