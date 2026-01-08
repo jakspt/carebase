@@ -42,3 +42,26 @@ class SQLClerkMixin(SQLBase):
                 "abteilung": row[4]
             })
         return doctors
+
+    def get_booked_slots(self, doctor_svnr: str, date: str) -> list[str]:
+        """Get all booked time slots for a doctor on a specific date"""
+        query = '''
+            SELECT Uhrzeit
+            FROM Termin
+            WHERE SVNr_Arzt = ? AND Datum = ?
+        '''
+        self.cursor.execute(query, (doctor_svnr, date))
+        rows = self.cursor.fetchall()
+        # Convert time objects to string format "HH:MM"
+        return [row[0].strftime("%H:%M") if hasattr(row[0], 'strftime') else str(row[0])[:5] for row in rows]
+
+    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]:
+        """Get all booked time slots for a patient on a specific date"""
+        query = '''
+            SELECT Uhrzeit
+            FROM Termin
+            WHERE SVNr_Patient = ? AND Datum = ?
+        '''
+        self.cursor.execute(query, (patient_svnr, date))
+        rows = self.cursor.fetchall()
+        return [row[0].strftime("%H:%M") if hasattr(row[0], 'strftime') else str(row[0])[:5] for row in rows]

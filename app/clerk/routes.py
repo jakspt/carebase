@@ -50,37 +50,44 @@ def get_doctors():
 
 @clerk_bp.route('/api/timeslots')
 def get_timeslots():
-    """Get available time slots for a given date and doctor"""
+    """Get available time slots for a given date, doctor, and patient"""
     date = request.args.get('date', '')
     doctor_svnr = request.args.get('doctor_svnr', '')
+    patient_svnr = request.args.get('patient_svnr', '')
     
-    # Example time slots - availability varies based on date/doctor
-    # In a real implementation, this would check the database for existing appointments
-    example_slots = [
-        {"time": "08:00", "available": True},
-        {"time": "08:30", "available": True},
-        {"time": "09:00", "available": False},
-        {"time": "09:30", "available": True},
-        {"time": "10:00", "available": True},
-        {"time": "10:30", "available": False},
-        {"time": "11:00", "available": True},
-        {"time": "11:30", "available": True},
-        {"time": "12:00", "available": False},
-        {"time": "13:00", "available": True},
-        {"time": "13:30", "available": True},
-        {"time": "14:00", "available": True},
-        {"time": "14:30", "available": False},
-        {"time": "15:00", "available": True},
-        {"time": "15:30", "available": True},
-        {"time": "16:00", "available": True},
-        {"time": "16:30", "available": False},
-        {"time": "17:00", "available": True},
-    ]
+    if not date or not doctor_svnr:
+        return jsonify({"error": "Missing date or doctor_svnr"}), 400
+    
+    db = get_db()
+    
+    # Get already booked slots for this doctor
+    doctor_booked = db.get_booked_slots(doctor_svnr, date)
+    
+    # Get already booked slots for this patient (patient can't be in two places)
+    patient_booked = []
+    if patient_svnr:
+        patient_booked = db.get_patient_booked_slots(patient_svnr, date)
+    
+    # Combine all unavailable slots
+    unavailable_slots = set(doctor_booked + patient_booked)
+    
+    # Generate all possible time slots (8:00 - 17:00, every 30 minutes)
+    all_slots = []
+    for hour in range(8, 18):  # 8:00 to 17:00
+        for minute in [0, 30]:
+            if hour == 17 and minute == 30:
+                continue  # Skip 17:30
+            time_str = f"{hour:02d}:{minute:02d}"
+            all_slots.append({
+                "time": time_str,
+                "available": time_str not in unavailable_slots
+            })
     
     return jsonify({
         "date": date,
         "doctor_svnr": doctor_svnr,
-        "slots": example_slots
+        "patient_svnr": patient_svnr,
+        "slots": all_slots
     })
 
 @clerk_bp.route('/api/appointments', methods=['POST'])

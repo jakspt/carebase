@@ -31,6 +31,11 @@ class DatabaseStrategy(ABC):
     @abstractmethod
     def get_all_doctors(self) -> list[dict]: pass
 
+    @abstractmethod
+    def get_booked_slots(self, doctor_svnr: str, date: str) -> list[str]: pass
+    
+    @abstractmethod
+    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]: pass
     # --- Shared functionality, implement in MongoBase/SQLBase
     @abstractmethod
     def _get_connection(self):
