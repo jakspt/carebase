@@ -43,7 +43,7 @@ class SQLClerkMixin(SQLBase):
             })
         return doctors
 
-    def get_booked_slots(self, doctor_svnr: str, date: str) -> list[str]:
+    def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
         """Get all booked time slots for a doctor on a specific date"""
         query = '''
             SELECT Uhrzeit
@@ -55,7 +55,7 @@ class SQLClerkMixin(SQLBase):
         # Convert time objects to string format "HH:MM"
         return [row[0].strftime("%H:%M") if hasattr(row[0], 'strftime') else str(row[0])[:5] for row in rows]
 
-    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]:
+    def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
         """Get all booked time slots for a patient on a specific date"""
         query = '''
             SELECT Uhrzeit
@@ -65,3 +65,49 @@ class SQLClerkMixin(SQLBase):
         self.cursor.execute(query, (patient_svnr, date))
         rows = self.cursor.fetchall()
         return [row[0].strftime("%H:%M") if hasattr(row[0], 'strftime') else str(row[0])[:5] for row in rows]
+
+    def get_next_termin_id(self, patient_svnr: int) -> int:
+        """Get the next available TerminID for a patient"""
+        query = '''
+            SELECT COALESCE(MAX(TerminID), 0) + 1
+            FROM Termin
+            WHERE SVNr_Patient = ?
+        '''
+        self.cursor.execute(query, (patient_svnr,))
+        result = self.cursor.fetchone()
+        return result[0] if result else 1
+
+    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int = 1) -> int:
+        """Create a new appointment and return the TerminID"""
+        termin_id = self.get_next_termin_id(patient_svnr)
+        
+        query = '''
+            INSERT INTO Termin (TerminID, Datum, Uhrzeit, Grund, SVNr_Patient, SVNr_Arzt, SVNr_Sachbearbeiter)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        '''
+        self.cursor.execute(query, (termin_id, date, time, reason, patient_svnr, doctor_svnr, None))
+        self.conn.commit()
+        
+        return termin_id
+
+    def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None:
+        """Check if there's a scheduling conflict. Returns conflict info or None if no conflict."""
+        # Check doctor conflict
+        query = '''
+            SELECT TerminID FROM Termin
+            WHERE SVNr_Arzt = ? AND Datum = ? AND Uhrzeit = ?
+        '''
+        self.cursor.execute(query, (doctor_svnr, date, time))
+        if self.cursor.fetchone():
+            return {"type": "doctor", "message": "Der Arzt hat bereits einen Termin zu dieser Zeit."}
+        
+        # Check patient conflict
+        query = '''
+            SELECT TerminID FROM Termin
+            WHERE SVNr_Patient = ? AND Datum = ? AND Uhrzeit = ?
+        '''
+        self.cursor.execute(query, (patient_svnr, date, time))
+        if self.cursor.fetchone():
+            return {"type": "patient", "message": "Der Patient hat bereits einen Termin zu dieser Zeit."}
+        
+        return None

@@ -61,12 +61,12 @@ def get_timeslots():
     db = get_db()
     
     # Get already booked slots for this doctor
-    doctor_booked = db.get_booked_slots(doctor_svnr, date)
+    doctor_booked = db.get_booked_slots(int(doctor_svnr), date)
     
     # Get already booked slots for this patient (patient can't be in two places)
     patient_booked = []
     if patient_svnr:
-        patient_booked = db.get_patient_booked_slots(patient_svnr, date)
+        patient_booked = db.get_patient_booked_slots(int(patient_svnr), date)
     
     # Combine all unavailable slots
     unavailable_slots = set(doctor_booked + patient_booked)
@@ -92,31 +92,53 @@ def get_timeslots():
 
 @clerk_bp.route('/api/appointments', methods=['POST'])
 def create_appointment():
-    """Create a new appointment - returns example success response"""
+    """Create a new appointment"""
     data = request.get_json()
     
-    # In a real implementation, you would:
-    # 1. Validate the data
-    # 2. Check for conflicts
-    # 3. Insert into database
-    # 4. Return the created appointment ID
+    # Validate required fields
+    required_fields = ['patient_svnr', 'doctor_svnr', 'date', 'time']
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({"success": False, "error": f"Fehlendes Feld: {field}"}), 400
     
-    # Example success response
-    import random
-    termin_id = random.randint(10000, 99999)
+    patient_svnr = data.get('patient_svnr')
+    doctor_svnr = data.get('doctor_svnr')
+    date = data.get('date')
+    time = data.get('time')
+    reason = data.get('reason', '')
     
-    return jsonify({
-        "success": True,
-        "termin_id": termin_id,
-        "message": "Termin erfolgreich erstellt",
-        "appointment": {
-            "patient_svnr": data.get('patient_svnr'),
-            "doctor_svnr": data.get('doctor_svnr'),
-            "date": data.get('date'),
-            "time": data.get('time'),
-            "reason": data.get('reason')
-        }
-    })
+    db = get_db()
+    
+    # Check for conflicts
+    conflict = db.check_appointment_conflict(doctor_svnr, patient_svnr, date, time)
+    if conflict:
+        return jsonify({"success": False, "error": conflict["message"]}), 409
+    
+    try:
+        # Create the appointment
+        termin_id = db.create_appointment(
+            patient_svnr=patient_svnr,
+            doctor_svnr=doctor_svnr,
+            date=date,
+            time=time,
+            reason=reason,
+            clerk_svnr=1234567890  # Example clerk SVNr
+        )
+        
+        return jsonify({
+            "success": True,
+            "termin_id": termin_id,
+            "message": "Termin erfolgreich erstellt",
+            "appointment": {
+                "patient_svnr": patient_svnr,
+                "doctor_svnr": doctor_svnr,
+                "date": date,
+                "time": time,
+                "reason": reason
+            }
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @clerk_bp.route('/api/report/patient-visits')

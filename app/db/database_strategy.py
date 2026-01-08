@@ -32,10 +32,16 @@ class DatabaseStrategy(ABC):
     def get_all_doctors(self) -> list[dict]: pass
 
     @abstractmethod
-    def get_booked_slots(self, doctor_svnr: str, date: str) -> list[str]: pass
+    def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]: pass
     
     @abstractmethod
-    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]: pass
+    def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]: pass
+
+    @abstractmethod
+    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int = 1234567890) -> int: pass
+    
+    @abstractmethod
+    def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None: pass
     # --- Shared functionality, implement in MongoBase/SQLBase
     @abstractmethod
     def _get_connection(self):

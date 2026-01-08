@@ -380,7 +380,7 @@
         const reason = document.getElementById('appointmentReason').value.trim();
         const date = document.getElementById('appointmentDate').value;
         
-        if (!selectedPatient || !selectedDoctor || !selectedTimeSlot || !reason) {
+        if (!selectedPatient || !selectedDoctor || !selectedTimeSlot) {
             alert('Bitte füllen Sie alle Felder aus.');
             return;
         }
