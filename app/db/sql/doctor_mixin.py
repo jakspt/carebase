@@ -154,8 +154,8 @@ class SQLDoctorMixin:
               SELECT a.SVNr AS arzt_svnr,
                      p.Name AS arzt_name,
                      a.Fachrichtung,
-                     a.Abteilungsname, YEAR (t.Datum) AS jahr,
-                  SUM (b.Kosten) AS gesamt_behandlungskosten
+                     a.Abteilungsname, YEAR(t.Datum) AS jahr,
+                  SUM(b.Kosten) AS gesamt_behandlungskosten
               FROM
                   Behandlung b
                   JOIN Termin t
@@ -170,7 +170,7 @@ class SQLDoctorMixin:
                   p.Name,
                   a.Fachrichtung,
                   a.Abteilungsname,
-                  YEAR (t.Datum)
+                  YEAR(t.Datum)
               ORDER BY
                   jahr, gesamt_behandlungskosten DESC;
               """
