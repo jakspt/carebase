@@ -172,9 +172,9 @@ class SQLDoctorMixin:
                   a.Abteilungsname,
                   YEAR(t.Datum)
               ORDER BY
-                  jahr, gesamt_behandlungskosten DESC;
+                  jahr DESC, gesamt_behandlungskosten DESC;
               """
-
+        # TODO: also discuss the jahr DESC in report
         cursor.execute(sql, (start_date,))
         results = cursor.fetchall()
 
@@ -189,10 +189,10 @@ class SQLDoctorMixin:
                 {
                     "id": row["arzt_svnr"],
                     "name": row["arzt_name"],
-                    "fach": row["Fachrichtung"],
-                    "abt": row["Abteilungsname"],
-                    "jahr": row["jahr"],
-                    "gesamt_kosten": float(row["gesamt_behandlungskosten"] or 0.0),
+                    "specialty": row["Fachrichtung"],
+                    "dept": row["Abteilungsname"],
+                    "year": row["jahr"],
+                    "total_costs": float(row["gesamt_behandlungskosten"] or 0.0),
                 }
             )
 

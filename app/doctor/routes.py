@@ -9,13 +9,12 @@ from app.db import get_db
 from . import doctor_bp
 
 
-# TODO: Implement
 @doctor_bp.route("/")
 def overview():
     return render_template("doctor/overview.html")
 
 
-# TODO: Usecase Step 1: Selecting a patient
+# Step 1: Selecting a patient
 @doctor_bp.route("/search", methods=["GET", "POST"])
 def search_patient():
     if request.method == "POST":
@@ -40,26 +39,22 @@ def search_patient():
             patient_id = db.get_patient_details(patients[0]["SVNr"])
             return redirect(url_for("doctor.select_appointment", patient_id=patient_id))
         else:
-            flash("No patients found", "danger")
+            flash("Keine Patienten gefunden", "danger")
     # GET Action: initially just render the template
     return render_template("doctor/usecase/step1_search_patient.html")
 
 
-# TODO: Usecase Step 2: Selecting an appointment
-
-
+# Step 2: Selecting an appointment
 @doctor_bp.route("/patient/<int:patient_id>/appointments", methods=["GET"])
 def select_appointment(patient_id: int):
     db = get_db()
     patient = db.get_patient_details(patient_id)
-    # render the html template with the patient details
-    # which contain not only the patient name etc., but also all of their appointments!
     return render_template(
         "doctor/usecase/step2_select_appointment.html", patient=patient
     )
 
 
-# TODO: Usecase Step 3: Adding a treatment
+# Step 3: Adding a treatment (+ meds)
 @doctor_bp.route(
     "/patient/<int:patient_id>/appointment/<int:appt_id>/add-treatment",
     methods=["GET", "POST"],
@@ -71,15 +66,16 @@ def add_treatment(patient_id, appt_id):
         db = get_db()
         description = request.form.get("description")
         cost = request.form.get("cost")
-        med_string = request.form.get("medications_list", "[]")
+        med_string = request.form.get("medications_list", "")
+        med_list = []
+
         if description is None or cost is None:
             raise ValueError(
                 "Error adding treatment Some of the required fields are missing"
             )
-        med_list = json.loads(med_string)
+        if med_string.strip():
+            med_list = json.loads(med_string)
 
-        # decode the encoded query details
-        # and save it in the database.
         print("Entered details: ")
         print(description)
         print(cost)
@@ -95,6 +91,8 @@ def add_treatment(patient_id, appt_id):
                 patient_id=patient_id,
                 appt_id=appt_id,
             )
+        else:
+            flash("Behandlung konnte nicht hinzugefügt werden", "danger")
     # else initially pass the med_list alongside the appt ID
     return render_template(
         "doctor/usecase/step3_add_treatment.html",
@@ -139,9 +137,7 @@ def aggregate_chart_data(raw_data):
                 "name": row["name"],
                 "total": 0.0,
             }
-        aggregate[doctor_id]["total"] += row[
-            "gesamt_kosten"
-        ]  # TODO: re-formulate the gesamt_kosten attr
+        aggregate[doctor_id]["total"] += row["total_costs"]
 
     aggregate_list = list(aggregate.values())
     sorted_list = sorted(aggregate_list, key=lambda x: x["total"], reverse=True)

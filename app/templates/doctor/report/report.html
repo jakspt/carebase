@@ -48,10 +48,10 @@
                             <tr>
                                 <td>{{ row.id }}</td>
                                 <td>{{ row.name }}</td>
-                                <td>{{ row.fach }}</td>
-                                <td>{{ row.abt }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ row.jahr }}</span></td>
-                                <td class="text-end text-nowrap">€ {{ "%.2f"|format(row.gesamt_kosten) }}</td>
+                                <td>{{ row.specialty }}</td>
+                                <td>{{ row.dept }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ row.year }}</span></td>
+                                <td class="text-end text-nowrap">€ {{ "%.2f"|format(row.total_costs) }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -79,10 +79,11 @@
                     label: 'Gesamtkosten',
                     data: {{ chart_values | tojson }},
                     backgroundColor: gradient,
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 1,
+                    //borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 0,
                     borderRadius: 5,
                     hoverBackgroundColor: 'rgba(13, 110, 253, 1)',
+                    maxBarThickness: 50
                 }]
             },
             options: {
