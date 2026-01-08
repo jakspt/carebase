@@ -109,6 +109,14 @@
     let selectedTimeSlot = null;
     let selectedDoctor = null;
 
+    // Helper function to get badge color based on NACA score
+    function getNacaBadgeColor(score) {
+        if (score === null || score === undefined) return 'secondary';
+        if (score <= 2) return 'success';
+        if (score <= 4) return 'warning';
+        return 'danger';
+    }
+
     // Set minimum date to today
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
@@ -142,7 +150,10 @@
                                     <strong>${patient.name}</strong>
                                     <small class="text-muted ms-2">SVNr: ${patient.svnr}</small>
                                 </div>
-                                <span class="badge bg-secondary">${patient.versicherung}</span>
+                                <div>
+                                    <span class="badge bg-${getNacaBadgeColor(patient.naca_score)} me-1">NACA: ${patient.naca_score ?? 'N/A'}</span>
+                                    <span class="badge bg-secondary">${patient.versicherung}</span>
+                                </div>
                             </div>
                         `;
                         item.onclick = (e) => {
