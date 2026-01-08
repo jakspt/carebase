@@ -25,6 +25,8 @@ class DatabaseStrategy(ABC):
     def add_treatment(self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[str]) -> bool: pass
 
     # --- CLERK USE CASE (User B), examples ---
+    @abstractmethod
+    def get_all_patients(self) -> list[dict]: pass
     # @abstractmethod
     # def generate_revenue_report(self) -> dict: pass
     #

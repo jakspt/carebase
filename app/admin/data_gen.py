@@ -328,14 +328,14 @@ class DataGenerator(SQLBase):
         print("Clearing all existing data...")
         tables = [
             "Verabreichung",
+            "Medikament",
             "Behandlung",
             "Termin",
-            "Patient",
-            "Arzt",
             "Sachbearbeiter",
+            "Arzt",
+            "Patient",
             "Person",
-            "Abteilung",
-            "Medikament",
+            "Abteilung"
         ]
 
         try:

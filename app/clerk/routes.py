@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify
 
 from . import clerk_bp
 
+from app.db import *
 
 @clerk_bp.route('/')
 def overview():
@@ -25,21 +26,13 @@ def search_patients():
     """Search patients by name or SVNr - returns example data"""
     query = request.args.get('q', '').lower()
     
-    # Example patient data
-    example_patients = [
-        {"svnr": "1234567890", "name": "Max Mustermann", "versicherung": "ÖGK"},
-        {"svnr": "2345678901", "name": "Maria Musterfrau", "versicherung": "SVS"},
-        {"svnr": "3456789012", "name": "Hans Huber", "versicherung": "BVAEB"},
-        {"svnr": "4567890123", "name": "Anna Schmidt", "versicherung": "ÖGK"},
-        {"svnr": "5678901234", "name": "Peter Maier", "versicherung": "SVS"},
-        {"svnr": "6789012345", "name": "Julia Wagner", "versicherung": "ÖGK"},
-        {"svnr": "7890123456", "name": "Thomas Gruber", "versicherung": "BVAEB"},
-        {"svnr": "8901234567", "name": "Sarah Fischer", "versicherung": "ÖGK"},
-    ]
+    db = get_db()
+
+    patients = db.get_all_patients()
     
     # Filter based on query
     filtered = [
-        p for p in example_patients 
+        p for p in patients
         if query in p['name'].lower() or query in p['svnr']
     ]
     
