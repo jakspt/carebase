@@ -128,3 +128,38 @@ class SQLClerkMixin(SQLBase):
             return {"type": "patient", "message": "Der Patient hat bereits einen Termin zu dieser Zeit."}
         
         return None
+    
+    def get_patients_doctor_visits(self, start_date: str, end_date: str) -> list[dict]:
+        """Get patient visits per doctor within a date range"""
+        query = ''' 
+            SELECT
+                Termin.`SVNr_Patient` AS Patient_SVNr,
+                Patient_Person.`Name` AS Patient_Name,
+                Patient.`Versicherungsträger` AS Patient_Versicherungsträger,
+                Termin.`SVNr_Arzt` AS Arzt_SVNr,
+                Arzt_Person.`Name` AS Arzt_Name,
+                Arzt.`Fachrichtung` AS Arzt_Fachrichtung,
+                COUNT(Termin.`TerminID`) AS Anzahl_Termine_Jeweiligen_Arzt
+                FROM `Termin`
+                JOIN `Patient` ON Termin.SVNr_Patient = Patient.SVNr
+                JOIN `Person` AS Patient_Person ON Patient.SVNr = Patient_Person.SVNr
+                JOIN `Arzt` ON Termin.SVNr_Arzt = Arzt.SVNr 
+                JOIN `Person` AS Arzt_Person ON Arzt.SVNr = Arzt_Person.SVNr
+                WHERE Termin.`Datum` BETWEEN ? AND ?
+                GROUP BY Termin.`SVNr_Patient`, Termin.`SVNr_Arzt`;
+        '''
+        
+        self.cursor.execute(query, (start_date, end_date))
+        rows = self.cursor.fetchall()
+        reports = []
+        for row in rows:
+            reports.append({
+                "patient_svnr": row[0],
+                "patient_name": row[1],
+                "versicherung": row[2],
+                "arzt_svnr": row[3],
+                "arzt_name": row[4],
+                "fachrichtung": row[5],
+                "anzahl_termine": row[6]
+            })
+        return reports

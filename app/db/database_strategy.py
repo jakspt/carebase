@@ -26,6 +26,9 @@ class DatabaseStrategy(ABC):
 
     # --- CLERK USE CASE (User B), examples ---
     @abstractmethod
+    def get_all_clerks(self) -> list[dict]: pass
+
+    @abstractmethod
     def get_all_patients(self) -> list[dict]: pass
     
     @abstractmethod
@@ -44,7 +47,7 @@ class DatabaseStrategy(ABC):
     def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None: pass
 
     @abstractmethod
-    def get_all_clerks(self) -> list[dict]: pass
+    def get_patients_doctor_visits(self, start_date: str, end_date: str) -> list[dict]: pass
     # --- Shared functionality, implement in MongoBase/SQLBase
     @abstractmethod
     def _get_connection(self):
