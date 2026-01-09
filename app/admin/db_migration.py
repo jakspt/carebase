@@ -34,7 +34,7 @@ class DataMigrator(SQLBase, MongoBase):
                 FROM Termin t
                 JOIN Arzt a ON t.SVNr_Arzt = a.SVNr
                 JOIN Person per ON a.SVNr = per.SVNr
-                WHERE t.SVNr_Patient = %s
+                WHERE t.SVNr_Patient = ?
             ''', (patient_svnr,))
             appointments = self.sql_cursor.fetchall()
             
@@ -46,7 +46,7 @@ class DataMigrator(SQLBase, MongoBase):
                 self.sql_cursor.execute('''
                     SELECT b.BehandlungsID, b.Beschreibung, b.Kosten
                     FROM Behandlung b
-                    WHERE b.SVNr_Patient = %s AND b.TerminID = %s
+                    WHERE b.SVNr_Patient = ? AND b.TerminID = ?
                 ''', (patient_svnr, termin_id))
                 treatments = self.sql_cursor.fetchall()
                 
@@ -59,7 +59,7 @@ class DataMigrator(SQLBase, MongoBase):
                         SELECT m.PZN, m.Name
                         FROM Verabreichung v
                         JOIN Medikament m ON v.PZN = m.PZN
-                        WHERE v.BehandlungsID = %s
+                        WHERE v.BehandlungsID = ?
                     ''', (behandlungs_id,))
                     medications = self.sql_cursor.fetchall()
                     
