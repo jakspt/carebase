@@ -2,7 +2,34 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">Termin eintragen</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Termin eintragen</h1>
+        
+        <!-- Clerk Selection (Top Right) -->
+        <div class="card" style="min-width: 350px;">
+            <div class="card-header py-2">
+                <i class="bi bi-person-workspace me-2"></i>Sachbearbeiter
+            </div>
+            <div class="card-body py-2">
+                <div class="mb-2">
+                    <input type="text" class="form-control form-control-sm" id="clerkSearch" placeholder="Sachbearbeiter suchen...">
+                </div>
+                <!-- Clerk Search Results -->
+                <div id="clerkSearchResults" class="list-group list-group-flush" style="display: none; max-height: 200px; overflow-y: auto;">
+                    <!-- Results will be populated here -->
+                </div>
+                <!-- Selected Clerk -->
+                <div id="selectedClerk" class="alert alert-success py-2 mb-0" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="me-3"><i class="bi bi-person-check me-1"></i><span id="selectedClerkName"></span></span>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 flex-shrink-0" onclick="clearClerk()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <a href="{{ url_for('clerk.overview') }}" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left"></i> Zurück
@@ -121,6 +148,7 @@
     let selectedDepartment = null;
     let selectedDoctor = null;
     let selectedTimeSlot = null;
+    let selectedClerk = null;
     let allDoctors = [];
 
     // Helper function to get badge color based on NACA score
@@ -160,6 +188,59 @@
                     select.appendChild(option);
                 });
             });
+    }
+
+    // Clerk Search
+    document.getElementById('clerkSearch').addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            document.getElementById('clerkSearchResults').style.display = 'none';
+            return;
+        }
+        
+        fetch(`/clerk/api/clerks/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('clerkSearchResults');
+                resultsDiv.innerHTML = '';
+                
+                if (data.clerks.length === 0) {
+                    resultsDiv.innerHTML = '<div class="list-group-item text-muted py-2">Keine Sachbearbeiter gefunden</div>';
+                } else {
+                    data.clerks.forEach(clerk => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action py-2';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>${clerk.name}</strong>
+                                <small class="text-muted">SVNr: ${clerk.svnr}</small>
+                            </div>
+                        `;
+                        item.onclick = (e) => {
+                            e.preventDefault();
+                            selectClerk(clerk);
+                        };
+                        resultsDiv.appendChild(item);
+                    });
+                }
+                resultsDiv.style.display = 'block';
+            });
+    });
+
+    function selectClerk(clerk) {
+        selectedClerk = clerk;
+        document.getElementById('clerkSearchResults').style.display = 'none';
+        document.getElementById('clerkSearch').value = '';
+        document.getElementById('selectedClerkName').textContent = `${clerk.name} (SVNr: ${clerk.svnr})`;
+        document.getElementById('selectedClerk').style.display = 'block';
+        document.getElementById('noClerkWarning').style.display = 'none';
+    }
+
+    function clearClerk() {
+        selectedClerk = null;
+        document.getElementById('selectedClerk').style.display = 'none';
+        document.getElementById('noClerkWarning').style.display = 'block';
     }
 
     // Patient Search
@@ -390,7 +471,8 @@
             doctor_svnr: selectedDoctor.svnr,
             date: date,
             time: selectedTimeSlot,
-            reason: reason
+            reason: reason,
+            clerk_svnr: selectedClerk?.svnr ?? null
         };
 
         fetch('/clerk/api/appointments', {

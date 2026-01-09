@@ -42,6 +42,23 @@ class SQLClerkMixin(SQLBase):
                 "abteilung": row[4]
             })
         return doctors
+    
+    def get_all_clerks(self) -> list[dict]:
+        """Get all clerks (Sachbearbeiter)"""
+        query = '''
+            SELECT person.SVNr, person.Name
+            FROM Person
+            JOIN Sachbearbeiter ON person.SVNr = Sachbearbeiter.SVNr
+        '''
+        self.cursor.execute(query)
+        rows = self.cursor.fetchall()
+        clerks = []
+        for row in rows:
+            clerks.append({
+                "svnr": row[0],
+                "name": row[1]
+            })
+        return clerks
 
     def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
         """Get all booked time slots for a doctor on a specific date"""
@@ -77,7 +94,7 @@ class SQLClerkMixin(SQLBase):
         result = self.cursor.fetchone()
         return result[0] if result else 1
 
-    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int = 1) -> int:
+    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
         """Create a new appointment and return the TerminID"""
         termin_id = self.get_next_termin_id(patient_svnr)
         
@@ -85,7 +102,7 @@ class SQLClerkMixin(SQLBase):
             INSERT INTO Termin (TerminID, Datum, Uhrzeit, Grund, SVNr_Patient, SVNr_Arzt, SVNr_Sachbearbeiter)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         '''
-        self.cursor.execute(query, (termin_id, date, time, reason, patient_svnr, doctor_svnr, None))
+        self.cursor.execute(query, (termin_id, date, time, reason, patient_svnr, doctor_svnr, clerk_svnr))
         self.conn.commit()
         
         return termin_id

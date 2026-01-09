@@ -21,6 +21,22 @@ def report():
 
 # API Endpoints with example data
 
+@clerk_bp.route('/api/clerks/search')
+def search_clerks():
+    """Search clerks by name or SVNr"""
+    query = request.args.get('q', '').lower()
+    
+    db = get_db()
+    clerks = db.get_all_clerks()
+    
+    # Filter based on query
+    filtered = [
+        c for c in clerks
+        if query in c['name'].lower() or query in str(c['svnr'])
+    ]
+    
+    return jsonify({"clerks": filtered})
+
 @clerk_bp.route('/api/patients/search')
 def search_patients():
     """Search patients by name or SVNr - returns example data"""
@@ -106,6 +122,7 @@ def create_appointment():
     date = data.get('date')
     time = data.get('time')
     reason = data.get('reason', '')
+    clerk_svnr = data.get('clerk_svnr', None)
     
     db = get_db()
     
@@ -122,7 +139,7 @@ def create_appointment():
             date=date,
             time=time,
             reason=reason,
-            clerk_svnr=1234567890  # Example clerk SVNr
+            clerk_svnr=clerk_svnr
         )
         
         return jsonify({
