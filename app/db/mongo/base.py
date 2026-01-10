@@ -6,6 +6,7 @@ class MongoBase:
     collection_doctor_name = "doctor"
     collection_medication_name = "medication"
     collection_clerk_name = "clerk"
+    collection_appointment_name = "appointment"
 
     def _get_connection(self):
         client = MongoClient("mongodb://localhost:27017/")
