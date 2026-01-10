@@ -104,10 +104,10 @@ class DataMigrator(SQLBase, MongoBase):
                     "termin_id": termin_id,
                     # Combine date with minimal time for MongoDB storage
                     # MongoDB stores dates as full datetime objects
-                    "date": datetime.combine(appt_date, datetime.min.time()), 
-                    "time": time_str,
-                    "reason": appt[3],
-                    "doctor": {
+                    "datum": datetime.combine(appt_date, datetime.min.time()), 
+                    "uhrzeit": time_str,
+                    "grund": appt[3],
+                    "arzt": {
                         "svnr": appt[4],
                         "name": appt[5]
                     },
@@ -120,7 +120,7 @@ class DataMigrator(SQLBase, MongoBase):
                 "adresse": patient[2],
                 "versicherung": patient[3],
                 "naca_score": patient[4],
-                "appointments": appointments_list
+                "termine": appointments_list
             }
             
             patient_collection.insert_one(patient_doc)
@@ -224,9 +224,9 @@ class DataMigrator(SQLBase, MongoBase):
         for row in rows:
             appointment_doc = {
                 "termin_id": row[0], # TerminID as unique identifier
-                "date": datetime.combine(row[1], datetime.min.time()), # Store date as datetime
-                "time": str(row[2]),
-                "reason": row[3],
+                "datum": datetime.combine(row[1], datetime.min.time()), # Store date as datetime
+                "uhrzeit": str(row[2]),
+                "grund": row[3],
                 "patient": {
                     "svnr": row[4],
                     "name": row[5],
