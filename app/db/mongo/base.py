@@ -9,6 +9,11 @@ class MongoBase:
     collection_clerk_name = "sachbearbeiter"
     collection_appointment_name = "termin"
 
+    # Singleton pattern for MongoClient
+    _client = None
+
     def _get_connection(self):
-        client = MongoClient("mongodb://localhost:27017/")
-        return client["carebase"]  # Database name
+        if MongoBase._client is None:
+            print("Initializing new MongoDB connection...")
+            MongoBase._client = MongoClient("mongodb://localhost:27017/")
+        return MongoBase._client["carebase"]
