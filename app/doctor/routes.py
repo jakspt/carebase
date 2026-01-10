@@ -41,10 +41,9 @@ def search_patient():
                 "doctor/usecase/step1_search_patient.html", patients=patients
             )
         elif len(patients) == 1:
-            # get patient details
-            # FIXME: lookup the format of the patient dict
-            patient_id = db.get_patient_details(patients[0]["SVNr"])
-            return redirect(url_for("doctor.select_appointment", patient_id=patient_id))
+            found_id = patients[0]["id"]
+            print(f"Found patient with ID {found_id}")
+            return redirect(url_for("doctor.select_appointment", patient_id=found_id))
         else:
             flash("Keine Patienten gefunden", "danger")
     # GET Action: initially just render the template
