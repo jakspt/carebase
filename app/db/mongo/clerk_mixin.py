@@ -1,3 +1,4 @@
+import pymongo
 from app.db.mongo.base import MongoBase
 from datetime import datetime
 
@@ -9,93 +10,144 @@ class MongoClerkMixin(MongoBase):
         self.clerk_collection = self.conn[MongoBase.collection_clerk_name]
         self.appointment_collection = self.conn[MongoBase.collection_appointment_name]
 
+        self.appointment_collection.create_index([
+            ("patient.svnr", pymongo.ASCENDING),
+            ("datum", pymongo.DESCENDING),
+            ("uhrzeit", pymongo.DESCENDING)
+            ])
+        
+        self.appointment_collection.create_index([
+            ("arzt.svnr", pymongo.ASCENDING),
+            ("datum", pymongo.DESCENDING),
+            ("uhrzeit", pymongo.DESCENDING)
+            ])
+        
+        self.appointment_collection.create_index([("termin_id", pymongo.DESCENDING)])
+
     def get_all_patients(self) -> list[dict]:
-        patients = self.patient_collection.find()
-        return list(patients)
+        result = []
+        patients = self.patient_collection.find({}, {"name": 1, "versicherung": 1, "naca_score": 1})
+        for patient in patients:
+            result.append({
+                "svnr": patient['_id'],
+                "name": patient.get("name", ""),
+                "versicherung": patient.get("versicherung", ""),
+                "naca_score": patient.get("naca_score", None)
+            })
+        return result
     
     def get_all_doctors(self) -> list[dict]:
+        result = []
         doctors = self.doctor_collection.find()
-        return list(doctors)
+        for doctor in doctors:
+            result.append({
+                "svnr": doctor['_id'],
+                "name": doctor.get("name", ""),
+                "fachrichtung": doctor.get("fachrichtung", ""),
+                "position": doctor.get("position", ""),
+                "abteilung": doctor['abteilung'].get("name", "")
+            })
+        return result
     
     def get_all_clerks(self) -> list[dict]:
+        result = []
         clerks = self.clerk_collection.find()
-        return list(clerks)
+        for clerk in clerks:
+            result.append({
+                "svnr": clerk['_id'],
+                "name": clerk.get("name", "")
+            })
+        return result
+    
+    def convert_date_str(self, date_str: str) -> datetime:
+        return datetime.strptime(date_str, "%Y-%m-%d")
     
     def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
-        return list({})
+        """Get all booked time slots for a doctor on a specific date"""
+        converted_date = self.convert_date_str(date)
+        
+        findquery = {
+            "arzt.svnr": str(doctor_svnr),
+            "datum": converted_date
+        }
+
+        # Projection to only get time slots
+        projection = {"uhrzeit": 1, "_id": 0}
+        searched_appointments = self.appointment_collection.find(findquery, projection)
+
+        booked_slots = [
+            appt["uhrzeit"][:5]           
+            for appt in searched_appointments 
+            if "uhrzeit" in appt
+        ]
+        print("Booked slots for doctor:", booked_slots)
+        return booked_slots
     
     def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
         """Get all booked time slots for a patient on a specific date"""
-        converted_date = datetime.strptime(date, "%Y-%m-%d")
+        converted_date = self.convert_date_str(date)
+    
+        findquery = {
+            "patient.svnr": str(patient_svnr),
+            "datum": converted_date
+        }
+
+        # Projection to only get time slots
+        projection = {"uhrzeit": 1, "_id": 0}
         
-        searched_patient = self.patient_collection.find_one({"_id": patient_svnr})
+        searched_appointments = self.appointment_collection.find(findquery, projection)
         
-        if not searched_patient or "appointments" not in searched_patient:
-            return []
-        
-        booked_slots = []
-        for appointment in searched_patient["appointments"]:
-            appointment_date = appointment.get("date")
-            if appointment_date and appointment_date.date() == converted_date.date():
-                time_slot = appointment.get("time", "")
-                if time_slot:
-                    booked_slots.append(time_slot[:5] if len(time_slot) > 5 else time_slot)
-        
+        booked_slots = [
+            appt["uhrzeit"][:5]           
+            for appt in searched_appointments 
+            if "uhrzeit" in appt
+        ]
+        print("Booked slots for patient:", booked_slots)
         return booked_slots
     
-    def get_next_termin_id(self, patient_svnr: int) -> tuple[int, dict]:
-        searched_patient = self.patient_collection.find_one({"_id": patient_svnr})
+    def get_next_termin_id(self) -> int:
+        biggest_termin_id = self.appointment_collection.find_one({}, {"termin_id": 1, "_id": 0}, sort=[("termin_id", -1)])
         
-        if not searched_patient or "appointments" not in searched_patient:
-            return 1, {}  # Start with 1 if no appointments exist
-        
-        appointments = searched_patient["appointments"]
-        
-        if not appointments:
-            return 1, searched_patient  # Start with 1 if appointments list is empty
-        
-        max_termin_id = 0
-        for appointment in appointments:
-            termin_id = appointment.get("terminID", 0)
-            if termin_id > max_termin_id:
-                max_termin_id = termin_id
-        
-        return max_termin_id + 1, searched_patient  # Return next available ID
+        if biggest_termin_id and "termin_id" in biggest_termin_id:
+            return biggest_termin_id["termin_id"] + 1
+        else:
+            return 1
 
     def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
-        termin_id, patient = self.get_next_termin_id(patient_svnr)
+        termin_id = self.get_next_termin_id()
+        patient = self.patient_collection.find_one({"_id": patient_svnr})
         doctor = self.doctor_collection.find_one({"_id": doctor_svnr})
-        converted_date = datetime.strptime(date, "%Y-%m-%d")
+        converted_date = self.convert_date_str(date)
 
         self.appointment_collection.insert_one({
             "termin_id": termin_id,
-            "date": converted_date,
-            "time": time,
-            "reason": reason,
+            "datum": converted_date,
+            "uhrzeit": time,
+            "grund": reason,
             "patient": {
-                "svnr": patient_svnr,
+                "svnr": str(patient_svnr),
                 "name": patient.get("name", "") if patient else "",
                 "versicherung": patient.get("versicherung", "") if patient else ""
             },
             "arzt": {
-                "svnr": doctor_svnr,
+                "svnr": str(doctor_svnr),
                 "name": doctor.get("name", "") if doctor else "",
                 "fachrichtung": doctor.get("fachrichtung", "") if doctor else ""
             },
             "sachbearbeiter": {
-                "svnr": clerk_svnr
+                "svnr": str(clerk_svnr)
             }
         })
 
         self.patient_collection.update_one(
-            {"_id": patient_svnr},
-            {"$push": {"appointments": {
+            {"_id": str(patient_svnr)},
+            {"$push": {"termine": {
                 "termin_id": termin_id,
-                "date": converted_date,
-                "time": time,
-                "reason": reason,
-                "doctor": {
-                    "svnr": doctor_svnr,
+                "datum": converted_date,
+                "uhrzeit": time,
+                "grund": reason,
+                "arzt": {
+                    "svnr": str(doctor_svnr),
                     "name": doctor.get("name", "") if doctor else ""
                 },
                 "behandlungen": []   
@@ -103,7 +155,84 @@ class MongoClerkMixin(MongoBase):
         return termin_id
     
     def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None:
+        converted_date = self.convert_date_str(date)
+
+        patient_conflict = self.appointment_collection.find_one({
+            "patient.svnr": str(patient_svnr),
+            "datum": converted_date,
+            "uhrzeit": time
+        })
+
+        if patient_conflict:
+            return {
+                "type": "patient_conflict",
+                "message": "Der Patient hat bereits einen Termin zu dieser Zeit."
+            }
+
+        doctor_conflict = self.appointment_collection.find_one({
+            "arzt.svnr": str(doctor_svnr),
+            "datum": converted_date,
+            "uhrzeit": time
+        })
+
+        if doctor_conflict:
+            return {
+                "type": "doctor_conflict",
+                "message": "Der Arzt hat bereits einen Termin zu dieser Zeit."
+            }
+        
         return None
     
     def get_patients_doctor_visits(self, start_date: str, end_date: str) -> list[dict]:
-        return list({})
+        """Get patient visits per doctor within a date range"""
+        converted_start_date = self.convert_date_str(start_date)
+        converted_end_date = self.convert_date_str(end_date)
+
+        pipeline = [
+            # Filter by date range
+            {
+                "$match": {
+                    "datum": {
+                        "$gte": converted_start_date,
+                        "$lte": converted_end_date
+                    }
+                }
+            },
+            # Group by patient and doctor combination
+            {
+                "$group": {
+                    "_id": {
+                        "patient_svnr": "$patient.svnr",
+                        "arzt_svnr": "$arzt.svnr"
+                    },
+                    "patient_name": {"$first": "$patient.name"},
+                    "versicherung": {"$first": "$patient.versicherung"},
+                    "arzt_name": {"$first": "$arzt.name"},
+                    "fachrichtung": {"$first": "$arzt.fachrichtung"},
+                    "anzahl_termine": {"$sum": 1}
+                }
+            },
+            # Reshape the output to match SQL format
+            {
+                "$project": {
+                    "_id": 0,
+                    "patient_svnr": "$_id.patient_svnr",
+                    "patient_name": 1,
+                    "versicherung": 1,
+                    "arzt_svnr": "$_id.arzt_svnr",
+                    "arzt_name": 1,
+                    "fachrichtung": 1,
+                    "anzahl_termine": 1
+                }
+            },
+            # Sort by patient and doctor for consistent ordering
+            {
+                "$sort": {
+                    "patient_svnr": 1,
+                    "arzt_svnr": 1
+                }
+            }
+        ]
+
+        results = self.appointment_collection.aggregate(pipeline)
+        return list(results)
