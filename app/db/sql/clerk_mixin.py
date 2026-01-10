@@ -1,4 +1,4 @@
-from base import SQLBase
+from app.db.sql.base import SQLBase
 
 
 class SQLClerkMixin(SQLBase):

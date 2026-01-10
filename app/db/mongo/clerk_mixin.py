@@ -1,4 +1,4 @@
-from base import MongoBase
+from app.db.mongo.base import MongoBase
 
 class MongoClerkMixin(MongoBase):
     def __init__(self) -> None:
