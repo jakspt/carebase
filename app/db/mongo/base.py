@@ -8,6 +8,5 @@ class MongoBase:
     collection_clerk_name = "clerk"
 
     def _get_connection(self):
-        # TODO: Change credentials
         client = MongoClient("mongodb://localhost:27017/")
-        return client["hospital_db"]
+        return client["carebase"]  # Database name

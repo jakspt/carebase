@@ -1,5 +1,5 @@
-from imse.app.db.mongo.base import MongoBase
-from imse.app.db.sql.base import SQLBase
+from app.db.mongo.base import MongoBase
+from app.db.sql.base import SQLBase
 from datetime import datetime
 
 
@@ -131,7 +131,7 @@ class DataMigrator(SQLBase, MongoBase):
         
         for row in rows:
             doctor_doc = {
-                "svnr": row[0],
+                "_id": row[0], # SVNr as unique identifier
                 "name": row[1],
                 "adresse": row[2],
                 "fachrichtung": row[3],
@@ -159,7 +159,7 @@ class DataMigrator(SQLBase, MongoBase):
         
         for row in rows:
             medication_doc = {
-                "pzn": row[0],
+                "_id": row[0], # PZN as unique identifier
                 "name": row[1],
                 "wirkstoff": row[2]
             }
@@ -181,7 +181,7 @@ class DataMigrator(SQLBase, MongoBase):
         
         for row in rows:
             clerk_doc = {
-                "svnr": row[0],
+                "_id": row[0], # SVNr as unique identifier
                 "name": row[1],
                 "adresse": row[2],
                 "rolle": row[3],

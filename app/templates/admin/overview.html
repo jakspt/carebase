@@ -159,22 +159,86 @@
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form action="{{ url_for('admin.migrate_db') }}" method="post">
-                    <input type="hidden" name="confirm" value="1">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmMigrateLabel">Migration durchführen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmMigrateLabel">Migration durchführen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Warning -->
+                    <div id="migrateDbStep1">
+                        <p class="mb-0">Nach der Migration wird MongoDB als Datenbank verwendet. Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
                     </div>
-                    <div class="modal-body">
-                        <p class="mb-0">Nach der Migration wird MongoDB als Datenbank verwendet. </p>
+
+                    <!-- Step 2: Loading -->
+                    <div id="migrateDbStep2" class="text-center d-none">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Migration wird durchgeführt...</p>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen
-                        </button>
-                        <button type="submit" class="btn btn-primary">Migration starten</button>
+
+                    <!-- Step 3: Success -->
+                    <div id="migrateDbStep3" class="text-center d-none">
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                        <p>Migration wurde erfolgreich abgeschlossen! MongoDB wird jetzt verwendet.</p>
                     </div>
-                </form>
+
+                    <!-- Step 4: Error -->
+                    <div id="migrateDbStep4" class="text-center d-none">
+                        <i class="bi bi-exclamation-circle-fill text-danger fs-1 mb-3"></i>
+                        <p id="migrateDbErrorMessage">Ein Fehler ist bei der Migration aufgetreten.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="migrateDbFooter1" class="w-100 d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-primary" id="btnConfirmMigrate">Migration starten</button>
+                    </div>
+                    <div id="migrateDbFooter3" class="w-100 d-none justify-content-end">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">Schließen</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('btnConfirmMigrate').addEventListener('click', function() {
+            // Switch to loading state
+            document.getElementById('migrateDbStep1').classList.add('d-none');
+            document.getElementById('migrateDbFooter1').classList.add('d-none');
+            document.getElementById('migrateDbFooter1').classList.remove('d-flex');
+
+            document.getElementById('migrateDbStep2').classList.remove('d-none');
+
+            // Perform fetch request
+            fetch("{{ url_for('admin.migrate_db') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Switch to success state
+                    document.getElementById('migrateDbStep2').classList.add('d-none');
+
+                    document.getElementById('migrateDbStep3').classList.remove('d-none');
+                    document.getElementById('migrateDbFooter3').classList.remove('d-none');
+                    document.getElementById('migrateDbFooter3').classList.add('d-flex');
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error state
+                document.getElementById('migrateDbStep2').classList.add('d-none');
+
+                document.getElementById('migrateDbStep4').classList.remove('d-none');
+                document.getElementById('migrateDbFooter3').classList.remove('d-none');
+                document.getElementById('migrateDbFooter3').classList.add('d-flex');
+            });
+        });
+    </script>
 {% endblock %}

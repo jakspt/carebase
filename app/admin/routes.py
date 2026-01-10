@@ -2,7 +2,8 @@ from flask import render_template
 
 from . import admin_bp
 from .data_gen import DataGenerator
-
+from .db_migration import DataMigrator
+from app.db import switch_to_mongo
 
 # TODO: Implement
 @admin_bp.route("/")
@@ -14,13 +15,14 @@ def overview():
 def fill_db():
     data_generator = DataGenerator()
     data_generator.generate_all()
-    # TODO: some notification (?)
     return overview()
 
 
 @admin_bp.route("/migrate_db", methods=["POST"])
 def migrate_db():
     print("migrating db ...")
-    print("now using Mongooo")
-    # TODO: Implement DB migration
+    print("now using MongoDB as primary database")
+    data_migrator = DataMigrator()
+    data_migrator.migrate_all()
+    switch_to_mongo()
     return overview()
