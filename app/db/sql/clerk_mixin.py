@@ -60,7 +60,7 @@ class SQLClerkMixin(SQLBase):
             })
         return clerks
 
-    def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
+    def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
         """Get all booked time slots for a doctor on a specific date"""
         query = '''
             SELECT Uhrzeit

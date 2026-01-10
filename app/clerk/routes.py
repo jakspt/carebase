@@ -77,7 +77,7 @@ def get_timeslots():
     db = get_db()
     
     # Get already booked slots for this doctor
-    doctor_booked = db.get_booked_slots(int(doctor_svnr), date)
+    doctor_booked = db.get_doctor_booked_slots(int(doctor_svnr), date)
     
     # Get already booked slots for this patient (patient can't be in two places)
     patient_booked = []

@@ -35,7 +35,7 @@ class DatabaseStrategy(ABC):
     def get_all_doctors(self) -> list[dict]: pass
 
     @abstractmethod
-    def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]: pass
+    def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]: pass
     
     @abstractmethod
     def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]: pass
