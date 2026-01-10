@@ -118,7 +118,7 @@ class DataMigrator(SQLBase, MongoBase):
                 "_id": patient_svnr,
                 "name": patient[1],
                 "adresse": patient[2],
-                "versicherungsträger": patient[3],
+                "versicherung": patient[3],
                 "naca_score": patient[4],
                 "appointments": appointments_list
             }
@@ -229,7 +229,7 @@ class DataMigrator(SQLBase, MongoBase):
                 "patient": {
                     "svnr": row[3],
                     "name": row[4],
-                    "versicherungsträger": row[5]
+                    "versicherung": row[5]
                 },
                 "arzt": {
                     "svnr": row[6],

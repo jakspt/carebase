@@ -10,13 +10,15 @@ class MongoClerkMixin(MongoBase):
 
     def get_all_patients(self) -> list[dict]:
         patients = self.patient_collection.find()
-        return list({})
+        return list(patients)
     
     def get_all_doctors(self) -> list[dict]:
-        return list({})
+        doctors = self.doctor_collection.find()
+        return list(doctors)
     
     def get_all_clerks(self) -> list[dict]:
-        return list({})
+        clerks = self.clerk_collection.find()
+        return list(clerks)
     
     def get_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
         return list({})
@@ -24,6 +26,25 @@ class MongoClerkMixin(MongoBase):
     def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
         return list({})
     
+    def get_next_termin_id(self, patient_svnr: int) -> int:
+        searched_patient = self.patient_collection.find_one({"svnr": patient_svnr})
+        
+        if not searched_patient or "appointments" not in searched_patient:
+            return 1  # Start with 1 if no appointments exist
+        
+        appointments = searched_patient["appointments"]
+        
+        if not appointments:
+            return 1  # Start with 1 if appointments list is empty
+        
+        max_termin_id = 0
+        for appointment in appointments:
+            termin_id = appointment.get("terminID", 0)
+            if termin_id > max_termin_id:
+                max_termin_id = termin_id
+        
+        return max_termin_id + 1  # Return next available ID
+
     def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
         return 0
     
