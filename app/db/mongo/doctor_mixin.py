@@ -2,6 +2,13 @@ import re
 
 
 class MongoDoctorMixin:
+    # these become available at runtime, via the MongoBase class
+    collection_patient_name: str
+    collection_doctor_name: str
+    collection_medication_name: str
+    collection_clerk_name: str
+    collection_appointment_name: str
+
     def _get_connection(self):
         raise NotImplementedError(
             "This class must be mixed into a class with a DB connection, implementing this method"
@@ -14,7 +21,7 @@ class MongoDoctorMixin:
         regex_query = {"$regex": re.escape(query), "$options": "i"}
 
         # Search by _id (SVNr) OR Name
-        patient_results = db.patient.find(
+        patient_results = db[self.collection_patient_name].find(
             {"$or": [{"_id": regex_query}, {"name": regex_query}]},
             {"_id": 1, "name": 1},
         )
@@ -23,7 +30,7 @@ class MongoDoctorMixin:
 
     def get_patient_details(self, patient_id: int) -> dict:
         db = self._get_connection()
-        patient = db.patient.find_one({"_id": str(patient_id)})
+        patient = db[self.collection_patient_name].find_one({"_id": str(patient_id)})
 
         if not patient:
             raise ValueError("Patient not found")
@@ -40,20 +47,18 @@ class MongoDoctorMixin:
                 }
             )
 
-            formatted_appointments.sort(
-                key=lambda x: (x["date"], x["time"]), reverse=True
-            )
+        formatted_appointments.sort(key=lambda x: (x["date"], x["time"]), reverse=True)
 
-            return {
-                "id": patient["_id"],
-                "name": patient["name"],
-                "insurance": patient.get("versicherung", ""),
-                "appointments": formatted_appointments,
-            }
+        return {
+            "id": patient["_id"],
+            "name": patient["name"],
+            "insurance": patient.get("versicherung", ""),
+            "appointments": formatted_appointments,
+        }
 
     def get_all_meds(self) -> list[dict]:
         db = self._get_connection()
-        retrieved_meds = db.medikament.find({})
+        retrieved_meds = db[self.collection_medication_name].find({})
         return [{"name": doc["name"], "id": doc["_id"]} for doc in retrieved_meds]
 
     def add_treatment(
@@ -73,7 +78,7 @@ class MongoDoctorMixin:
 
         # 2. Find the Context (Doctor & Year)
         # We need this to update the doctor's stats (Computed Pattern).
-        patient_data = db.patient.find_one(
+        patient_data = db[self.collection_patient_name].find_one(
             {"_id": str(patient_id), "termine.termin_id": appt_id},
             {"termine.$": 1},  # Projection: fetch only the matching appointment
         )
@@ -88,7 +93,7 @@ class MongoDoctorMixin:
 
         # 3. Add Treatment (Atomic Push)
         # Use positional operator $ to push into the correct appointment
-        result = db.patient.update_one(
+        result = db[self.collection_patient_name].update_one(
             {"_id": str(patient_id), "termine.termin_id": appt_id},
             {"$push": {"termine.$.behandlungen": treatment_doc}},
         )
@@ -99,7 +104,9 @@ class MongoDoctorMixin:
         # Update Doctor Stats (Computed Pattern). This allows for a more efficient report
         cost_field = f"kosten_{year}"
 
-        db.arzt.update_one({"_id": doctor_svnr}, {"$inc": {cost_field: cost}})
+        db[self.collection_doctor_name].update_one(
+            {"_id": doctor_svnr}, {"$inc": {cost_field: cost}}
+        )
 
         print(
             f"Successfully added treatment and updated {cost_field} for doctor {doctor_svnr}"
@@ -111,7 +118,7 @@ class MongoDoctorMixin:
         start_year = int(start_date.split("-")[0])
 
         # [cite_start]Fetch all doctors [cite: 2]
-        doctors = db.arzt.find({})
+        doctors = db[self.collection_doctor_name].find({})
         report = []
 
         for doc in doctors:
@@ -134,6 +141,6 @@ class MongoDoctorMixin:
                                 }
                             )
 
-                # Sort by year DESC, then total_costs DESC (matching SQL logic)
-                report.sort(key=lambda x: (x["year"], x["total_costs"]), reverse=True)
-                return report
+        # Sort by year DESC, then total_costs DESC (matching SQL logic)
+        report.sort(key=lambda x: (x["year"], x["total_costs"]), reverse=True)
+        return report
