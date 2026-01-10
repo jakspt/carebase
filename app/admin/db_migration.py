@@ -223,7 +223,7 @@ class DataMigrator(SQLBase, MongoBase):
         
         for row in rows:
             appointment_doc = {
-                "_id": row[0], # TerminID as unique identifier
+                "termin_id": row[0], # TerminID as unique identifier
                 "date": datetime.combine(row[1], datetime.min.time()), # Store date as datetime
                 "time": str(row[2]),
                 "reason": row[3],
