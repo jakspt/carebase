@@ -9,7 +9,23 @@
             <a class="navbar-brand d-flex align-items-center text-dark"
                href="{{ url_for(session["user"] + ".overview") if session["user"] else "/" }}">
                 <i class="bi bi-hospital text-primary fs-4 me-2"></i>
-                <span>CareBase</span>
+
+                <span class="position-relative">
+                    CareBase
+                    {% if  current_db == "MariaDB" %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-primary"
+                              style="font-size: 0.55rem;">
+                        MariaDB
+                    </span>
+                    {% elif current_db == "MongoDB" %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-warning"
+                              style="font-size: 0.55rem;">
+                        MongoDB
+                    </span>
+                    {% endif %}
+
+
+                </span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent">
