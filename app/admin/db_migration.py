@@ -206,7 +206,7 @@ class DataMigrator(SQLBase, MongoBase):
     def migrate_to_appointment_collection(self):
         """Migrate Appointment data from SQL to MongoDB"""
         self.sql_cursor.execute('''
-            SELECT Termin.Datum, Termin.Uhrzeit, Termin.Grund,
+            SELECT Termin.TerminID, Termin.Datum, Termin.Uhrzeit, Termin.Grund,
                     Termin.SVNr_Patient, PatientPerson.Name AS patient_name, Patient.Versicherungsträger,
                     Termin.SVNr_Arzt, ArztPerson.Name AS doctor_name, Arzt.Fachrichtung,
                     Termin.SVNr_Sachbearbeiter
@@ -223,21 +223,22 @@ class DataMigrator(SQLBase, MongoBase):
         
         for row in rows:
             appointment_doc = {
-                "date": datetime.combine(row[0], datetime.min.time()), # Store date as datetime
-                "time": str(row[1]),
-                "reason": row[2],
+                "_id": row[0], # TerminID as unique identifier
+                "date": datetime.combine(row[1], datetime.min.time()), # Store date as datetime
+                "time": str(row[2]),
+                "reason": row[3],
                 "patient": {
-                    "svnr": row[3],
-                    "name": row[4],
-                    "versicherung": row[5]
+                    "svnr": row[4],
+                    "name": row[5],
+                    "versicherung": row[6]
                 },
                 "arzt": {
-                    "svnr": row[6],
-                    "name": row[7],
-                    "fachrichtung": row[8]
+                    "svnr": row[7],
+                    "name": row[8],
+                    "fachrichtung": row[9]
                 },
                 "sachbearbeiter": {
-                    "svnr": row[9]
+                    "svnr": row[10]
                 }
             }
             appointment_collection.insert_one(appointment_doc)
