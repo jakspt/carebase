@@ -28,7 +28,7 @@ class DatabaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_doctor_report(self, start_date: str) -> list[dict]:
+    def get_doctor_report(self, start_year: int) -> list[dict]:
         pass
 
     # --- CLERK USE CASE (User B), examples ---

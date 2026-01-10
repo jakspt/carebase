@@ -1,5 +1,5 @@
 import json
-from datetime import date
+from datetime import date, datetime
 from multiprocessing import Value
 
 from flask import flash, redirect, render_template, request, url_for
@@ -11,7 +11,14 @@ from . import doctor_bp
 
 @doctor_bp.route("/")
 def overview():
-    return render_template("doctor/overview.html")
+    current_year = datetime.now().year
+    start_year = 2020
+    available_years = list(range(current_year, start_year - 1, -1))
+    return render_template(
+        "doctor/overview.html",
+        available_years=available_years,
+        selected_year=current_year,
+    )
 
 
 # Step 1: Selecting a patient
@@ -105,19 +112,22 @@ def add_treatment(patient_id, appt_id):
 @doctor_bp.route("/report")
 def report():
     # default to jan 1st of this year if date is not provided
-    start_date = request.args.get("start_date")
-    if not start_date:
-        start_date = f"{date.today().year}-01-01"
+
+    current_year = datetime.now().year
+    start_year = 2020
+    available_years = list(range(current_year, start_year - 1, -1))
+    selected_year = request.args.get("start_year", current_year, type=int)
 
     db = get_db()
-    raw_data = db.get_doctor_report(start_date)
+    raw_data = db.get_doctor_report(selected_year)
 
     chart_labels, chart_values = aggregate_chart_data(raw_data)
 
-    print(start_date)
+    print(selected_year)
     return render_template(
         "doctor/report/report.html",
-        start_date=start_date,
+        selected_year=selected_year,
+        available_years=available_years,
         chart_labels=chart_labels,
         chart_values=chart_values,
         raw_data=raw_data,

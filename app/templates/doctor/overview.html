@@ -51,19 +51,25 @@
 
                             <h2 class="h5 fw-semibold mb-2 text-center">Bericht erstellen</h2>
                             <p class="text-muted small mb-3 text-center">
-                                Gesamt-Behandlungskosten pro Arzt und Jahr ‒ gefiltert ab einem Datum.
+                                Gesamt-Behandlungskosten pro Arzt und ab einem bestimmten Jahr.
                             </p>
 
-                            <!-- Datumsfilter -->
+                            <!-- Year Filter -->
                             <form action="{{ url_for('doctor.report') }}" method="get" class="mb-0">
                                 <div class="mb-3">
-                                    <label for="start_date" class="form-label small">Bericht ab</label>
-                                    <input
-                                            type="date"
-                                            id="start_date"
-                                            name="start_date"
-                                            class="form-control"
-                                    >
+                                    <label for="start_year"
+                                           class="form-label fw-semibold small text-muted">Bericht
+                                        ab</label>
+                                    <select name="start_year" id="start_year" class="form-select">
+                                        {% for year in available_years %}
+                                            <option value="{{ year }}"
+                                                    {% if year == selected_year %}selected{% endif %}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+
+                                    </select>
+
                                 </div>
 
                                 <button type="submit" class="btn btn-success btn-lg w-100">

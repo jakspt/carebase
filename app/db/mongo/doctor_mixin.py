@@ -73,14 +73,13 @@ class MongoDoctorMixin:
         treatment_doc = {
             "beschreibung": desc,
             "kosten": cost,
-            "medikamente": med_objects,  # [cite: 10, 11]
+            "medikamente": med_objects,
         }
 
-        # 2. Find the Context (Doctor & Year)
-        # We need this to update the doctor's stats (Computed Pattern).
+        # Find Doctor + Year for Computed Pattern
         patient_data = db[self.collection_patient_name].find_one(
             {"_id": str(patient_id), "termine.termin_id": appt_id},
-            {"termine.$": 1},  # Projection: fetch only the matching appointment
+            {"termine.$": 1},  # fetch only the matching appt
         )
 
         if not patient_data or not patient_data.get("termine"):
@@ -91,8 +90,6 @@ class MongoDoctorMixin:
         doctor_svnr = appointment["arzt"]["svnr"]
         year = appointment["datum"].year  # Extract year
 
-        # 3. Add Treatment (Atomic Push)
-        # Use positional operator $ to push into the correct appointment
         result = db[self.collection_patient_name].update_one(
             {"_id": str(patient_id), "termine.termin_id": appt_id},
             {"$push": {"termine.$.behandlungen": treatment_doc}},
@@ -113,9 +110,8 @@ class MongoDoctorMixin:
         )
         return True
 
-    def get_doctor_report(self, start_date: str) -> list[dict]:
+    def get_doctor_report(self, start_year: int) -> list[dict]:
         db = self._get_connection()
-        start_year = int(start_date.split("-")[0])
 
         # [cite_start]Fetch all doctors [cite: 2]
         doctors = db[self.collection_doctor_name].find({})
@@ -141,6 +137,6 @@ class MongoDoctorMixin:
                                 }
                             )
 
-        # Sort by year DESC, then total_costs DESC (matching SQL logic)
+        # Sort by year DESC, then total_costs DESC, matching SQL logic
         report.sort(key=lambda x: (x["year"], x["total_costs"]), reverse=True)
         return report

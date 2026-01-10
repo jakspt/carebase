@@ -4,20 +4,36 @@
     <div class="container mt-4">
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-            <h2 class="mb-0">Behandlungskosten-Bericht</h2>
+            <h2 class="mb-0 fw-bold text-dark">Behandlungskosten</h2>
 
-            <form method="GET" class="input-group bg-white p-2 rounded shadow-sm border w-auto">
-                <span class="input-group-text fw-semibold text-nowrap border-0 bg-transparent">Ab Datum:</span>
-                <input type="date" name="start_date" id="start_date" value="{{ start_date }}"
-                       class="form-control" style="max-width:160px;">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill"></i></button>
+            <form method="GET" class="d-flex align-items-center bg-white p-1 rounded-pill shadow-sm border">
+
+                <label for="year-select-report" class="ps-3 pe-1 text-muted fw-semibold small mb-0 text-nowrap">
+                    Ab Jahr:
+                </label>
+
+                <select name="start_year" id="year-select-report"
+                        class="form-select border-0 bg-transparent shadow-none py-2"
+                        style="width: auto; min-width: 100px; cursor: pointer;">
+                    {% for year in available_years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit"
+                        class="btn btn-primary rounded-circle m-1 d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
             </form>
         </div>
 
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between">
                 <h6 class="m-0 font-weight-bold">Gesamt-Behandlungskosten pro Arzt</h6>
-                <span class="badge bg-secondary">Seit {{ start_date }}</span>
+                <span class="badge bg-secondary">Seit {{ selected_year }}</span>
             </div>
             <div class="card-body">
                 <div style="height: 35vh; width: 100%;">

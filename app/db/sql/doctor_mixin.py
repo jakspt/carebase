@@ -146,7 +146,7 @@ class SQLDoctorMixin:
             cursor.close()
             conn.close()
 
-    def get_doctor_report(self, start_date: str) -> list[dict]:
+    def get_doctor_report(self, start_year: int) -> list[dict]:
         conn = self._get_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -164,7 +164,7 @@ class SQLDoctorMixin:
                   JOIN Arzt a ON t.SVNr_Arzt = a.SVNr
                   JOIN Person p ON a.SVNr = p.SVNr
               WHERE
-                  t.Datum >= ?
+                  YEAR(t.Datum) >= ?
               GROUP BY
                   a.SVNr,
                   p.Name,
@@ -175,7 +175,8 @@ class SQLDoctorMixin:
                   jahr DESC, gesamt_behandlungskosten DESC;
               """
         # TODO: also discuss the jahr DESC in report
-        cursor.execute(sql, (start_date,))
+        # Another TODO: Discuss the filter change to YEAR
+        cursor.execute(sql, (start_year,))
         results = cursor.fetchall()
 
         cursor.close()
