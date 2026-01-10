@@ -6,8 +6,10 @@ class MongoClerkMixin(MongoBase):
         self.patient_collection = self.conn[MongoBase.collection_patient_name]
         self.doctor_collection = self.conn[MongoBase.collection_doctor_name]
         self.clerk_collection = self.conn[MongoBase.collection_clerk_name]
+        self.appointment_collection = self.conn[MongoBase.collection_appointment_name]
 
     def get_all_patients(self) -> list[dict]:
+        patients = self.patient_collection.find()
         return list({})
     
     def get_all_doctors(self) -> list[dict]:
@@ -21,9 +23,6 @@ class MongoClerkMixin(MongoBase):
     
     def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
         return list({})
-    
-    def get_next_termin_id(self, patient_svnr: int) -> int:
-        return 0
     
     def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
         return 0
