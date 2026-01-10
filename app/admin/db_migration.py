@@ -9,6 +9,19 @@ class DataMigrator(SQLBase, MongoBase):
         self.sql_cursor = self.sql_conn.cursor()
 
         self.mongo_db = MongoBase._get_connection(self)
+
+    def delete_all_collections(self):
+        """Delete all existing collections in MongoDB to start fresh"""
+        collections = [
+            MongoBase.collection_patient_name,
+            MongoBase.collection_doctor_name,
+            MongoBase.collection_medication_name,
+            MongoBase.collection_clerk_name,
+            MongoBase.collection_appointment_name
+        ]
+        for coll in collections:
+            self.mongo_db[coll].drop()
+        print("Deleted all existing collections in MongoDB.")
     
     def migrate_to_patient_collection(self):
         """Migrate Patient data from SQL to MongoDB with nested appointments"""
@@ -30,7 +43,7 @@ class DataMigrator(SQLBase, MongoBase):
             # Get all appointments for this patient
             self.sql_cursor.execute('''
                 SELECT t.TerminID, t.Datum, t.Uhrzeit, t.Grund,
-                       a.SVNr, per.Name, a.Fachrichtung
+                       a.SVNr, per.Name
                 FROM Termin t
                 JOIN Arzt a ON t.SVNr_Arzt = a.SVNr
                 JOIN Person per ON a.SVNr = per.SVNr
@@ -96,8 +109,7 @@ class DataMigrator(SQLBase, MongoBase):
                     "reason": appt[3],
                     "doctor": {
                         "svnr": appt[4],
-                        "name": appt[5],
-                        "fachrichtung": appt[6]
+                        "name": appt[5]
                     },
                     "behandlungen": behandlungen_list
                 })
@@ -191,8 +203,51 @@ class DataMigrator(SQLBase, MongoBase):
         
         print(f"Migrated {len(rows)} clerks to MongoDB 'clerks' collection.")
 
+    def migrate_to_appointment_collection(self):
+        """Migrate Appointment data from SQL to MongoDB"""
+        self.sql_cursor.execute('''
+            SELECT Termin.Datum, Termin.Uhrzeit, Termin.Grund,
+                    Termin.SVNr_Patient, PatientPerson.Name AS patient_name, Patient.Versicherungsträger,
+                    Termin.SVNr_Arzt, ArztPerson.Name AS doctor_name, Arzt.Fachrichtung,
+                    Termin.SVNr_Sachbearbeiter
+                    
+            FROM Termin
+            JOIN Patient ON Termin.SVNr_Patient = Patient.SVNr
+            JOIN Person AS PatientPerson ON Patient.SVNr = PatientPerson.SVNr
+            JOIN Arzt ON Termin.SVNr_Arzt = Arzt.SVNr
+            JOIN Person AS ArztPerson ON Arzt.SVNr = ArztPerson.SVNr
+        ''')
+        rows = self.sql_cursor.fetchall()
+        
+        appointment_collection = self.mongo_db[MongoBase.collection_appointment_name]
+        
+        for row in rows:
+            appointment_doc = {
+                "date": datetime.combine(row[0], datetime.min.time()), # Store date as datetime
+                "time": str(row[1]),
+                "reason": row[2],
+                "patient": {
+                    "svnr": row[3],
+                    "name": row[4],
+                    "versicherungsträger": row[5]
+                },
+                "arzt": {
+                    "svnr": row[6],
+                    "name": row[7],
+                    "fachrichtung": row[8]
+                },
+                "sachbearbeiter": {
+                    "svnr": row[9]
+                }
+            }
+            appointment_collection.insert_one(appointment_doc)
+        
+        print(f"Migrated {len(rows)} appointments to MongoDB 'appointments' collection.")
+
     def migrate_all(self):
+        self.delete_all_collections()
         self.migrate_to_patient_collection()
         self.migrate_to_doctor_collection()
         self.migrate_to_medication_collection()
         self.migrate_to_clerk_collection()
+        self.migrate_to_appointment_collection()
