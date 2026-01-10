@@ -147,6 +147,52 @@ class DataMigrator(SQLBase, MongoBase):
         
         print(f"Migrated {len(rows)} doctors to MongoDB 'doctors' collection.")
 
+    def migrate_to_medication_collection(self):
+        """Migrate Medication data from SQL to MongoDB"""
+        self.sql_cursor.execute('''
+            SELECT PZN, Name, Wirkstoff
+            FROM Medikament
+        ''')
+        rows = self.sql_cursor.fetchall()
+        
+        medication_collection = self.mongo_db[MongoBase.collection_medication_name]
+        
+        for row in rows:
+            medication_doc = {
+                "pzn": row[0],
+                "name": row[1],
+                "wirkstoff": row[2]
+            }
+            medication_collection.insert_one(medication_doc)
+        
+        print(f"Migrated {len(rows)} medications to MongoDB 'medications' collection.")
+
+    def migrate_to_clerk_collection(self):
+        """Migrate Clerk data from SQL to MongoDB"""
+        self.sql_cursor.execute('''
+            SELECT Person.SVNr, Person.Name, Person.Adresse,
+                   Sachbearbeiter.Rolle, Sachbearbeiter.Anstellungsverhältnis
+            FROM Person
+            JOIN Sachbearbeiter ON Person.SVNr = Sachbearbeiter.SVNr
+        ''')
+        rows = self.sql_cursor.fetchall()
+        
+        clerk_collection = self.mongo_db[MongoBase.collection_clerk_name]
+        
+        for row in rows:
+            clerk_doc = {
+                "svnr": row[0],
+                "name": row[1],
+                "adresse": row[2],
+                "rolle": row[3],
+                "anstellungsverhältnis": row[4]
+            }
+            clerk_collection.insert_one(clerk_doc)
+        
+        print(f"Migrated {len(rows)} clerks to MongoDB 'clerks' collection.")
+
     def migrate_all(self):
         self.migrate_to_patient_collection()
-        # Add more migration methods as needed
+        self.migrate_to_doctor_collection()
+        self.migrate_to_medication_collection()
+        self.migrate_to_clerk_collection()
