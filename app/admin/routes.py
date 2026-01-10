@@ -1,11 +1,12 @@
 from flask import render_template
 
+from app.db import switch_to_mongo
+
 from . import admin_bp
 from .data_gen import DataGenerator
 from .db_migration import DataMigrator
-from app.db import switch_to_mongo
 
-# TODO: Implement
+
 @admin_bp.route("/")
 def overview():
     return render_template("admin/overview.html")
@@ -20,8 +21,6 @@ def fill_db():
 
 @admin_bp.route("/migrate_db", methods=["POST"])
 def migrate_db():
-    print("migrating db ...")
-    print("now using MongoDB as primary database")
     data_migrator = DataMigrator()
     data_migrator.migrate_all()
     switch_to_mongo()

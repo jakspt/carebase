@@ -26,7 +26,7 @@ class MariaDBStrategy(
     pass
 
 
-class MongoDBStrategy(MongoDoctorMixin, MongoClerkMixin, MongoBase, DatabaseStrategy):
+class MongoDBStrategy(MongoBase, MongoDoctorMixin, MongoClerkMixin, DatabaseStrategy):
     pass
 
 

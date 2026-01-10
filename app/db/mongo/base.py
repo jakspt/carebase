@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 
 
+# TODO: Rename Connection String for Docker use (swap out localhost)
 class MongoBase:
     collection_patient_name = "patient"
     collection_doctor_name = "arzt"

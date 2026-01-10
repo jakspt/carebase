@@ -102,7 +102,7 @@ class SQLDoctorMixin:
         return [{"name": row["Name"], "id": row["PZN"]} for row in results]
 
     def add_treatment(
-        self, patient_id: str, appt_id: int, desc: str, cost: float, meds: list[dict]
+        self, patient_id: int, appt_id: int, desc: str, cost: float, meds: list[dict]
     ) -> bool:
         conn = self._get_connection()
         cursor = conn.cursor()
@@ -118,7 +118,7 @@ class SQLDoctorMixin:
                             VALUES (?, ?, ?, ?, ?)
                             """
             cursor.execute(
-                sql_treatment, (new_treatment_id, desc, cost, patient_id, appt_id)
+                sql_treatment, (new_treatment_id, desc, cost, str(patient_id), appt_id)
             )
 
             # only insert if provided
@@ -180,8 +180,6 @@ class SQLDoctorMixin:
 
         cursor.close()
         conn.close()
-
-        # TODO: change the naming here to be English as well
 
         report = []
         for row in results:
