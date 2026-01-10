@@ -64,7 +64,7 @@ class DataMigrator(SQLBase, MongoBase):
                     medications = self.sql_cursor.fetchall()
                     
                     medikamente_list = [
-                        {"id": med[0], "name": med[1]}
+                        {"pzn": med[0], "name": med[1]}
                         for med in medications
                     ]
                     
@@ -89,11 +89,13 @@ class DataMigrator(SQLBase, MongoBase):
                 
                 appointments_list.append({
                     "termin_id": termin_id,
-                    "date": datetime.combine(appt_date, datetime.min.time()),
+                    # Combine date with minimal time for MongoDB storage
+                    # MongoDB stores dates as full datetime objects
+                    "date": datetime.combine(appt_date, datetime.min.time()), 
                     "time": time_str,
                     "reason": appt[3],
                     "doctor": {
-                        "id": appt[4],
+                        "svnr": appt[4],
                         "name": appt[5],
                         "fachrichtung": appt[6]
                     },
@@ -116,10 +118,12 @@ class DataMigrator(SQLBase, MongoBase):
     def migrate_to_doctor_collection(self):
         """Migrate Doctor data from SQL to MongoDB"""
         self.sql_cursor.execute('''
-            SELECT person.SVNr, person.Name, person.Adresse,
-                   doctor.Fachgebiet, doctor.Berufserfahrung
+            SELECT Person.SVNr, Person.Name, Person.Adresse,
+                    Arzt.Fachrichtung, Arzt.Position, Arzt.Vorgesetzter_SVNr,
+                    Abteilung.Name, Abteilung.Gebäude, Abteilung.Stockwerk
             FROM Person
-            JOIN Doctor ON person.SVNr = doctor.SVNr
+            JOIN Arzt ON Person.SVNr = Arzt.SVNr
+            JOIN Abteilung ON Arzt.Abteilungsname = Abteilung.Name
         ''')
         rows = self.sql_cursor.fetchall()
         
@@ -130,8 +134,14 @@ class DataMigrator(SQLBase, MongoBase):
                 "svnr": row[0],
                 "name": row[1],
                 "adresse": row[2],
-                "fachgebiet": row[3],
-                "berufserfahrung": row[4]
+                "fachrichtung": row[3],
+                "position": row[4],
+                "vorgesetzter_svnr": row[5],
+                "abteilung": {
+                    "name": row[6],
+                    "gebäude": row[7],
+                    "stockwerk": row[8]
+                }
             }
             doctor_collection.insert_one(doctor_doc)
         
