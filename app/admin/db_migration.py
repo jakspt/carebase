@@ -268,6 +268,10 @@ class DataMigrator(SQLBase, MongoBase):
             f"Migrated {len(rows)} appointments to MongoDB 'appointments' collection."
         )
 
+    def setupDoctorIndices(self):
+        # for find_patients method
+        self.mongo_db[MongoBase.collection_patient_name].create_index("name")
+
     def migrate_all(self):
         self.delete_all_collections()
         self.migrate_to_doctor_collection()
