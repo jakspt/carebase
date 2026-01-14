@@ -1,8 +1,9 @@
-from flask import render_template, request, jsonify
+from flask import jsonify, render_template, request
+
+from app.db import *
 
 from . import clerk_bp
 
-from app.db import *
 
 @clerk_bp.route('/')
 def overview():
@@ -19,11 +20,8 @@ def report():
     return render_template('clerk/report.html')
     
 
-# API Endpoints with example data
-
 @clerk_bp.route('/api/clerks/search')
 def search_clerks():
-    """Search clerks by name or SVNr"""
     query = request.args.get('q', '').lower()
     
     db = get_db()
@@ -39,7 +37,7 @@ def search_clerks():
 
 @clerk_bp.route('/api/patients/search')
 def search_patients():
-    """Search patients by name or SVNr - returns example data"""
+
     query = request.args.get('q', '').lower()
     
     db = get_db()
@@ -56,7 +54,6 @@ def search_patients():
 
 @clerk_bp.route('/api/doctors')
 def get_doctors():
-    """Get all doctors - used to populate departments and doctor selection"""
     
     db = get_db()
 
@@ -66,7 +63,6 @@ def get_doctors():
 
 @clerk_bp.route('/api/timeslots')
 def get_timeslots():
-    """Get available time slots for a given date, doctor, and patient"""
     date = request.args.get('date', '')
     doctor_svnr = request.args.get('doctor_svnr', '')
     patient_svnr = request.args.get('patient_svnr', '')
@@ -108,7 +104,6 @@ def get_timeslots():
 
 @clerk_bp.route('/api/appointments', methods=['POST'])
 def create_appointment():
-    """Create a new appointment"""
     data = request.get_json()
     
     # Validate required fields
@@ -160,7 +155,6 @@ def create_appointment():
 
 @clerk_bp.route('/api/report/patient-visits')
 def get_patient_visits_report():
-    """Get patient visits per doctor within a date range - implements the complex query"""
     start_date = request.args.get('start_date', '2026-01-01')
     end_date = request.args.get('end_date', '2026-12-31')
     

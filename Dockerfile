@@ -9,6 +9,7 @@ WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
+ENV PYTHONUNBUFFERED=1
 
 COPY pyproject.toml uv.lock* ./
 
@@ -21,4 +22,4 @@ COPY . .
 EXPOSE 5000
 
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "run:app"]

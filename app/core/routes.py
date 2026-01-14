@@ -5,7 +5,6 @@ from . import core_bp
 
 @core_bp.route("/")
 def index():
-    # TODO: Implement so that depending on the current user, it shows their homepage
     if "user" in session:
         return redirect_to_overview()
     return render_template("index.html")
