@@ -1,0 +1,292 @@
+{% extends "nav.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Analytischer Bericht</h1>
+    
+    <a href="{{ url_for('clerk.overview') }}" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Zurück
+    </a>
+    
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-funnel me-2"></i>Zeitraum auswählen
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="startDate" class="form-label">Von</label>
+                    <input type="date" class="form-control" id="startDate" value="2026-01-01">
+                </div>
+                <div class="col-md-5">
+                    <label for="endDate" class="form-label">Bis</label>
+                    <input type="date" class="form-control" id="endDate" value="2026-12-31">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary w-100" onclick="loadReport()">
+                        <i class="bi bi-search me-1"></i>Suchen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="text-center my-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Laden...</span>
+        </div>
+        <p class="mt-2 text-muted">Daten werden geladen...</p>
+    </div>
+
+    <!-- Report Results -->
+    <div id="reportResults" style="display: none;">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-1 opacity-75">Patienten</h6>
+                                <h2 class="card-title mb-0" id="totalPatients">0</h2>
+                            </div>
+                            <i class="bi bi-people fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-1 opacity-75">Ärzte</h6>
+                                <h2 class="card-title mb-0" id="totalDoctors">0</h2>
+                            </div>
+                            <i class="bi bi-heart-pulse fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-1 opacity-75">Gesamttermine</h6>
+                                <h2 class="card-title mb-0" id="totalAppointments">0</h2>
+                            </div>
+                            <i class="bi bi-calendar-check fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Charts Container -->
+        <div id="chartsContainer">
+            <!-- Charts will be populated here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Keine Daten für den ausgewählten Zeitraum gefunden.</p>
+        </div>
+    </div>
+
+    <!-- Initial State -->
+    <div id="initialState" class="text-center py-5">
+        <i class="bi bi-file-earmark-bar-graph fs-1 text-muted"></i>
+        <h5 class="mt-3 text-muted">Patientenbesuche nach Arzt</h5>
+        <p class="text-muted">Wählen Sie einen Zeitraum und klicken Sie auf "Suchen", um den Bericht zu generieren.</p>
+        <p class="text-muted small">
+            Der Bericht zeigt die Anzahl der Termine pro Patient bei jedem Arzt im ausgewählten Zeitraum.
+        </p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Store chart instances to destroy them before creating new ones
+    let chartInstances = [];
+
+    // Color palette for bars
+    const colorPalette = [
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(255, 206, 86, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(255, 159, 64, 0.8)',
+        'rgba(199, 199, 199, 0.8)',
+        'rgba(83, 102, 255, 0.8)',
+        'rgba(255, 99, 255, 0.8)',
+        'rgba(99, 255, 132, 0.8)'
+    ];
+
+    function loadReport() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            alert('Bitte wählen Sie einen gültigen Zeitraum aus.');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Das Startdatum muss vor dem Enddatum liegen.');
+            return;
+        }
+
+        // Show loading, hide other states
+        document.getElementById('initialState').style.display = 'none';
+        document.getElementById('reportResults').style.display = 'none';
+        document.getElementById('loadingIndicator').style.display = 'block';
+
+        fetch(`/clerk/api/report/patient-visits?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('reportResults').style.display = 'block';
+                
+                displayReport(data.results || []);
+            })
+            .catch(error => {
+                console.error('Error loading report:', error);
+                document.getElementById('loadingIndicator').style.display = 'none';
+                alert('Fehler beim Laden des Berichts. Bitte versuchen Sie es erneut.');
+            });
+    }
+
+    function displayReport(data) {
+        const chartsContainer = document.getElementById('chartsContainer');
+        const emptyState = document.getElementById('emptyState');
+        
+        // Destroy existing charts
+        chartInstances.forEach(chart => chart.destroy());
+        chartInstances = [];
+        chartsContainer.innerHTML = '';
+
+        // Calculate summary statistics
+        const uniquePatients = new Set(data.map(row => row.patient_svnr)).size;
+        const uniqueDoctors = new Set(data.map(row => row.arzt_svnr)).size;
+        const totalAppointments = data.reduce((sum, row) => sum + row.anzahl_termine, 0);
+
+        document.getElementById('totalPatients').textContent = uniquePatients;
+        document.getElementById('totalDoctors').textContent = uniqueDoctors;
+        document.getElementById('totalAppointments').textContent = totalAppointments;
+
+        if (data.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+
+        // Group data by doctor
+        const doctorData = {};
+        data.forEach(row => {
+            const doctorKey = row.arzt_svnr;
+            if (!doctorData[doctorKey]) {
+                doctorData[doctorKey] = {
+                    name: row.arzt_name,
+                    svnr: row.arzt_svnr,
+                    fachrichtung: row.fachrichtung,
+                    patients: []
+                };
+            }
+            doctorData[doctorKey].patients.push({
+                name: row.patient_name,
+                svnr: row.patient_svnr,
+                versicherung: row.versicherung,
+                termine: row.anzahl_termine
+            });
+        });
+
+        // Create a chart for each doctor
+        Object.values(doctorData).forEach((doctor, doctorIndex) => {
+            // Create card element
+            const card = document.createElement('div');
+            card.className = 'card mb-4';
+            card.innerHTML = `
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-bar-chart me-2"></i>
+                        <strong>${doctor.name}</strong>
+                        <code class="ms-2">${doctor.svnr}</code>
+                    </div>
+                    <span class="badge bg-info">${doctor.fachrichtung}</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="chart-${doctorIndex}" height="${Math.max(100, doctor.patients.length * 40)}"></canvas>
+                </div>
+            `;
+            chartsContainer.appendChild(card);
+
+            // Prepare chart data
+            const labels = doctor.patients.map(p => `${p.name} (${p.svnr})`);
+            const values = doctor.patients.map(p => p.termine);
+            const backgroundColors = doctor.patients.map((_, i) => colorPalette[i % colorPalette.length]);
+            const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
+
+            // Create chart
+            const ctx = document.getElementById(`chart-${doctorIndex}`).getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Anzahl Termine',
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const patient = doctor.patients[context.dataIndex];
+                                    return `Versicherung: ${patient.versicherung}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Anzahl Termine'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            chartInstances.push(chart);
+        });
+    }
+</script>
+{% endblock %}

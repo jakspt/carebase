@@ -1,0 +1,515 @@
+{% extends "nav.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Termin eintragen</h1>
+        
+        <!-- Clerk Selection (Top Right) -->
+        <div class="card" style="min-width: 350px;">
+            <div class="card-header py-2">
+                <i class="bi bi-person-workspace me-2"></i>Sachbearbeiter
+            </div>
+            <div class="card-body py-2">
+                <div class="mb-2">
+                    <input type="text" class="form-control form-control-sm" id="clerkSearch" placeholder="Sachbearbeiter suchen...">
+                </div>
+                <!-- Clerk Search Results -->
+                <div id="clerkSearchResults" class="list-group list-group-flush" style="display: none; max-height: 200px; overflow-y: auto;">
+                    <!-- Results will be populated here -->
+                </div>
+                <!-- Selected Clerk -->
+                <div id="selectedClerk" class="alert alert-success py-2 mb-0" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="me-3"><i class="bi bi-person-check me-1"></i><span id="selectedClerkName"></span></span>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 flex-shrink-0" onclick="clearClerk()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('clerk.overview') }}" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Zurück
+    </a>
+    
+    <!-- Success Alert (hidden by default) -->
+    <div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span id="successMessage">Termin erfolgreich erstellt!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Step 1: Patient Search Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-search me-2"></i>Patient suchen
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="patientSearch" class="form-label">Name oder SVNr eingeben</label>
+                <input type="text" class="form-control" id="patientSearch" placeholder="Patient suchen...">
+            </div>
+            <!-- Search Results -->
+            <div id="searchResults" class="list-group" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+            <!-- Selected Patient -->
+            <div id="selectedPatient" class="alert alert-info mt-3" style="display: none;">
+                <strong>Ausgewählter Patient:</strong> <span id="selectedPatientName"></span>
+                <button type="button" class="btn btn-sm btn-outline-danger float-end" onclick="clearPatient()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Department Selection (hidden until patient is selected) -->
+    <div id="departmentSection" class="card mb-4" style="display: none;">
+        <div class="card-header">
+            <i class="bi bi-building me-2"></i>Abteilung auswählen
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="departmentSelect" class="form-label">Abteilung</label>
+                <select class="form-select" id="departmentSelect">
+                    <option value="">Abteilung auswählen...</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Doctor Selection (hidden until department is selected) -->
+    <div id="doctorSection" class="card mb-4" style="display: none;">
+        <div class="card-header">
+            <i class="bi bi-person-badge me-2"></i>Arzt auswählen
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="doctorSelect" class="form-label">Verfügbare Ärzte in der Abteilung</label>
+                <select class="form-select" id="doctorSelect">
+                    <option value="">Arzt auswählen...</option>
+                </select>
+            </div>
+            <div id="doctorInfo" class="alert alert-light" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Date and Time Selection (hidden until doctor is selected) -->
+    <div id="appointmentSection" class="card mb-4" style="display: none;">
+        <div class="card-header">
+            <i class="bi bi-calendar-event me-2"></i>Datum und Uhrzeit auswählen
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="appointmentDate" class="form-label">Datum</label>
+                <input type="date" class="form-control" id="appointmentDate">
+            </div>
+            
+            <!-- Available Time Slots -->
+            <div id="timeSlotsContainer" class="mt-3" style="display: none;">
+                <label class="form-label">Verfügbare Zeitfenster</label>
+                <div id="timeSlots" class="d-flex flex-wrap gap-2">
+                    <!-- Time slots will be populated here -->
+                </div>
+                <div id="selectedTimeDisplay" class="mt-2 text-success" style="display: none;">
+                    <i class="bi bi-check-circle me-1"></i>Ausgewählte Uhrzeit: <strong id="selectedTimeText"></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: Reason Input (hidden until time is selected) -->
+    <div id="reasonSection" class="card mb-4" style="display: none;">
+        <div class="card-header">
+            <i class="bi bi-card-text me-2"></i>Termingrund
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="appointmentReason" class="form-label">Grund des Termins</label>
+                <textarea class="form-control" id="appointmentReason" rows="3" placeholder="Beschreiben Sie den Grund des Termins..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div id="submitSection" class="mb-5" style="display: none;">
+        <button type="button" class="btn btn-primary btn-lg w-100" onclick="submitAppointment()">
+            <i class="bi bi-check-lg me-2"></i>Termin erstellen
+        </button>
+    </div>
+</div>
+
+<script>
+    let selectedPatient = null;
+    let selectedDepartment = null;
+    let selectedDoctor = null;
+    let selectedTimeSlot = null;
+    let selectedClerk = null;
+    let allDoctors = [];
+
+    // Helper function to get badge color based on NACA score
+    function getNacaBadgeColor(score) {
+        if (score === null || score === undefined) return 'secondary';
+        if (score <= 2) return 'success';
+        if (score <= 4) return 'warning';
+        return 'danger';
+    }
+
+    // Set minimum date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('appointmentDate').min = today;
+        
+        // Load all doctors to extract departments
+        loadDepartments();
+    });
+
+    // Load departments from doctors
+    function loadDepartments() {
+        fetch('/clerk/api/doctors')
+            .then(response => response.json())
+            .then(data => {
+                allDoctors = data.doctors;
+                
+                // Extract unique departments
+                const departments = [...new Set(data.doctors.map(d => d.abteilung))];
+                
+                const select = document.getElementById('departmentSelect');
+                select.innerHTML = '<option value="">Abteilung auswählen...</option>';
+                
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    select.appendChild(option);
+                });
+            });
+    }
+
+    // Clerk Search
+    document.getElementById('clerkSearch').addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            document.getElementById('clerkSearchResults').style.display = 'none';
+            return;
+        }
+        
+        fetch(`/clerk/api/clerks/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('clerkSearchResults');
+                resultsDiv.innerHTML = '';
+                
+                if (data.clerks.length === 0) {
+                    resultsDiv.innerHTML = '<div class="list-group-item text-muted py-2">Keine Sachbearbeiter gefunden</div>';
+                } else {
+                    data.clerks.forEach(clerk => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action py-2';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>${clerk.name}</strong>
+                                <small class="text-muted">SVNr: ${clerk.svnr}</small>
+                            </div>
+                        `;
+                        item.onclick = (e) => {
+                            e.preventDefault();
+                            selectClerk(clerk);
+                        };
+                        resultsDiv.appendChild(item);
+                    });
+                }
+                resultsDiv.style.display = 'block';
+            });
+    });
+
+    function selectClerk(clerk) {
+        selectedClerk = clerk;
+        document.getElementById('clerkSearchResults').style.display = 'none';
+        document.getElementById('clerkSearch').value = '';
+        document.getElementById('selectedClerkName').textContent = `${clerk.name} (SVNr: ${clerk.svnr})`;
+        document.getElementById('selectedClerk').style.display = 'block';
+        document.getElementById('noClerkWarning').style.display = 'none';
+    }
+
+    function clearClerk() {
+        selectedClerk = null;
+        document.getElementById('selectedClerk').style.display = 'none';
+        document.getElementById('noClerkWarning').style.display = 'block';
+    }
+
+    // Patient Search
+    document.getElementById('patientSearch').addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            document.getElementById('searchResults').style.display = 'none';
+            return;
+        }
+        
+        fetch(`/clerk/api/patients/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = '';
+                
+                if (data.patients.length === 0) {
+                    resultsDiv.innerHTML = '<div class="list-group-item text-muted">Keine Patienten gefunden</div>';
+                } else {
+                    data.patients.forEach(patient => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${patient.name}</strong>
+                                    <small class="text-muted ms-2">SVNr: ${patient.svnr}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-${getNacaBadgeColor(patient.naca_score)} me-1">NACA: ${patient.naca_score ?? 'N/A'}</span>
+                                    <span class="badge bg-secondary">${patient.versicherung}</span>
+                                </div>
+                            </div>
+                        `;
+                        item.onclick = (e) => {
+                            e.preventDefault();
+                            selectPatient(patient);
+                        };
+                        resultsDiv.appendChild(item);
+                    });
+                }
+                resultsDiv.style.display = 'block';
+            });
+    });
+
+    function selectPatient(patient) {
+        selectedPatient = patient;
+        document.getElementById('searchResults').style.display = 'none';
+        document.getElementById('patientSearch').value = '';
+        document.getElementById('selectedPatientName').textContent = `${patient.name} (SVNr: ${patient.svnr})`;
+        document.getElementById('selectedPatient').style.display = 'block';
+        document.getElementById('departmentSection').style.display = 'block';
+    }
+
+    function clearPatient() {
+        selectedPatient = null;
+        selectedDepartment = null;
+        selectedDoctor = null;
+        selectedTimeSlot = null;
+        
+        document.getElementById('selectedPatient').style.display = 'none';
+        document.getElementById('departmentSection').style.display = 'none';
+        document.getElementById('doctorSection').style.display = 'none';
+        document.getElementById('appointmentSection').style.display = 'none';
+        document.getElementById('reasonSection').style.display = 'none';
+        document.getElementById('submitSection').style.display = 'none';
+        document.getElementById('timeSlotsContainer').style.display = 'none';
+        document.getElementById('selectedTimeDisplay').style.display = 'none';
+        document.getElementById('doctorInfo').style.display = 'none';
+        
+        document.getElementById('departmentSelect').value = '';
+        document.getElementById('doctorSelect').value = '';
+        document.getElementById('appointmentDate').value = '';
+        document.getElementById('appointmentReason').value = '';
+    }
+
+    // Department Selection
+    document.getElementById('departmentSelect').addEventListener('change', function() {
+        const department = this.value;
+        
+        // Reset subsequent selections
+        selectedDepartment = null;
+        selectedDoctor = null;
+        selectedTimeSlot = null;
+        document.getElementById('doctorSection').style.display = 'none';
+        document.getElementById('appointmentSection').style.display = 'none';
+        document.getElementById('reasonSection').style.display = 'none';
+        document.getElementById('submitSection').style.display = 'none';
+        document.getElementById('doctorInfo').style.display = 'none';
+        document.getElementById('timeSlotsContainer').style.display = 'none';
+        document.getElementById('selectedTimeDisplay').style.display = 'none';
+        document.getElementById('appointmentDate').value = '';
+        
+        if (!department) return;
+        
+        selectedDepartment = department;
+        
+        // Filter doctors by department
+        const departmentDoctors = allDoctors.filter(d => d.abteilung === department);
+        
+        const select = document.getElementById('doctorSelect');
+        select.innerHTML = '<option value="">Arzt auswählen...</option>';
+        
+        departmentDoctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.svnr;
+            option.textContent = `${doctor.name} - ${doctor.fachrichtung}`;
+            option.dataset.info = JSON.stringify(doctor);
+            select.appendChild(option);
+        });
+        
+        document.getElementById('doctorSection').style.display = 'block';
+    });
+
+    // Doctor Selection
+    document.getElementById('doctorSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        // Reset subsequent selections
+        selectedDoctor = null;
+        selectedTimeSlot = null;
+        document.getElementById('appointmentSection').style.display = 'none';
+        document.getElementById('reasonSection').style.display = 'none';
+        document.getElementById('submitSection').style.display = 'none';
+        document.getElementById('timeSlotsContainer').style.display = 'none';
+        document.getElementById('selectedTimeDisplay').style.display = 'none';
+        document.getElementById('appointmentDate').value = '';
+        
+        if (selectedOption.value) {
+            const doctor = JSON.parse(selectedOption.dataset.info);
+            selectedDoctor = doctor;
+            document.getElementById('doctorInfo').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Name:</strong> ${doctor.name}<br>
+                        <strong>Fachrichtung:</strong> ${doctor.fachrichtung ?? 'Turnus'}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Position:</strong> ${doctor.position ?? 'Vertretung'}<br>
+                        <strong>Abteilung:</strong> ${doctor.abteilung}
+                    </div>
+                </div>
+            `;
+            document.getElementById('doctorInfo').style.display = 'block';
+            document.getElementById('appointmentSection').style.display = 'block';
+        } else {
+            document.getElementById('doctorInfo').style.display = 'none';
+        }
+    });
+
+    // Date Selection - Load available time slots
+    document.getElementById('appointmentDate').addEventListener('change', function() {
+        const date = this.value;
+        if (!date) return;
+
+        // Reset time selection when date changes
+        selectedTimeSlot = null;
+        document.getElementById('selectedTimeDisplay').style.display = 'none';
+        document.getElementById('reasonSection').style.display = 'none';
+        document.getElementById('submitSection').style.display = 'none';
+
+        // Include patient_svnr to check patient availability too
+        fetch(`/clerk/api/timeslots?date=${date}&doctor_svnr=${selectedDoctor.svnr}&patient_svnr=${selectedPatient.svnr}`)
+            .then(response => response.json())
+            .then(data => {
+                const timeSlotsDiv = document.getElementById('timeSlots');
+                timeSlotsDiv.innerHTML = '';
+                
+                // Count available slots
+                const availableCount = data.slots.filter(s => s.available).length;
+                
+                if (availableCount === 0) {
+                    timeSlotsDiv.innerHTML = '<div class="alert alert-warning">Keine verfügbaren Termine an diesem Tag.</div>';
+                } else {
+                    data.slots.forEach(slot => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = `btn ${slot.available ? 'btn-outline-primary' : 'btn-outline-secondary disabled'}`;
+                        btn.textContent = slot.time;
+                        btn.disabled = !slot.available;
+                        if (slot.available) {
+                            btn.onclick = () => selectTimeSlot(slot.time, btn);
+                        }
+                        timeSlotsDiv.appendChild(btn);
+                    });
+                }
+                
+                document.getElementById('timeSlotsContainer').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading time slots:', error);
+                alert('Fehler beim Laden der Zeitfenster.');
+            });
+    });
+
+    function selectTimeSlot(time, btn) {
+        selectedTimeSlot = time;
+        // Remove active class from all buttons
+        document.querySelectorAll('#timeSlots button').forEach(b => {
+            b.classList.remove('btn-primary');
+            if (!b.disabled) b.classList.add('btn-outline-primary');
+        });
+        // Add active class to selected button
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-primary');
+        
+        // Show selected time
+        document.getElementById('selectedTimeText').textContent = time;
+        document.getElementById('selectedTimeDisplay').style.display = 'block';
+        
+        // Show reason section and submit button
+        document.getElementById('reasonSection').style.display = 'block';
+        document.getElementById('submitSection').style.display = 'block';
+    }
+
+    function submitAppointment() {
+        const reason = document.getElementById('appointmentReason').value.trim();
+        const date = document.getElementById('appointmentDate').value;
+        
+        if (!selectedPatient || !selectedDoctor || !selectedTimeSlot) {
+            alert('Bitte füllen Sie alle Felder aus.');
+            return;
+        }
+
+        const appointmentData = {
+            patient_svnr: selectedPatient.svnr,
+            doctor_svnr: selectedDoctor.svnr,
+            date: date,
+            time: selectedTimeSlot,
+            reason: reason,
+            clerk_svnr: selectedClerk?.svnr ?? null
+        };
+
+        fetch('/clerk/api/appointments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(appointmentData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success notification
+                const alertDiv = document.getElementById('successAlert');
+                document.getElementById('successMessage').textContent = 
+                    `Termin erfolgreich erstellt! Termin-ID: ${data.termin_id}`;
+                alertDiv.style.display = 'block';
+                alertDiv.classList.add('show');
+                
+                // Reset form
+                clearPatient();
+                
+                // Scroll to top to show notification
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.style.display = 'none', 150);
+                }, 5000);
+            } else {
+                alert('Fehler beim Erstellen des Termins: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Ein Fehler ist aufgetreten: ' + error);
+        });
+    }
+</script>
+{% endblock %}

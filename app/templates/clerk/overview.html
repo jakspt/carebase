@@ -1,5 +1,52 @@
 {% extends "nav.html" %}
 
 {% block content %}
-    <h1>Clerk</h1>
+<div class="container mt-5">
+    <!-- Willkommensbereich -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 bg-light rounded-3">
+                <h2 class="mb-3">
+                    Willkommen im Sachbearbeiter-Bereich
+                </h2>
+                <p class="lead mb-0">
+                    Hier können Sie Patiententermine verwalten und analytische Berichte einsehen. 
+                    Wählen Sie eine der folgenden Optionen, um fortzufahren.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Termin eintragen -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="bi bi-calendar-plus"></i> Termin eintragen
+                    </h5>
+                    <p class="card-text">Neuen Termin für Patienten anlegen.</p>
+                    <a href="{{ url_for('clerk.appointment') }}" class="btn btn-primary mt-auto">
+                        Zum Formular
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytischer Bericht -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Analytischer Bericht
+                    </h5>
+                    <p class="card-text">Berichte und Analysen einsehen.</p>
+                    <a href="{{ url_for('clerk.report') }}" class="btn btn-success mt-auto">
+                        Zum Bericht
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
