@@ -7,7 +7,7 @@ class SQLBase:
             connection = mariadb.connect(
                 user="root",
                 password="1234",
-                host="127.0.0.1",
+                host="mariadb",
                 port=3306,
                 database="carebase",
             )

@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 
 
-# TODO: Rename Connection String for Docker use (swap out localhost)
 class MongoBase:
     collection_patient_name = "patient"
     collection_doctor_name = "arzt"
@@ -15,5 +14,5 @@ class MongoBase:
     def _get_connection(self):
         if MongoBase._client is None:
             print("Initializing new MongoDB connection...")
-            MongoBase._client = MongoClient("mongodb://localhost:27017/")
+            MongoBase._client = MongoClient("mongodb://mongodb:27017/")
         return MongoBase._client["carebase"]
