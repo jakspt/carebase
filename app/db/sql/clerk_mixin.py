@@ -8,9 +8,9 @@ class SQLClerkMixin:
 
     def get_all_patients(self) -> list[dict]:
         query = """
-            SELECT person.SVNr, person.Name, patient.Versicherungsträger, patient.NACA_Score
+            SELECT Person.SVNr, Person.Name, Patient.Versicherungsträger, Patient.NACA_Score
             FROM Person
-            JOIN Patient ON person.SVNr = patient.SVNr
+            JOIN Patient ON Person.SVNr = Patient.SVNr
         """
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
@@ -28,9 +28,9 @@ class SQLClerkMixin:
 
     def get_all_doctors(self) -> list[dict]:
         query = """
-            SELECT person.SVNr, person.Name, arzt.Fachrichtung, arzt.Position, arzt.Abteilungsname
+            SELECT Person.SVNr, Person.Name, Arzt.Fachrichtung, Arzt.Position, Arzt.Abteilungsname
             FROM Person
-            JOIN Arzt ON person.SVNr = arzt.SVNr
+            JOIN Arzt ON Person.SVNr = Arzt.SVNr
         """
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
@@ -50,9 +50,9 @@ class SQLClerkMixin:
     def get_all_clerks(self) -> list[dict]:
         """Get all clerks (Sachbearbeiter)"""
         query = """
-            SELECT person.SVNr, person.Name
+            SELECT Person.SVNr, Person.Name
             FROM Person
-            JOIN Sachbearbeiter ON person.SVNr = Sachbearbeiter.SVNr
+            JOIN Sachbearbeiter ON Person.SVNr = Sachbearbeiter.SVNr
         """
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
