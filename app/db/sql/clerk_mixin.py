@@ -1,7 +1,7 @@
 from app.db.sql.base import SQLBase
 
 
-class SQLClerkMixin(SQLBase):
+class SQLClerkMixin:
     def __init__(self) -> None:
         self.conn = self._get_connection()
         self.cursor = self.conn.cursor()

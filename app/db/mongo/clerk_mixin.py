@@ -2,7 +2,7 @@ import pymongo
 from app.db.mongo.base import MongoBase
 from datetime import datetime
 
-class MongoClerkMixin(MongoBase):
+class MongoClerkMixin:
     def __init__(self) -> None:
         self.conn = self._get_connection()
         self.patient_collection = self.conn[MongoBase.collection_patient_name]
