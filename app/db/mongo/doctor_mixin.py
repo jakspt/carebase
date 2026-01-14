@@ -113,7 +113,6 @@ class MongoDoctorMixin:
     def get_doctor_report(self, start_year: int) -> list[dict]:
         db = self._get_connection()
 
-        # [cite_start]Fetch all doctors [cite: 2]
         doctors = db[self.collection_doctor_name].find({})
         report = []
 
