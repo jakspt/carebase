@@ -62,7 +62,7 @@ class MongoClerkMixin:
     def convert_date_str(self, date_str: str) -> datetime:
         return datetime.strptime(date_str, "%Y-%m-%d")
     
-    def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
+    def get_doctor_booked_slots(self, doctor_svnr: str, date: str) -> list[str]:
         """Get all booked time slots for a doctor on a specific date"""
         converted_date = self.convert_date_str(date)
         
@@ -83,7 +83,7 @@ class MongoClerkMixin:
         print("Booked slots for doctor:", booked_slots)
         return booked_slots
     
-    def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
+    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]:
         """Get all booked time slots for a patient on a specific date"""
         converted_date = self.convert_date_str(date)
     
@@ -113,7 +113,7 @@ class MongoClerkMixin:
         else:
             return 1
 
-    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
+    def create_appointment(self, patient_svnr: str, doctor_svnr: str, date: str, time: str, reason: str, clerk_svnr: str) -> int:
         termin_id = self.get_next_termin_id()
         patient = self.patient_collection.find_one({"_id": patient_svnr})
         doctor = self.doctor_collection.find_one({"_id": doctor_svnr})
@@ -154,7 +154,7 @@ class MongoClerkMixin:
             }}})
         return termin_id
     
-    def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None:
+    def check_appointment_conflict(self, doctor_svnr: str, patient_svnr: str, date: str, time: str) -> dict | None:
         converted_date = self.convert_date_str(date)
 
         patient_conflict = self.appointment_collection.find_one({

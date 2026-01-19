@@ -72,14 +72,12 @@ def get_timeslots():
     
     db = get_db()
     
-    # Get already booked slots for this doctor
-    doctor_booked = db.get_doctor_booked_slots(int(doctor_svnr), date)
+    doctor_booked = db.get_doctor_booked_slots(doctor_svnr, date)
     
-    # Get already booked slots for this patient (patient can't be in two places)
     patient_booked = []
     if patient_svnr:
-        patient_booked = db.get_patient_booked_slots(int(patient_svnr), date)
-    
+        patient_booked = db.get_patient_booked_slots(patient_svnr, date)
+
     # Combine all unavailable slots
     unavailable_slots = set(doctor_booked + patient_booked)
     
@@ -94,7 +92,7 @@ def get_timeslots():
                 "time": time_str,
                 "available": time_str not in unavailable_slots
             })
-    
+
     return jsonify({
         "date": date,
         "doctor_svnr": doctor_svnr,

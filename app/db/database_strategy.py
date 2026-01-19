@@ -39,28 +39,28 @@ class DatabaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
+    def get_doctor_booked_slots(self, doctor_svnr: str, date: str) -> list[str]:
         pass
 
     @abstractmethod
-    def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
+    def get_patient_booked_slots(self, patient_svnr: str, date: str) -> list[str]:
         pass
 
     @abstractmethod
     def create_appointment(
         self,
-        patient_svnr: int,
-        doctor_svnr: int,
+        patient_svnr: str,
+        doctor_svnr: str,
         date: str,
         time: str,
         reason: str,
-        clerk_svnr: int,
+        clerk_svnr: str,
     ) -> int:
         pass
 
     @abstractmethod
     def check_appointment_conflict(
-        self, doctor_svnr: int, patient_svnr: int, date: str, time: str
+        self, doctor_svnr: str, patient_svnr: str, date: str, time: str
     ) -> dict | None:
         pass
 

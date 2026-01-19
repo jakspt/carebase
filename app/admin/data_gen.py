@@ -247,7 +247,7 @@ class DataGenerator(SQLBase):
         self.conn.commit()
 
     def gen_time(self) -> str:
-        hour = random.randint(8, 20)
+        hour = random.randint(8, 16)
         minute = random.choice([0, 30])
         time_val = f"{hour:02d}:{minute:02d}:00"
         return time_val
