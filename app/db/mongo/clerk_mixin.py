@@ -62,6 +62,11 @@ class MongoClerkMixin:
     def convert_date_str(self, date_str: str) -> datetime:
         return datetime.strptime(date_str, "%Y-%m-%d")
     
+    def format_time_slot(self, time_str: str) -> str:
+        """Ensure time string is zero-padded (e.g., '8:00' -> '08:00')"""
+        parts = time_str.split(":")
+        return f"{int(parts[0]):02d}:{int(parts[1]):02d}"
+    
     def get_doctor_booked_slots(self, doctor_svnr: str, date: str) -> list[str]:
         """Get all booked time slots for a doctor on a specific date"""
         converted_date = self.convert_date_str(date)
@@ -76,7 +81,7 @@ class MongoClerkMixin:
         searched_appointments = self.appointment_collection.find(findquery, projection)
 
         booked_slots = [
-            appt["uhrzeit"][:5]           
+            self.format_time_slot(appt["uhrzeit"])           
             for appt in searched_appointments 
             if "uhrzeit" in appt
         ]
@@ -98,7 +103,7 @@ class MongoClerkMixin:
         searched_appointments = self.appointment_collection.find(findquery, projection)
         
         booked_slots = [
-            appt["uhrzeit"][:5]           
+            self.format_time_slot(appt["uhrzeit"])        
             for appt in searched_appointments 
             if "uhrzeit" in appt
         ]
@@ -122,7 +127,7 @@ class MongoClerkMixin:
         self.appointment_collection.insert_one({
             "termin_id": termin_id,
             "datum": converted_date,
-            "uhrzeit": time,
+            "uhrzeit": self.format_time_slot(time),
             "grund": reason,
             "patient": {
                 "svnr": str(patient_svnr),
@@ -144,7 +149,7 @@ class MongoClerkMixin:
             {"$push": {"termine": {
                 "termin_id": termin_id,
                 "datum": converted_date,
-                "uhrzeit": time,
+                "uhrzeit": self.format_time_slot(time),
                 "grund": reason,
                 "arzt": {
                     "svnr": str(doctor_svnr),
@@ -160,7 +165,7 @@ class MongoClerkMixin:
         patient_conflict = self.appointment_collection.find_one({
             "patient.svnr": str(patient_svnr),
             "datum": converted_date,
-            "uhrzeit": time
+            "uhrzeit": self.format_time_slot(time)
         })
 
         if patient_conflict:
@@ -172,7 +177,7 @@ class MongoClerkMixin:
         doctor_conflict = self.appointment_collection.find_one({
             "arzt.svnr": str(doctor_svnr),
             "datum": converted_date,
-            "uhrzeit": time
+            "uhrzeit": self.format_time_slot(time)
         })
 
         if doctor_conflict:
