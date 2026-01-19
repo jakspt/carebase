@@ -6,7 +6,22 @@ class SQLClerkMixin:
         self.conn = self._get_connection()
         self.cursor = self.conn.cursor()
 
+
+    def _init_new_connection(self):
+        self.conn = self._get_connection()
+        self.cursor = self.conn.cursor()
+
+
+    def _close_connection(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.conn:
+            self.conn.close()
+
+
     def get_all_patients(self) -> list[dict]:
+        self._init_new_connection()
+
         query = """
             SELECT Person.SVNr, Person.Name, Patient.Versicherungsträger, Patient.NACA_Score
             FROM Person
@@ -24,9 +39,12 @@ class SQLClerkMixin:
                     "naca_score": row[3],
                 }
             )
+        self._close_connection()
         return patients
 
+
     def get_all_doctors(self) -> list[dict]:
+        self._init_new_connection()
         query = """
             SELECT Person.SVNr, Person.Name, Arzt.Fachrichtung, Arzt.Position, Arzt.Abteilungsname
             FROM Person
@@ -45,10 +63,12 @@ class SQLClerkMixin:
                     "abteilung": row[4],
                 }
             )
+        self._close_connection()
         return doctors
 
+
     def get_all_clerks(self) -> list[dict]:
-        """Get all clerks (Sachbearbeiter)"""
+        self._init_new_connection()
         query = """
             SELECT Person.SVNr, Person.Name
             FROM Person
@@ -59,9 +79,12 @@ class SQLClerkMixin:
         clerks = []
         for row in rows:
             clerks.append({"svnr": row[0], "name": row[1]})
+        self._close_connection()
         return clerks
 
+
     def get_doctor_booked_slots(self, doctor_svnr: int, date: str) -> list[str]:
+        self._init_new_connection()
         query = """
             SELECT Uhrzeit
             FROM Termin
@@ -69,13 +92,17 @@ class SQLClerkMixin:
         """
         self.cursor.execute(query, (doctor_svnr, date))
         rows = self.cursor.fetchall()
+        self._close_connection()
+        
         # Convert time objects to string format "HH:MM"
         return [
             row[0].strftime("%H:%M") if hasattr(row[0], "strftime") else str(row[0])[:5]
             for row in rows
         ]
 
+
     def get_patient_booked_slots(self, patient_svnr: int, date: str) -> list[str]:
+        self._init_new_connection()
         query = """
             SELECT Uhrzeit
             FROM Termin
@@ -83,12 +110,15 @@ class SQLClerkMixin:
         """
         self.cursor.execute(query, (patient_svnr, date))
         rows = self.cursor.fetchall()
+        self._close_connection()
+
         return [
             row[0].strftime("%H:%M") if hasattr(row[0], "strftime") else str(row[0])[:5]
             for row in rows
         ]
 
     def get_next_termin_id(self, patient_svnr: int) -> int:
+        self._init_new_connection()
         query = """
             SELECT COALESCE(MAX(TerminID), 0) + 1
             FROM Termin
@@ -96,19 +126,14 @@ class SQLClerkMixin:
         """
         self.cursor.execute(query, (patient_svnr,))
         result = self.cursor.fetchone()
+        self._close_connection()
+
         return result[0] if result else 1
 
-    def create_appointment(
-        self,
-        patient_svnr: int,
-        doctor_svnr: int,
-        date: str,
-        time: str,
-        reason: str,
-        clerk_svnr: int,
-    ) -> int:
+    def create_appointment(self, patient_svnr: int, doctor_svnr: int, date: str, time: str, reason: str, clerk_svnr: int) -> int:
         termin_id = self.get_next_termin_id(patient_svnr)
 
+        self._init_new_connection()
         query = """
             INSERT INTO Termin (TerminID, Datum, Uhrzeit, Grund, SVNr_Patient, SVNr_Arzt, SVNr_Sachbearbeiter)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -118,12 +143,13 @@ class SQLClerkMixin:
             (termin_id, date, time, reason, patient_svnr, doctor_svnr, clerk_svnr),
         )
         self.conn.commit()
+        self._close_connection()
 
         return termin_id
 
-    def check_appointment_conflict(
-        self, doctor_svnr: int, patient_svnr: int, date: str, time: str
-    ) -> dict | None:
+    def check_appointment_conflict(self, doctor_svnr: int, patient_svnr: int, date: str, time: str) -> dict | None:
+        self._init_new_connection()
+
         # Check doctor conflict
         query = """
             SELECT TerminID FROM Termin
@@ -131,6 +157,7 @@ class SQLClerkMixin:
         """
         self.cursor.execute(query, (doctor_svnr, date, time))
         if self.cursor.fetchone():
+            self._close_connection()
             return {
                 "type": "doctor",
                 "message": "Der Arzt hat bereits einen Termin zu dieser Zeit.",
@@ -143,14 +170,19 @@ class SQLClerkMixin:
         """
         self.cursor.execute(query, (patient_svnr, date, time))
         if self.cursor.fetchone():
+            self._close_connection()
             return {
                 "type": "patient",
                 "message": "Der Patient hat bereits einen Termin zu dieser Zeit.",
             }
+        
+        self._close_connection()
 
         return None
 
     def get_patients_doctor_visits(self, start_date: str, end_date: str) -> list[dict]:
+        self._init_new_connection()
+
         query = """ 
             SELECT
                 Termin.`SVNr_Patient` AS Patient_SVNr,
@@ -184,4 +216,6 @@ class SQLClerkMixin:
                     "anzahl_termine": row[6],
                 }
             )
+        self._close_connection()
+
         return reports
