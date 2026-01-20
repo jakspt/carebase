@@ -22,7 +22,7 @@ class MongoClerkMixin:
             ("uhrzeit", pymongo.DESCENDING)
             ])
         
-        self.appointment_collection.create_index([("termin_id", pymongo.DESCENDING)])
+        self.appointment_collection.create_index([("datum", pymongo.DESCENDING)])
 
     def get_all_patients(self) -> list[dict]:
         result = []
@@ -110,8 +110,8 @@ class MongoClerkMixin:
         print("Booked slots for patient:", booked_slots)
         return booked_slots
     
-    def get_next_termin_id(self) -> int:
-        biggest_termin_id = self.appointment_collection.find_one({}, {"termin_id": 1, "_id": 0}, sort=[("termin_id", -1)])
+    def get_next_termin_id(self, patient_svnr: str) -> int:
+        biggest_termin_id = self.appointment_collection.find_one({"patient.svnr": str(patient_svnr)}, {"termin_id": 1, "_id": 0}, sort=[("termin_id", -1)])
         
         if biggest_termin_id and "termin_id" in biggest_termin_id:
             return biggest_termin_id["termin_id"] + 1
@@ -119,7 +119,7 @@ class MongoClerkMixin:
             return 1
 
     def create_appointment(self, patient_svnr: str, doctor_svnr: str, date: str, time: str, reason: str, clerk_svnr: str) -> int:
-        termin_id = self.get_next_termin_id()
+        termin_id = self.get_next_termin_id(patient_svnr)
         patient = self.patient_collection.find_one({"_id": patient_svnr})
         doctor = self.doctor_collection.find_one({"_id": doctor_svnr})
         converted_date = self.convert_date_str(date)
