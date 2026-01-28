@@ -234,13 +234,11 @@
         document.getElementById('clerkSearch').value = '';
         document.getElementById('selectedClerkName').textContent = `${clerk.name} (SVNr: ${clerk.svnr})`;
         document.getElementById('selectedClerk').style.display = 'block';
-        document.getElementById('noClerkWarning').style.display = 'none';
     }
 
     function clearClerk() {
         selectedClerk = null;
         document.getElementById('selectedClerk').style.display = 'none';
-        document.getElementById('noClerkWarning').style.display = 'block';
     }
 
     // Patient Search
