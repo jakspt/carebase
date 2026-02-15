@@ -16,10 +16,6 @@ CareBase is a web-based hospital information system developed as part of a unive
 
 The core objective of this project was to implement a flexible application capable of operating on both a Relational Database Management System (RDBMS) and a NoSQL database, including a feature for live data migration and seamless runtime switching between technologies using the Strategy Pattern.
 
-![alt text](demo/usecase_demo.gif)
-![alt text](demo/mig_demo.gif)
-![alt text](demo/report_demo.gif)
-
 ## Features
 
 - **Dual-Database Support**: The system runs fully functional on either MariaDB (SQL) or MongoDB (NoSQL).
@@ -31,6 +27,10 @@ The core objective of this project was to implement a flexible application capab
 - **Analytics Dashboard**
   - **Report 1**: Total treatment costs per doctor (aggregated by year).
   - **Report 2**: Patient visit frequency analysis per doctor
+
+![alt text](demo/usecase_demo.gif)
+![alt text](demo/mig_demo.gif)
+![alt text](demo/report_demo.gif)
 
 ## Tech Stack & Architecture
 
