@@ -1,27 +1,78 @@
-.action-card {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-   
-      padding: 1.5rem;
-    }
-    .card-icon {
-      font-size: 2.5rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      margin-bottom: 0.75rem;
-    }
-    .card-body {
-      flex: 1 1 auto;
-    }
-    .card-actions {
-      margin-top: auto;
-      display: flex;
-      justify-content: center;
-    }
-    
-  :host {
-      display: block;  /* Allows the host tag to take 100% width of the parent cell */
-      height: 100%;    /* Ensures uniform card heights in a row */
-    }
+mat-card-title {
+  color: var(--mat-sys-on-surface);
+}
 
+mat-card-subtitle {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* For custom content projected into <ng-content> */
+.card-body {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+
+.action-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  padding: 1.5rem;
+}
+
+/* Primary role */
+.card-icon.primary {
+  color: var(--mat-sys-on-primary-container);
+  background-color: var(--mat-sys-primary-container);
+}
+
+/* Secondary role */
+.card-icon.secondary {
+  color: var(--mat-sys-on-secondary-container);
+  background-color: var(--mat-sys-secondary-container);
+}
+
+/* Tertiary role (great for magic wands, AI, stars) */
+.card-icon.tertiary {
+  color: var(--mat-sys-on-tertiary-container);
+  background-color: var(--mat-sys-tertiary-container);
+}
+
+/* Error / Danger */
+.card-icon.error {
+  color: var(--mat-sys-on-error-container);
+  background-color: var(--mat-sys-error-container);
+}
+
+/* Neutral / Default */
+.card-icon.neutral {
+  color: var(--mat-sys-on-surface-variant);
+  background-color: var(--mat-sys-surface-container-high);
+}
+.card-icon {
+  /* Dimensions for mat-card-avatar */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  /* Icon sizing inside the circle */
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-body {
+  flex: 1 1 auto;
+}
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+}
+
+:host {
+  display: block; /* Allows the host tag to take 100% width of the parent cell */
+  height: 100%; /* Ensures uniform card heights in a row */
+}

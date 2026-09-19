@@ -1,0 +1,30 @@
+<main class="landing-container">
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <mat-icon class="badge">healing</mat-icon>
+    <h1 class="mat-headline-large">Welcome to CareBase</h1>
+    <p class="mat-body-large hero-subtitle">
+      Secure portal access for medical staff and system administrators.
+    </p>
+  </header>
+
+  <!-- Card Grid -->
+  <section class="card-grid" aria-label="Portals">
+    <app-action-card
+      title="Doctor Login"
+      description="Add treatments to appointments and view reports."
+      icon="vaccines"
+      iconColor="primary"
+      buttonText="Login as Doctor"
+      (actionClicked)="visitDoctorSite()"
+    />
+    <app-action-card
+      title="Admin Login"
+      description="Seed and migrate the database."
+      icon="admin_panel_settings"
+      iconColor="secondary"
+      buttonText="Login as Admin"
+      (actionClicked)="visitAdminSite()"
+    />
+  </section>
+</main>

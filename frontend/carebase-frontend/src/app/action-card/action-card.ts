@@ -3,6 +3,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
+export type ThemePalette = 'primary' | 'secondary' | 'tertiary' | 'error' | 'neutral';
+
 @Component({
   imports: [MatCardModule, MatButtonModule, MatIconModule],
   selector: 'app-action-card',
@@ -10,13 +12,13 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './action-card.html',
 })
 export class ActionCard {
-  title = input<string>('');
+  title = input.required<string>();
   description = input<string>('');
 
   icon = input<string>('face');
-  iconColor = input<string>('inherit');
+  iconColor = input<ThemePalette>('primary');
   actionText = input<string>('');
-  buttonColor = input<'primary' | 'accent' | 'warn'>('primary');
+  buttonText = input.required<string>();
 
   actionClicked = output<void>();
 
@@ -26,4 +28,8 @@ export class ActionCard {
   // Content -> contains Content (if it exists)
   // and also the other children (optional)
   // then the bottom contains the action button
+
+  protected onButtonClick() {
+    this.actionClicked.emit();
+  }
 }
