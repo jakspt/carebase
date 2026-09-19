@@ -23,8 +23,26 @@
   max-width: 640px;
   margin-bottom: 3rem;
 
-  .badge {
-    color: var(--mat-sys-on-secondary-container, #334155);
+  .hero-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-primary, #0284c7);
+
+    box-shadow: 0 4px 14px 0 rgba(2, 132, 199, 0.15);
+    border: 1px solid var(--mat-sys-outline-variant);
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
   }
 
   h1 {

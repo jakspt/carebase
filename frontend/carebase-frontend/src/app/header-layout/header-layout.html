@@ -1,5 +1,45 @@
-<mat-toolbar>
-  <span>Carebase Toolbar</span>
+<mat-toolbar class="app-header">
+  <div class="header-icon-wrapper"><mat-icon>healing</mat-icon></div>
+  <span class="brand-title">CareBase</span>
+
+  <!-- Flexible spacer to push actions to the right -->
+  <span class="toolbar-spacer"></span>
+
+  <!-- Trigger Button -->
+  <button
+    mat-button
+    [matMenuTriggerFor]="userMenu"
+    class="user-menu-trigger"
+    aria-label="User profile and account switcher"
+  >
+    <span class="avatar-circle">DR</span>
+    <mat-icon iconPositionEnd>expand_more</mat-icon>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <mat-menu #userMenu="matMenu" xPosition="before" class="profile-menu">
+    <!-- Current User Info Card -->
+    <div class="menu-header"><span>Signed in as </span><span>Doctor</span></div>
+    <mat-divider></mat-divider>
+
+    <!-- Switchable Roles / Accounts -->
+    <div class="menu-section-label">Switch Persona</div>
+    <button mat-menu-item (click)="switchRole('doctor')">
+      <mat-icon color="primary">check</mat-icon>
+      <span>Doctor</span>
+    </button>
+    <button mat-menu-item (click)="switchRole('admin')">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <span>System Administrator</span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Sign out</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>
 <main>
   <router-outlet></router-outlet>
