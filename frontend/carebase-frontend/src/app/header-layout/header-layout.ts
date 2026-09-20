@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAnchor } from '@angular/material/button';
+import { User, UserService } from '../user-service';
 
 @Component({
   imports: [
@@ -20,10 +21,22 @@ import { MatAnchor } from '@angular/material/button';
   templateUrl: './header-layout.html',
 })
 export class HeaderLayout {
-  switchRole(user: string) {
-    // switching happens here
+  private userService = inject(UserService);
+  userDisplay = computed(() => {
+    let currentUser = this.userService.getCurrentUser()();
+    if (currentUser === 'doctor') {
+      return 'Doctor';
+    } else if (currentUser === 'admin') {
+      return 'Admin';
+    } else {
+      throw new Error('there should be a user defined by now, but there was not');
+    }
+  });
+
+  switchRole(user: User) {
+    this.userService.setUser(user);
   }
   logout() {
-    //logging out happens here
+    this.userService.logout();
   }
 }

@@ -6,9 +6,10 @@ import { HeaderLayout } from './header-layout/header-layout';
 import { AdminPage } from './admin-page/admin-page';
 import { DoctorPage } from './doctor-page/doctor-page';
 import { DoctorUseCase } from './doctor-use-case/doctor-use-case';
+import { homeRedirectGuardGuard } from './home-redirect-guard-guard';
 
 export const routes: Routes = [
-  { path: '', component: MinimalLayout, children: [{ path: 'start', component: LandingPage }] },
+  { path: '', component: LandingPage, canActivate: [homeRedirectGuardGuard] },
   {
     path: '',
     component: HeaderLayout,

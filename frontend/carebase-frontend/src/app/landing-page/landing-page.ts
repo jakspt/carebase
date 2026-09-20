@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ActionCard } from '../action-card/action-card';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { UserService } from '../user-service';
 
 @Component({
   imports: [ActionCard, MatIconModule],
@@ -10,12 +11,16 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './landing-page.html',
 })
 export class LandingPage {
-  router = inject(Router);
+  private router = inject(Router);
+  private userService = inject(UserService);
 
   visitDoctorSite() {
+    this.userService.setUser('doctor');
     this.router.navigate(['doctor']);
   }
+
   visitAdminSite() {
+    this.userService.setUser('admin');
     this.router.navigate(['admin']);
   }
 }

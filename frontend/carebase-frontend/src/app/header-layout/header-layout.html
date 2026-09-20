@@ -19,7 +19,9 @@
   <!-- Dropdown Menu -->
   <mat-menu #userMenu="matMenu" xPosition="before" class="profile-menu">
     <!-- Current User Info Card -->
-    <div class="menu-header"><span>Signed in as </span><span>Doctor</span></div>
+    <div class="menu-header">
+      <span>Signed in as </span><span>{{ userDisplay() }}</span>
+    </div>
     <mat-divider></mat-divider>
 
     <!-- Switchable Roles / Accounts -->
