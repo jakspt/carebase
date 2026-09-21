@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MinimalLayout } from './minimal-layout';
+import { TransactionDialog } from './transaction-dialog';
 
-describe('MinimalLayout', () => {
-  let component: MinimalLayout;
-  let fixture: ComponentFixture<MinimalLayout>;
+describe('TransactionDialog', () => {
+  let component: TransactionDialog;
+  let fixture: ComponentFixture<TransactionDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MinimalLayout],
+      imports: [TransactionDialog],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MinimalLayout);
+    fixture = TestBed.createComponent(TransactionDialog);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

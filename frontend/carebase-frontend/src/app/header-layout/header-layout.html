@@ -1,7 +1,8 @@
 <mat-toolbar class="app-header">
-  <div class="header-icon-wrapper"><mat-icon>healing</mat-icon></div>
-  <span class="brand-title">CareBase</span>
-
+  <a routerLink="/">
+    <div class="header-icon-wrapper"><mat-icon>healing</mat-icon></div>
+    <span class="brand-title">CareBase</span>
+  </a>
   <!-- Flexible spacer to push actions to the right -->
   <span class="toolbar-spacer"></span>
 
@@ -10,29 +11,43 @@
     mat-button
     [matMenuTriggerFor]="userMenu"
     class="user-menu-trigger"
+    matTooltip="Switch role or sign out"
     aria-label="User profile and account switcher"
   >
-    <span class="avatar-circle">DR</span>
+    <span class="avatar-circle">{{
+      currentUser() ? (currentUser()!.slice(0, 2) | uppercase) : '?'
+    }}</span>
     <mat-icon iconPositionEnd>expand_more</mat-icon>
   </button>
 
   <!-- Dropdown Menu -->
-  <mat-menu #userMenu="matMenu" xPosition="before" class="profile-menu">
-    <!-- Current User Info Card -->
-    <div class="menu-header">
-      <span>Signed in as </span><span>{{ userDisplay() }}</span>
-    </div>
-    <mat-divider></mat-divider>
-
-    <!-- Switchable Roles / Accounts -->
-    <div class="menu-section-label">Switch Persona</div>
-    <button mat-menu-item (click)="switchRole('doctor')">
-      <mat-icon color="primary">check</mat-icon>
-      <span>Doctor</span>
+  <mat-menu #userMenu="matMenu" xPosition="before" class="profile-dropdown-menu">
+    <!-- Switch Persona Section -->
+    <div class="menu-label-muted">Active Persona</div>
+    <button
+      mat-menu-item
+      (click)="switchRole('doctor')"
+      [class.active-role]="currentUser() === 'doctor'"
+    >
+      <span class="menu-item-content">
+        <span>Doctor</span>
+        @if (currentUser() === 'doctor') {
+          <mat-icon class="trailing-check">check</mat-icon>
+        }
+      </span>
     </button>
-    <button mat-menu-item (click)="switchRole('admin')">
-      <mat-icon>admin_panel_settings</mat-icon>
-      <span>System Administrator</span>
+
+    <button
+      mat-menu-item
+      (click)="switchRole('admin')"
+      [class.active-role]="currentUser() === 'admin'"
+    >
+      <span class="menu-item-content">
+        <span>System Administrator</span>
+        @if (currentUser() === 'admin') {
+          <mat-icon class="trailing-check">check</mat-icon>
+        }
+      </span>
     </button>
 
     <mat-divider></mat-divider>

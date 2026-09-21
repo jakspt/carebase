@@ -1,6 +1,14 @@
+a {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
 .app-header {
   display: flex;
   align-items: center;
+
+  color: 'inherit';
   background-color: var(--mat-sys-surface, #ffffff);
   border-bottom: 1px solid var(--mat-sys-outline-variant, #e2e8f0);
   padding: 0 1.5rem;
@@ -10,6 +18,7 @@
     font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: -0.02em;
+
     color: var(--mat-sys-primary, #0284c7);
   }
 

@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  @switch (state()) {
+    @case ('confirm') {
+      <p>{{ data.description }}</p>
+    }
+    @case ('loading') {
+      <p>{{ data.loadingMessage || 'Processing transaction, please wait...' }}</p>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    @case ('success') {
+      <p class="success-text">
+        {{ data.successMessage || 'Operation completed successfully!' }}
+      </p>
+    }
+    @case ('error') {
+      <p class="error-text">Error: {{ errorMessage() }}</p>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (state() === 'confirm') {
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" (click)="execute()">Confirm</button>
+  }
+
+  @if (state() === 'loading') {
+    <!-- Block user actions while in flight -->
+    <button mat-button disabled>Please wait...</button>
+  }
+
+  @if (state() === 'success' || state() === 'error') {
+    <button mat-flat-button (click)="close(state() === 'success')">Close</button>
+  }
+</mat-dialog-actions>

@@ -1,1 +1,20 @@
-<p>admin-page works!</p>
+<main>
+  <section class="card-grid" aria-label="Portals">
+    <app-action-card
+      title="Seed Database"
+      description="Add treatments to appointments and view reports."
+      icon="auto_fix_high"
+      iconColor="secondary"
+      buttonText="Login as Doctor"
+      (actionClicked)="seedDb()"
+    />
+    <app-action-card
+      title="Migrate to MongoDB"
+      description="Migrate Database"
+      icon="drive_file_move"
+      iconColor="secondary"
+      buttonText="Login as Admin"
+      (actionClicked)="migrateDb()"
+    />
+  </section>
+</main>

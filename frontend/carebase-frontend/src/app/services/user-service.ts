@@ -9,9 +9,7 @@ export class UserService {
   public setUser(user: User) {
     this.currentUser.set(user);
   }
-  public logout() {
-    this.setUser(undefined);
-  }
+
   public getCurrentUser() {
     return this.currentUser.asReadonly();
   }

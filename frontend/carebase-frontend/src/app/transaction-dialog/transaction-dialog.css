@@ -1,0 +1,13 @@
+mat-dialog-content {
+  min-width: 320px;
+  min-height: 80px;
+}
+mat-progress-bar {
+  margin: 16px 0;
+}
+.success-text {
+  color: var(--mat-sys-color-primary, #2e7d32);
+}
+.error-text {
+  color: var(--mat-sys-color-error, #c62828);
+}
