@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAnchor } from '@angular/material/button';
-import { User, UserService } from '../user-service';
+import { User, UserService } from '../services/user-service';
 
 @Component({
   imports: [

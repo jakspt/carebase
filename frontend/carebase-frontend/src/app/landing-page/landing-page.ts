@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ActionCard } from '../action-card/action-card';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { UserService } from '../user-service';
+import { UserService } from '../services/user-service';
 
 @Component({
   imports: [ActionCard, MatIconModule],
