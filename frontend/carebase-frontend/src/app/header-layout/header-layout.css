@@ -1,3 +1,21 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 3rem 1.5rem;
+  box-sizing: border-box;
+}
+
 a {
   text-decoration: none;
   display: flex;
@@ -9,10 +27,18 @@ a {
   align-items: center;
 
   color: 'inherit';
-  background-color: var(--mat-sys-surface, #ffffff);
-  border-bottom: 1px solid var(--mat-sys-outline-variant, #e2e8f0);
+  background: color-mix(in srgb, var(--mat-sys-surface, #ffffff) 75%, transparent);
+
+  /* Softens the gradient and content passing underneath */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Subtle border to define the edge against the ambient light */
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--mat-sys-outline-variant, #cbd5e1) 40%, transparent);
   padding: 0 1.5rem;
   height: 64px;
+  flex: 0 0 64px;
 
   .brand-title {
     font-weight: 700;

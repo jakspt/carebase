@@ -1,20 +1,23 @@
-<main>
-  <section class="card-grid" aria-label="Portals">
+<mat-card class="container-card" appearance="outlined">
+  <section class="hero-section">
+    <h1>System Configuration</h1>
+  </section>
+  <section class="card-grid" aria-label="Admin-Actions">
     <app-action-card
-      title="Seed Database"
-      description="Add treatments to appointments and view reports."
+      title="Seed Test Database"
+      description="Populates the environment with randomized mock datasets"
       icon="auto_fix_high"
       iconColor="secondary"
-      buttonText="Login as Doctor"
+      buttonText="Seed Database"
       (actionClicked)="seedDb()"
     />
     <app-action-card
       title="Migrate to MongoDB"
-      description="Migrate Database"
+      description="Extracts relational schemas and rows from MariaDB, transforms them into optimized MongoDB document collections, and builds production indexes."
       icon="drive_file_move"
       iconColor="secondary"
-      buttonText="Login as Admin"
+      buttonText="Run Migration"
       (actionClicked)="migrateDb()"
     />
   </section>
-</main>
+</mat-card>

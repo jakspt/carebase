@@ -18,7 +18,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatDividerModule,
     MatTooltipModule,
     MatAnchor,
-    TitleCasePipe,
     UpperCasePipe,
     RouterLinkWithHref,
   ],
