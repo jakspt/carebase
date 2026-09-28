@@ -1,1 +1,24 @@
-<p>doctor-page works!</p>
+<mat-card class="container-card" appearance="outlined">
+  <section class="hero-section">
+    <h1>Welcome, Doctor!</h1>
+    <p>Some things you could do here</p>
+  </section>
+  <section class="card-grid" aria-label="Admin-Actions">
+    <app-action-card
+      title="Perform Use Case"
+      description="of adding treatments"
+      icon="auto_fix_high"
+      iconColor="secondary"
+      buttonText="Add Treatment"
+      (actionClicked)="toUseCase()"
+    />
+    <app-action-card
+      title="Create Report"
+      description="Probably containing something special"
+      icon="drive_file_move"
+      iconColor="secondary"
+      buttonText="Create Report"
+      (actionClicked)="toReport()"
+    />
+  </section>
+</mat-card>
