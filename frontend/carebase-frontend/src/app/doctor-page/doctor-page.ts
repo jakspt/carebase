@@ -13,9 +13,9 @@ export class DoctorPage {
   private router = inject(Router);
 
   toUseCase() {
-    this.router.navigate(['usecase']);
+    this.router.navigate(['/doctor/usecase']);
   }
   toReport() {
-    this.router.navigate(['report']);
+    this.router.navigate(['/doctor/report']);
   }
 }

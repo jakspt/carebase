@@ -17,10 +17,9 @@ export const routes: Routes = [
       { path: 'admin', component: AdminPage, canActivate: [adminGuard] },
       {
         path: 'doctor',
-        component: DoctorPage,
-        canActivate: [doctorGuard],
         canActivateChild: [doctorGuard],
         children: [
+          { path: '', component: DoctorPage },
           { path: 'usecase', component: DoctorUseCase },
           { path: 'report', component: DoctorUseCase },
         ],
