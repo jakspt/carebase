@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { from, Observable } from 'rxjs';
 
 export interface TransactionDialogData<T = unknown> {
@@ -17,7 +18,7 @@ export interface TransactionDialogData<T = unknown> {
 export type TransactionState = 'confirm' | 'loading' | 'success' | 'error';
 
 @Component({
-  imports: [MatDialogModule, MatButtonModule, MatProgressBarModule],
+  imports: [MatDialogModule, MatButtonModule, MatProgressBarModule, MatIconModule],
   selector: 'app-transaction-dialog',
   styleUrl: './transaction-dialog.css',
   templateUrl: './transaction-dialog.html',

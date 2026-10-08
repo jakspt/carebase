@@ -34,95 +34,95 @@
           <p>No treatments or costs were registered for the year {{ selectedYear() }}.</p>
         </div>
       } @else {
-        <!-- Chart Section -->
-        <section class="chart-section" aria-label="Top 10 costs per doctor horizontal bar chart">
-          <div class="section-title">
-            <mat-icon>analytics</mat-icon>
-            <h3>Top 10 Practitioners by Annual Treatment Costs (€)</h3>
-          </div>
-          <div class="chart-container">
-            <ngx-charts-bar-horizontal
-              [results]="chartData()"
-              [scheme]="customColorScheme"
-              [gradient]="false"
-              [xAxis]="true"
-              [yAxis]="true"
-              [legend]="false"
-              [showXAxisLabel]="true"
-              [showYAxisLabel]="true"
-              [xAxisLabel]="'Total Treatment Costs (€)'"
-              [yAxisLabel]="'Doctor'"
-              [animations]="true"
-            >
-            </ngx-charts-bar-horizontal>
-          </div>
-        </section>
+        <div class="report-grid">
+          <!-- Chart Section -->
+          <section class="chart-section" aria-label="Top 10 costs per doctor horizontal bar chart">
+            <div class="section-title">
+              <mat-icon>analytics</mat-icon>
+              <h3>Top 10 Practitioners (€)</h3>
+            </div>
+            <div class="chart-container">
+              <ngx-charts-bar-horizontal
+                [results]="chartData()"
+                [scheme]="customColorScheme"
+                [gradient]="false"
+                [xAxis]="true"
+                [yAxis]="true"
+                [legend]="false"
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [xAxisLabel]="'Total Treatment Costs (€)'"
+                [yAxisLabel]="'Doctor'"
+                [animations]="true"
+              >
+              </ngx-charts-bar-horizontal>
+            </div>
+          </section>
 
-        <mat-divider></mat-divider>
+          <!-- Table Section -->
+          <section class="table-section" aria-label="Detailed costs table">
+            <div class="section-title">
+              <mat-icon>table_chart</mat-icon>
+              <h3>Complete Breakdown</h3>
+            </div>
 
-        <!-- Table Section -->
-        <section class="table-section" aria-label="Detailed costs table">
-          <div class="section-title">
-            <mat-icon>table_chart</mat-icon>
-            <h3>Complete Practitioner Breakdown</h3>
-          </div>
+            <div class="table-scroll-wrapper">
+              <table mat-table [dataSource]="pagedReportData()" class="mat-elevation-z0 report-table">
+                <!-- ID / SSN Column -->
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef>SSN</th>
+                  <td mat-cell *matCellDef="let row">#{{ row.id }}</td>
+                </ng-container>
 
-          <div class="table-scroll-wrapper">
-            <table mat-table [dataSource]="pagedReportData()" class="mat-elevation-z0 report-table">
-              <!-- ID / SSN Column -->
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>Doctor ID / SSN</th>
-                <td mat-cell *matCellDef="let row">#{{ row.id }}</td>
-              </ng-container>
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Doctor</th>
+                  <td mat-cell *matCellDef="let row" class="doctor-cell">
+                    <span class="doctor-name">{{ row.name }}</span>
+                  </td>
+                </ng-container>
 
-              <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>Doctor</th>
-                <td mat-cell *matCellDef="let row" class="doctor-cell">
-                  <strong>{{ row.name }}</strong>
-                </td>
-              </ng-container>
+                <!-- Specialty Column -->
+                <ng-container matColumnDef="specialty">
+                  <th mat-header-cell *matHeaderCellDef>Specialty</th>
+                  <td mat-cell *matCellDef="let row">{{ row.specialty || 'General' }}</td>
+                </ng-container>
 
-              <!-- Specialty Column -->
-              <ng-container matColumnDef="specialty">
-                <th mat-header-cell *matHeaderCellDef>Specialty</th>
-                <td mat-cell *matCellDef="let row">{{ row.specialty || 'General' }}</td>
-              </ng-container>
+                <!-- Department Column -->
+                <ng-container matColumnDef="department">
+                  <th mat-header-cell *matHeaderCellDef>Dept</th>
+                  <td mat-cell *matCellDef="let row">{{ row.department || 'Outpatient' }}</td>
+                </ng-container>
 
-              <!-- Department Column -->
-              <ng-container matColumnDef="department">
-                <th mat-header-cell *matHeaderCellDef>Department</th>
-                <td mat-cell *matCellDef="let row">{{ row.department || 'Outpatient' }}</td>
-              </ng-container>
+                <!-- Year Column -->
+                <ng-container matColumnDef="year">
+                  <th mat-header-cell *matHeaderCellDef>Year</th>
+                  <td mat-cell *matCellDef="let row">{{ row.year }}</td>
+                </ng-container>
 
-              <!-- Year Column -->
-              <ng-container matColumnDef="year">
-                <th mat-header-cell *matHeaderCellDef>Year</th>
-                <td mat-cell *matCellDef="let row">{{ row.year }}</td>
-              </ng-container>
+                <!-- Total Costs Column -->
+                <ng-container matColumnDef="totalCosts">
+                  <th mat-header-cell *matHeaderCellDef class="cost-header">Total (€)</th>
+                  <td mat-cell *matCellDef="let row" class="cost-cell">
+                    {{ row.totalCosts | currency: 'EUR' : 'symbol' : '1.2-2' }}
+                  </td>
+                </ng-container>
 
-              <!-- Total Costs Column -->
-              <ng-container matColumnDef="totalCosts">
-                <th mat-header-cell *matHeaderCellDef class="cost-header">Total Costs</th>
-                <td mat-cell *matCellDef="let row" class="cost-cell">
-                  {{ row.totalCosts | currency: 'EUR' : 'symbol' : '1.2-2' }}
-                </td>
-              </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-          </div>
-
-          <mat-paginator
-            [length]="reportData().length"
-            [pageSize]="pageSize()"
-            [pageSizeOptions]="[10, 25, 50]"
-            (page)="onPageChange($event)"
-            showFirstLastButtons
-            class="report-paginator"
-          ></mat-paginator>
-        </section>
+            <mat-paginator
+              [length]="reportData().length"
+              [pageSize]="pageSize()"
+              [pageSizeOptions]="[10, 25, 50]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons
+              class="report-paginator"
+            ></mat-paginator>
+          </section>
+        </div>
       }
     </div>
   </mat-card>

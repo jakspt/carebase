@@ -10,9 +10,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1.5rem;
   box-sizing: border-box;
 }
 
@@ -41,7 +41,7 @@ a {
   flex: 0 0 64px;
 
   .brand-title {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1.25rem;
     letter-spacing: -0.02em;
 
@@ -61,7 +61,7 @@ a {
   margin-left: 1rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 500;
   background-color: var(--mat-sys-surface-container-high, #f1f5f9);
   color: var(--mat-sys-on-surface-variant, #475569);
   border: 1px solid var(--mat-sys-outline-variant, #cbd5e1);
@@ -75,9 +75,13 @@ a {
   }
 
   &.mongo {
-    background-color: #dcfce7;
-    color: #15803d;
-    border-color: #86efac;
+    background-color: var(--mat-sys-primary-container, #e0f2fe);
+    color: var(--mat-sys-on-primary-container, #0369a1);
+    border-color: color-mix(in srgb, var(--mat-sys-primary, #0284c7) 35%, transparent);
+
+    .db-badge-icon {
+      color: var(--mat-sys-primary, #0284c7);
+    }
   }
 }
 
@@ -98,7 +102,7 @@ a {
     border-radius: 50%;
     background-color: var(--mat-sys-primary-container, #e0f2fe);
     color: var(--mat-sys-primary, #0284c7);
-    font-weight: 600;
+    font-weight: 500;
     font-size: 0.75rem;
     margin-right: 0.5rem;
   }
@@ -112,7 +116,7 @@ a {
 
     .user-name {
       font-size: 0.875rem;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--mat-sys-on-surface, #1e293b);
     }
 

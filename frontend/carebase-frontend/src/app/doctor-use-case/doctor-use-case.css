@@ -15,7 +15,7 @@
 .card-header-bar h2 {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--mat-sys-on-surface, #1e293b);
 }
 
@@ -55,13 +55,18 @@
 }
 
 .patient-name {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--mat-sys-on-surface, #1e293b);
 }
 
 .patient-meta {
   font-size: 0.75rem;
   color: var(--mat-sys-on-surface-variant, #64748b);
+}
+
+.meta-val {
+  font-weight: 500;
+  color: var(--mat-sys-on-surface, #1e293b);
 }
 
 .selected-entity-card {
@@ -88,7 +93,7 @@
 .entity-details h4 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--mat-sys-on-surface, #1e293b);
 }
 
@@ -171,7 +176,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.875rem;
   color: var(--mat-sys-on-surface, #1e293b);
 }
@@ -189,10 +194,28 @@
   height: 20px;
 }
 
-.appt-body p {
-  margin: 0.25rem 0 0;
+.appt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.appt-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
   font-size: 0.8125rem;
-  color: var(--mat-sys-on-surface-variant, #475569);
+}
+
+.appt-meta-label {
+  color: var(--mat-sys-on-surface-variant, #64748b);
+  font-weight: 500;
+  min-width: 48px;
+}
+
+.appt-meta-value {
+  color: var(--mat-sys-on-surface, #1e293b);
+  font-weight: 500;
 }
 
 .step-actions {
@@ -239,27 +262,28 @@
   text-align: center;
   padding: 2.5rem 1.5rem;
   gap: 1rem;
-  background-color: #f0fdf4;
-  border-radius: 12px;
-  border: 1px solid #bbf7d0;
+  background-color: var(--mat-sys-primary-container, #e0f2fe);
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary, #0284c7) 30%, transparent);
 }
 
 .success-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #16a34a;
+  color: var(--mat-sys-primary, #0284c7);
 }
 
 .success-box h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #15803d;
+  font-weight: 600;
+  color: var(--mat-sys-primary, #0284c7);
 }
 
 .success-box p {
   margin: 0;
   font-size: 0.9375rem;
-  color: #166534;
+  color: var(--mat-sys-on-primary-container, #075985);
   max-width: 480px;
 }

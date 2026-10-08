@@ -23,10 +23,17 @@ class MongoDoctorMixin:
         # Search by _id (SVNr) OR Name
         patient_results = db[self.collection_patient_name].find(
             {"$or": [{"_id": regex_query}, {"name": regex_query}]},
-            {"_id": 1, "name": 1},
+            {"_id": 1, "name": 1, "versicherung": 1},
         )
 
-        return [{"id": doc["_id"], "name": doc["name"]} for doc in patient_results]
+        return [
+            {
+                "id": doc["_id"],
+                "name": doc["name"],
+                "insurance": doc.get("versicherung", ""),
+            }
+            for doc in patient_results
+        ]
 
     def get_patient_details(self, patient_id: int) -> dict:
         db = self._get_connection()

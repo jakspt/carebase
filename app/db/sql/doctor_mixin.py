@@ -18,18 +18,25 @@ class SQLDoctorMixin:
 
         print("Found patients")
 
-        return [{"id": row["SVNr"], "name": row["Name"]} for row in results]
+        return [
+            {
+                "id": row["SVNr"],
+                "name": row["Name"],
+                "insurance": row.get("Versicherungsträger", ""),
+            }
+            for row in results
+        ]
 
     def _get_find_patient_sql(self, query: str) -> str:
         if query.isdecimal():
-            return """SELECT p.SVNr, per.Name
+            return """SELECT p.SVNr, per.Name, p.Versicherungsträger
                       FROM Patient p
                                JOIN Person per ON p.SVNr = per.SVNr
                       WHERE p.SVNr LIKE ?
                    """
         else:
             return """
-                   SELECT p.SVNr, per.Name
+                   SELECT p.SVNr, per.Name, p.Versicherungsträger
                    FROM Patient p
                             JOIN Person per ON p.SVNr = per.SVNr
                    WHERE per.Name LIKE ?

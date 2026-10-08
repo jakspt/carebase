@@ -10,9 +10,12 @@
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
     @case ('success') {
-      <p class="success-text">
-        {{ data.successMessage || 'Operation completed successfully!' }}
-      </p>
+      <div class="status-result success">
+        <mat-icon>check_circle</mat-icon>
+        <p class="success-text">
+          {{ data.successMessage || 'Operation completed successfully!' }}
+        </p>
+      </div>
     }
     @case ('error') {
       <p class="error-text">Error: {{ errorMessage() }}</p>

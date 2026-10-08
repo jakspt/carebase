@@ -56,7 +56,7 @@ def search_patients():
                 "id": str(p["id"]),
                 "name": p["name"],
                 "ssn": str(p["id"]),
-                "insurance": p.get("insurance", p.get("versicherung", "")),
+                "insurance": p["insurance"],
             }
             for p in patients
         ]
@@ -71,22 +71,22 @@ def get_patient_details(patient_id: str):
     if not patient:
         return jsonify({"error": "Patient not found"}), 404
 
-    # Normalize the appointment data coming from the DB strategy
-    appointments = []
-    for appt in patient.get("appointments", patient.get("termine", [])):
-        appointments.append({
-            "id": appt.get("id", appt.get("termin_id")),
-            "date": str(appt.get("date", appt.get("datum", ""))),
-            "time": str(appt.get("time", appt.get("uhrzeit", ""))),
-            "doctorName": appt.get("doctorName", appt.get("arzt_name", "")),
-            "reason": appt.get("reason", appt.get("grund", "")),
-        })
+    appointments = [
+        {
+            "id": appt["id"],
+            "date": str(appt["date"]),
+            "time": str(appt["time"]),
+            "doctorName": appt["doctor_name"],
+            "reason": appt["reason"],
+        }
+        for appt in patient["appointments"]
+    ]
 
     return jsonify({
-        "id": str(patient.get("id")),
-        "name": patient.get("name"),
-        "ssn": str(patient.get("id")),
-        "insurance": patient.get("insurance", patient.get("versicherung", "")),
+        "id": str(patient["id"]),
+        "name": patient["name"],
+        "ssn": str(patient["id"]),
+        "insurance": patient["insurance"],
         "appointments": appointments,
     })
 
@@ -98,7 +98,7 @@ def get_medications():
 
     return jsonify({
         "medications": [
-            {"id": m.get("id", m.get("medikament_id")), "name": m.get("name", m.get("bezeichnung", ""))}
+            {"id": m["id"], "name": m["name"]}
             for m in meds
         ]
     })
@@ -146,15 +146,16 @@ def doctor_report():
     raw_data = db.get_doctor_report(selected_year)
 
     # Return the raw per-row data; let the frontend handle aggregation/charting
-    data = []
-    for row in raw_data:
-        data.append({
+    data = [
+        {
             "id": row["id"],
             "name": row["name"],
-            "specialty": row.get("specialty", row.get("fachrichtung", "")),
-            "department": row.get("department", row.get("abteilung", "")),
-            "year": row.get("year", row.get("jahr", selected_year)),
-            "totalCosts": float(row.get("total_costs", row.get("gesamtkosten", 0))),
-        })
+            "specialty": row["specialty"],
+            "department": row["dept"],
+            "year": row["year"],
+            "totalCosts": float(row["total_costs"]),
+        }
+        for row in raw_data
+    ]
 
     return jsonify({"year": selected_year, "data": data})

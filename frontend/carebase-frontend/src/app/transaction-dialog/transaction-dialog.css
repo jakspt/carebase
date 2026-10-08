@@ -1,13 +1,50 @@
 mat-dialog-content {
-  min-width: 320px;
+  min-width: 360px;
   min-height: 80px;
+  padding: 0 24px !important;
+  box-sizing: border-box;
 }
+
 mat-progress-bar {
   margin: 16px 0;
 }
-.success-text {
-  color: var(--mat-sys-color-primary, #2e7d32);
+
+.status-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  margin: 0.5rem 0 0.5rem;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
+
+.status-result.success {
+  background-color: var(--mat-sys-primary-container, #f0f9ff);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary, #0284c7) 25%, transparent);
+}
+
+.status-result mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.status-result.success mat-icon {
+  color: var(--mat-sys-primary, #0284c7);
+}
+
+.status-result.success .success-text {
+  margin: 0;
+  color: var(--mat-sys-on-primary-container, #075985);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
 .error-text {
   color: var(--mat-sys-color-error, #c62828);
 }

@@ -48,7 +48,7 @@
               <mat-option [value]="patient">
                 <div class="patient-option">
                   <span class="patient-name">{{ patient.name }}</span>
-                  <span class="patient-meta">SSN: <strong>{{ patient.ssn }}</strong> &bull; Insurance: {{ patient.insurance || 'Standard' }}</span>
+                  <span class="patient-meta">SSN: <span class="meta-val">{{ patient.ssn }}</span> &bull; Insurance: <span class="meta-val">{{ patient.insurance || 'N/A' }}</span></span>
                 </div>
               </mat-option>
             }
@@ -60,7 +60,7 @@
             <mat-icon class="entity-icon">person</mat-icon>
             <div class="entity-details">
               <h4>{{ patient.name }}</h4>
-              <p>SSN: <strong>{{ patient.ssn }}</strong> &bull; Insurance: <strong>{{ patient.insurance || 'Standard' }}</strong></p>
+              <p>SSN: <span class="meta-val">{{ patient.ssn }}</span> &bull; Insurance: <span class="meta-val">{{ patient.insurance || 'N/A' }}</span></p>
             </div>
             <button mat-button color="primary" matStepperNext>
               Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
@@ -77,7 +77,7 @@
       <div class="step-container">
         @if (selectedPatient(); as patient) {
           <div class="context-banner">
-            <span>Patient: <strong>{{ patient.name }}</strong> (SSN: <strong>{{ patient.ssn }}</strong>)</span>
+            <span>Patient: <span class="meta-val">{{ patient.name }}</span> (SSN: <span class="meta-val">{{ patient.ssn }}</span>)</span>
           </div>
         }
 
@@ -112,8 +112,14 @@
                     }
                   </div>
                   <div class="appt-body">
-                    <p class="appt-doctor"><strong>Doctor:</strong> {{ appt.doctorName }}</p>
-                    <p class="appt-reason"><strong>Reason:</strong> {{ appt.reason }}</p>
+                    <div class="appt-meta-row">
+                      <span class="appt-meta-label">Doctor:</span>
+                      <span class="appt-meta-value">{{ appt.doctorName || 'Not assigned' }}</span>
+                    </div>
+                    <div class="appt-meta-row">
+                      <span class="appt-meta-label">Reason:</span>
+                      <span class="appt-meta-value">{{ appt.reason }}</span>
+                    </div>
                   </div>
                 </div>
               }
@@ -163,9 +169,9 @@
           </div>
         } @else {
           <div class="context-banner">
-            <span>Patient: <strong>{{ selectedPatient()?.name }}</strong> (SSN: <strong>{{ selectedPatient()?.ssn }}</strong>)</span>
+            <span>Patient: <span class="meta-val">{{ selectedPatient()?.name }}</span> (SSN: <span class="meta-val">{{ selectedPatient()?.ssn }}</span>)</span>
             <span>&bull;</span>
-            <span>Appointment: <strong>{{ selectedAppointment()?.date }} ({{ selectedAppointment()?.reason }})</strong></span>
+            <span>Appointment: <span class="meta-val">{{ selectedAppointment()?.date }} ({{ selectedAppointment()?.reason }})</span></span>
           </div>
 
           <form (submit)="onSubmitTreatment(stepper); $event.preventDefault()" class="treatment-form">
