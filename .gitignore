@@ -211,4 +211,4 @@ mariadb_data/
 mongodb_data/
 
 # AI
-.agents/
+.agent/
