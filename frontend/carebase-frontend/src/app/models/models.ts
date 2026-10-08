@@ -1,36 +1,39 @@
 export interface Appointment {
   id: number;
-  date: string; // TODO: check if date type would be better
+  date: string;
   time: string;
   doctorName: string;
   reason: string;
 }
 
 export interface Patient {
-  id: number;
+  id: string | number;
   name: string;
+  ssn: string;
   insurance: string;
-  appointments: Appointment[];
+  appointments?: Appointment[];
 }
 
 export interface Medication {
+  id: number;
   name: string;
-  id: string;
 }
 
 export interface Treatment {
-  patientId: number;
-  appointmentId: number;
   description: string;
   cost: number;
   medications: Medication[];
 }
 
 export interface DoctorEarnings {
-  id: string;
+  id: number;
   name: string;
   specialty: string;
   department: string;
   year: number;
-  totalEarnings: number;
+  totalCosts: number;
+}
+
+export interface DbStatus {
+  dbType: 'MariaDB' | 'MongoDB';
 }

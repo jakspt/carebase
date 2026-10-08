@@ -1,0 +1,7 @@
+frontend
+.venv
+.git
+.idea
+__pycache__
+*.pyc
+.ruff_cache

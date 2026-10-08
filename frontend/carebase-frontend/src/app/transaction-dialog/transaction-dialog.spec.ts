@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { of } from 'rxjs';
 import { TransactionDialog } from './transaction-dialog';
 
 describe('TransactionDialog', () => {
@@ -8,6 +10,20 @@ describe('TransactionDialog', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TransactionDialog],
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            title: 'Test Action',
+            description: 'Test description',
+            action: () => of({ success: true }),
+          },
+        },
+        {
+          provide: MatDialogRef,
+          useValue: { close: () => {}, disableClose: false },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TransactionDialog);

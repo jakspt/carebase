@@ -1,9 +1,6 @@
 import { Routes } from '@angular/router';
 import { LandingPage } from './landing-page/landing-page';
 import { HeaderLayout } from './header-layout/header-layout';
-import { AdminPage } from './admin-page/admin-page';
-import { DoctorPage } from './doctor-page/doctor-page';
-import { DoctorUseCase } from './doctor-use-case/doctor-use-case';
 import { homeRedirectGuardGuard } from './guards/home-redirect-guard-guard';
 import { doctorGuard } from './guards/doctor-guard';
 import { adminGuard } from './guards/admin-guard';
@@ -14,14 +11,29 @@ export const routes: Routes = [
     path: '',
     component: HeaderLayout,
     children: [
-      { path: 'admin', component: AdminPage, canActivate: [adminGuard] },
+      {
+        path: 'admin',
+        loadComponent: () => import('./admin-page/admin-page').then((m) => m.AdminPage),
+        canActivate: [adminGuard],
+      },
       {
         path: 'doctor',
         canActivateChild: [doctorGuard],
         children: [
-          { path: '', component: DoctorPage },
-          { path: 'usecase', component: DoctorUseCase },
-          { path: 'report', component: DoctorUseCase },
+          {
+            path: '',
+            loadComponent: () => import('./doctor-page/doctor-page').then((m) => m.DoctorPage),
+          },
+          {
+            path: 'usecase',
+            loadComponent: () =>
+              import('./doctor-use-case/doctor-use-case').then((m) => m.DoctorUseCase),
+          },
+          {
+            path: 'report',
+            loadComponent: () =>
+              import('./doctor-report/doctor-report').then((m) => m.DoctorReport),
+          },
         ],
       },
     ],

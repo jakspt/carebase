@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAnchor } from '@angular/material/button';
 import { User, UserService } from '../services/user-service';
+import { AdminService } from '../services/admin-service';
 import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -27,8 +28,27 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class HeaderLayout {
   private userService = inject(UserService);
+  private adminService = inject(AdminService);
   private router = inject(Router);
+
   currentUser = this.userService.getCurrentUser();
+
+  dbStatus = computed(() => {
+    if (this.adminService.statusResource.hasValue()) {
+      return this.adminService.statusResource.value()?.dbType ?? 'Connected';
+    }
+    if (this.adminService.statusResource.isLoading()) {
+      return 'Connecting...';
+    }
+    return 'Offline';
+  });
+
+  isMongo = computed(() => {
+    return (
+      this.adminService.statusResource.hasValue() &&
+      this.adminService.statusResource.value()?.dbType === 'MongoDB'
+    );
+  });
 
   switchRole(user: User) {
     this.userService.setUser(user);

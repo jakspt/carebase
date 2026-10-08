@@ -11,6 +11,8 @@ describe('ActionCard', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ActionCard);
+    fixture.componentRef.setInput('title', 'Test Action');
+    fixture.componentRef.setInput('buttonText', 'Execute');
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

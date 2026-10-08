@@ -1,6 +1,6 @@
 import { Service, signal } from '@angular/core';
 
-export type User = 'doctor' | 'admin' | undefined;
+export type User = 'doctor' | 'admin' | 'clerk' | undefined;
 
 @Service()
 export class UserService {

@@ -3,6 +3,17 @@
     <div class="header-icon-wrapper"><mat-icon>healing</mat-icon></div>
     <span class="brand-title">CareBase</span>
   </a>
+
+  <!-- Database status badge -->
+  <div
+    class="db-badge"
+    [class.mongo]="isMongo()"
+    matTooltip="Current active database backend"
+  >
+    <mat-icon class="db-badge-icon">storage</mat-icon>
+    <span>{{ dbStatus() }}</span>
+  </div>
+
   <!-- Flexible spacer to push actions to the right -->
   <span class="toolbar-spacer"></span>
 

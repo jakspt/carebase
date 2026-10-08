@@ -22,6 +22,7 @@ def create_app():
             return dict(current_db="MariaDB")
 
     from app.admin import admin_bp
+    from app.api import api_bp
     from app.clerk import clerk_bp
     from app.core import core_bp
     from app.doctor import doctor_bp
@@ -30,5 +31,6 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(doctor_bp)
     app.register_blueprint(clerk_bp)
+    app.register_blueprint(api_bp)
 
     return app
