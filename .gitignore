@@ -209,3 +209,6 @@ __marimo__/
 # Docker
 mariadb_data/
 mongodb_data/
+
+# AI
+.agents/
