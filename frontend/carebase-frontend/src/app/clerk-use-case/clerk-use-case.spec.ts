@@ -346,4 +346,58 @@ describe('ClerkUseCase', () => {
 
     expect(fixture.nativeElement.querySelector('.clinical-summary-strip')).toBeNull();
   });
+
+  it('should not auto-advance stepper on patient selection', () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    stepper.selectedIndex = 0;
+    component.selectPatient(mockPatient, stepper);
+    expect(stepper.selectedIndex).toBe(0);
+  });
+
+  it('should render canonical bottom action bar in Step 1 with Next button bound to selectedPatient state', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const stepContainers = fixture.nativeElement.querySelectorAll('.step-container');
+    const step1Container = stepContainers[0];
+    const step1Actions = step1Container.querySelector('.step-actions');
+    expect(step1Actions).toBeTruthy();
+
+    const nextBtn = step1Actions.querySelector('button[matStepperNext]') as HTMLButtonElement;
+    expect(nextBtn).toBeTruthy();
+    expect(nextBtn.disabled).toBe(true);
+
+    component.selectPatient(mockPatient);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(nextBtn.disabled).toBe(false);
+  });
+
+  it('should purge redundant inline Next buttons from entity preview cards in Step 1 and Step 2', async () => {
+    component.selectPatient(mockPatient);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const stepContainers = fixture.nativeElement.querySelectorAll('.step-container');
+    const step1Card = stepContainers[0].querySelector('.selected-entity-card');
+    expect(step1Card).toBeTruthy();
+    expect(step1Card.querySelector('button')).toBeNull();
+
+    // In Step 2
+    component.onDoctorChange(mockDoctors[0]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const step2Card = stepContainers[1].querySelector('.selected-entity-card');
+    expect(step2Card).toBeTruthy();
+    expect(step2Card.querySelector('button')).toBeNull();
+
+    // Step 2 canonical action bar still exists
+    const step2Actions = stepContainers[1].querySelector('.step-actions');
+    expect(step2Actions).toBeTruthy();
+    const step2NextBtn = step2Actions.querySelector('button[matStepperNext]') as HTMLButtonElement;
+    expect(step2NextBtn).toBeTruthy();
+    expect(step2NextBtn.disabled).toBe(false);
+  });
 });

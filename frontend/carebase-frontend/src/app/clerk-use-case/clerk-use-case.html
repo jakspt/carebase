@@ -108,7 +108,7 @@
         </mat-form-field>
 
         <mat-autocomplete #patientAuto="matAutocomplete" [displayWith]="displayPatient"
-          (optionSelected)="selectPatient($event.option.value, stepper)">
+          (optionSelected)="selectPatient($event.option.value)">
           @if (showPatientSpinner()) {
           <mat-option disabled>
             <div class="inline-loading">
@@ -160,11 +160,14 @@
             NACA {{ patient.nacaScore }}
           </span>
           }
-          <button mat-button color="primary" matStepperNext>
+        </div>
+        }
+
+        <div class="step-actions">
+          <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedPatient()">
             Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
           </button>
         </div>
-        }
       </div>
     </mat-step>
 
@@ -219,9 +222,6 @@
               Department: <span class="meta-val">{{ doc.department }}</span>
             </p>
           </div>
-          <button mat-button color="primary" matStepperNext>
-            Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
-          </button>
         </div>
         }
 

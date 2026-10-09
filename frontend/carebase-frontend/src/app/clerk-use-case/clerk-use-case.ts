@@ -225,9 +225,6 @@ export class ClerkUseCase {
     this.patientInputValue.set(this.displayPatient(patient));
     this.patientSearchQuery.set(patient ? patient.name : '');
     this.selectedTimeSlot.set(null);
-    if (stepper) {
-      stepper.next();
-    }
   }
 
   displayPatient(patient: Patient | null): string {
@@ -265,9 +262,6 @@ export class ClerkUseCase {
   selectDoctor(doctor: Doctor, stepper?: MatStepper): void {
     this.selectedDoctor.set(doctor);
     this.selectedTimeSlot.set(null);
-    if (stepper) {
-      stepper.next();
-    }
   }
 
   onDateChange(date: Date | null): void {
@@ -280,9 +274,6 @@ export class ClerkUseCase {
       this.selectedTimeSlot.set(null);
     } else {
       this.selectedTimeSlot.set(time);
-      if (stepper) {
-        stepper.next();
-      }
     }
   }
 

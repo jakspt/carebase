@@ -499,6 +499,10 @@
   padding-top: 1rem;
 }
 
+.step-actions > button:only-child {
+  margin-left: auto;
+}
+
 .inline-loading {
   gap: 0.5rem;
 }
