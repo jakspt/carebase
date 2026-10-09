@@ -50,6 +50,19 @@
 
     <button
       mat-menu-item
+      (click)="switchRole('clerk')"
+      [class.active-role]="currentUser() === 'clerk'"
+    >
+      <span class="menu-item-content">
+        <span>Hospital Clerk</span>
+        @if (currentUser() === 'clerk') {
+          <mat-icon class="trailing-check">check</mat-icon>
+        }
+      </span>
+    </button>
+
+    <button
+      mat-menu-item
       (click)="switchRole('admin')"
       [class.active-role]="currentUser() === 'admin'"
     >

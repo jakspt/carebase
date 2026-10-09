@@ -20,6 +20,11 @@ export class LandingPage {
     this.router.navigate(['doctor']);
   }
 
+  visitClerkSite() {
+    this.userService.setUser('clerk');
+    this.router.navigate(['clerk']);
+  }
+
   visitAdminSite() {
     this.userService.setUser('admin');
     this.router.navigate(['admin']);

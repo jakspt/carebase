@@ -212,3 +212,6 @@ mongodb_data/
 
 # AI
 .agent/
+.agents/
+.codex/
+skills-lock.json

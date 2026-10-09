@@ -120,9 +120,16 @@ class MongoClerkMixin:
 
     def create_appointment(self, patient_svnr: str, doctor_svnr: str, date: str, time: str, reason: str, clerk_svnr: str) -> int:
         termin_id = self.get_next_termin_id(patient_svnr)
-        patient = self.patient_collection.find_one({"_id": patient_svnr})
-        doctor = self.doctor_collection.find_one({"_id": doctor_svnr})
+        patient = self.patient_collection.find_one({"_id": str(patient_svnr)})
+        doctor = self.doctor_collection.find_one({"_id": str(doctor_svnr)})
         converted_date = self.convert_date_str(date)
+
+        dept_name = ""
+        if doctor:
+            if isinstance(doctor.get("abteilung"), dict):
+                dept_name = doctor["abteilung"].get("name", "")
+            elif isinstance(doctor.get("abteilung"), str):
+                dept_name = doctor.get("abteilung", "")
 
         self.appointment_collection.insert_one({
             "termin_id": termin_id,
@@ -137,7 +144,8 @@ class MongoClerkMixin:
             "arzt": {
                 "svnr": str(doctor_svnr),
                 "name": doctor.get("name", "") if doctor else "",
-                "fachrichtung": doctor.get("fachrichtung", "") if doctor else ""
+                "fachrichtung": doctor.get("fachrichtung", "") if doctor else "",
+                "abteilung": dept_name
             },
             "sachbearbeiter": {
                 "svnr": str(clerk_svnr)
@@ -161,29 +169,31 @@ class MongoClerkMixin:
     
     def check_appointment_conflict(self, doctor_svnr: str, patient_svnr: str, date: str, time: str) -> dict | None:
         converted_date = self.convert_date_str(date)
+        formatted_time = self.format_time_slot(time)
+        time_query = {"$in": [formatted_time, f"{formatted_time}:00"]}
 
         patient_conflict = self.appointment_collection.find_one({
             "patient.svnr": str(patient_svnr),
             "datum": converted_date,
-            "uhrzeit": self.format_time_slot(time)
+            "uhrzeit": time_query
         })
 
         if patient_conflict:
             return {
                 "type": "patient_conflict",
-                "message": "Der Patient hat bereits einen Termin zu dieser Zeit."
+                "message": "The patient already has an appointment scheduled at this time."
             }
 
         doctor_conflict = self.appointment_collection.find_one({
             "arzt.svnr": str(doctor_svnr),
             "datum": converted_date,
-            "uhrzeit": self.format_time_slot(time)
+            "uhrzeit": time_query
         })
 
         if doctor_conflict:
             return {
                 "type": "doctor_conflict",
-                "message": "Der Arzt hat bereits einen Termin zu dieser Zeit."
+                "message": "The doctor already has an appointment scheduled at this time."
             }
         
         return None
@@ -203,6 +213,21 @@ class MongoClerkMixin:
                     }
                 }
             },
+            # Lookup doctor to guarantee abteilung availability even for migrated appointments
+            {
+                "$lookup": {
+                    "from": self.doctor_collection.name,
+                    "localField": "arzt.svnr",
+                    "foreignField": "_id",
+                    "as": "doctor_doc"
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$doctor_doc",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
             # Group by patient and doctor combination
             {
                 "$group": {
@@ -214,6 +239,19 @@ class MongoClerkMixin:
                     "versicherung": {"$first": "$patient.versicherung"},
                     "arzt_name": {"$first": "$arzt.name"},
                     "fachrichtung": {"$first": "$arzt.fachrichtung"},
+                    "abteilung": {
+                        "$first": {
+                            "$ifNull": [
+                                "$doctor_doc.abteilung.name",
+                                {
+                                    "$ifNull": [
+                                        "$arzt.abteilung",
+                                        "$arzt.fachrichtung"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
                     "anzahl_termine": {"$sum": 1}
                 }
             },
@@ -227,6 +265,7 @@ class MongoClerkMixin:
                     "arzt_svnr": "$_id.arzt_svnr",
                     "arzt_name": 1,
                     "fachrichtung": 1,
+                    "abteilung": 1,
                     "anzahl_termine": 1
                 }
             },

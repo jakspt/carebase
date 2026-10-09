@@ -1,0 +1,457 @@
+<mat-card class="use-case-card" appearance="outlined">
+  <!-- Card Header Bar -->
+  <div class="card-header-bar">
+    <div class="header-titles">
+      <h2>Schedule Patient Appointment</h2>
+      <p class="subtitle">Assign a collision-free medical consultation slot for a patient.</p>
+    </div>
+
+    <!-- Active Clerk Session Header -->
+    <div class="clerk-context-box">
+      @if (activeClerk(); as clerk) {
+        <div class="active-clerk-badge" matTooltip="Logged-in Clerk attached to bookings">
+          <mat-icon class="clerk-icon">badge</mat-icon>
+          <div class="clerk-info">
+            <span class="clerk-label">Acting Clerk</span>
+            <span class="clerk-name">{{ clerk.name }} (SSN: {{ clerk.ssn }})</span>
+          </div>
+          <button
+            mat-icon-button
+            (click)="clearClerk()"
+            class="change-clerk-btn"
+            aria-label="Change Clerk"
+          >
+            <mat-icon>swap_horiz</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="clerk-picker">
+          <mat-form-field appearance="outline" density="compact" class="clerk-select-field">
+            <mat-label>Assign Acting Clerk</mat-label>
+            <input
+              matInput
+              placeholder="Search clerk name/SSN..."
+              [value]="clerkSearchQuery()"
+              (input)="onClerkSearchInput($event)"
+              [matAutocomplete]="clerkAuto"
+            />
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+          <mat-autocomplete
+            #clerkAuto="matAutocomplete"
+            [displayWith]="displayClerk"
+            (optionSelected)="selectClerk($event.option.value)"
+          >
+            @for (clerk of availableClerks(); track clerk.ssn) {
+              <mat-option [value]="clerk"> {{ clerk.name }} (SSN: {{ clerk.ssn }}) </mat-option>
+            }
+          </mat-autocomplete>
+        </div>
+      }
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Stepper Workflow -->
+  <mat-stepper linear #stepper class="stepper-content">
+    <!-- ── Step 1: Find Patient ── -->
+    <mat-step [completed]="selectedPatient() !== null">
+      <ng-template matStepLabel>Find Patient</ng-template>
+
+      <div class="step-container">
+        <p class="step-instructions">
+          Search for a registered patient by full name or social security number (SSN).
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Search Patient</mat-label>
+          <input
+            matInput
+            placeholder="Type at least 2 characters (e.g. Maria or 2041)..."
+            [value]="patientInputValue()"
+            (input)="onPatientSearchInput($event)"
+            [matAutocomplete]="patientAuto"
+          />
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-hint>Debounced query searches registered patients</mat-hint>
+        </mat-form-field>
+
+        <mat-autocomplete
+          #patientAuto="matAutocomplete"
+          [displayWith]="displayPatient"
+          (optionSelected)="selectPatient($event.option.value, stepper)"
+        >
+          @if (showPatientSpinner()) {
+            <mat-option disabled>
+              <div class="inline-loading">
+                <mat-spinner diameter="18"></mat-spinner>
+                <span>Searching patients...</span>
+              </div>
+            </mat-option>
+          } @else if (
+            !patientSearchResults.isLoading() &&
+            patients().length === 0 &&
+            patientInputValue().trim().length >= 2
+          ) {
+            <mat-option disabled>No patients found matching "{{ patientInputValue() }}"</mat-option>
+          } @else {
+            @for (patient of patients(); track patient.ssn) {
+              <mat-option [value]="patient">
+                <div class="patient-option-row">
+                  <div class="patient-primary">
+                    <span class="patient-name">{{ patient.name }}</span>
+                    <span class="patient-meta"
+                      >SSN: <span class="meta-val">{{ patient.ssn }}</span> &bull; Insurance:
+                      <span class="meta-val">{{ patient.insurance || 'N/A' }}</span></span
+                    >
+                  </div>
+                  @if (patient.nacaScore !== undefined && patient.nacaScore !== null) {
+                    <span
+                      class="naca-chip"
+                      [class.naca-critical]="isSevereNaca(patient.nacaScore)"
+                      [class.naca-routine]="!isSevereNaca(patient.nacaScore)"
+                    >
+                      @if (isSevereNaca(patient.nacaScore)) {
+                        <mat-icon class="naca-icon">priority_high</mat-icon>
+                      }
+                      NACA {{ patient.nacaScore }}
+                    </span>
+                  }
+                </div>
+              </mat-option>
+            }
+          }
+        </mat-autocomplete>
+
+        <!-- Selected Patient Card -->
+        @if (selectedPatient(); as patient) {
+          <div class="selected-entity-card">
+            <mat-icon class="entity-icon">person</mat-icon>
+            <div class="entity-details">
+              <h4>{{ patient.name }}</h4>
+              <p>
+                SSN: <span class="meta-val">{{ patient.ssn }}</span> &bull; Insurance:
+                <span class="meta-val">{{ patient.insurance || 'N/A' }}</span>
+              </p>
+            </div>
+            @if (patient.nacaScore !== undefined && patient.nacaScore !== null) {
+              <span
+                class="naca-chip"
+                [class.naca-critical]="isSevereNaca(patient.nacaScore)"
+                [class.naca-routine]="!isSevereNaca(patient.nacaScore)"
+              >
+                @if (isSevereNaca(patient.nacaScore)) {
+                  <mat-icon class="naca-icon">priority_high</mat-icon>
+                }
+                NACA {{ patient.nacaScore }}
+              </span>
+            }
+            <button mat-button color="primary" matStepperNext>
+              Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </mat-step>
+
+    <!-- ── Step 2: Department & Doctor Selection ── -->
+    <mat-step [completed]="selectedDoctor() !== null">
+      <ng-template matStepLabel>Select Doctor</ng-template>
+
+      <div class="step-container">
+        @if (selectedPatient(); as patient) {
+          <div class="context-banner">
+            <mat-icon>person</mat-icon>
+            <span
+              >Patient: <strong class="meta-val">{{ patient.name }}</strong> (SSN:
+              {{ patient.ssn }})</span
+            >
+          </div>
+        }
+
+        <p class="step-instructions">
+          Filter by hospital department and choose the attending physician:
+        </p>
+
+        <!-- Department Filter -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Hospital Department</mat-label>
+          <mat-select
+            [value]="selectedDepartment()"
+            (selectionChange)="onDepartmentChange($event.value)"
+          >
+            <mat-option value="">-- All Departments --</mat-option>
+            @for (dept of departments(); track dept) {
+              <mat-option [value]="dept">{{ dept }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>apartment</mat-icon>
+        </mat-form-field>
+
+        <!-- Doctor Selection -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Attending Physician</mat-label>
+          <mat-select
+            [value]="selectedDoctor()"
+            [compareWith]="compareDoctor"
+            (selectionChange)="onDoctorChange($event.value)"
+          >
+            @for (doc of filteredDoctors(); track doc.ssn) {
+              <mat-option [value]="doc">
+                {{ doc.name }} &bull; {{ doc.specialty || doc.department }} ({{ doc.position }})
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>medical_services</mat-icon>
+        </mat-form-field>
+
+        <!-- Selected Doctor Card -->
+        @if (selectedDoctor(); as doc) {
+          <div class="selected-entity-card">
+            <mat-icon class="entity-icon doctor">medical_information</mat-icon>
+            <div class="entity-details">
+              <h4>{{ doc.name }}</h4>
+              <p>
+                Specialty: <span class="meta-val">{{ doc.specialty }}</span> &bull; Position:
+                <span class="meta-val">{{ doc.position }}</span>
+              </p>
+              <p>
+                Department: <span class="meta-val">{{ doc.department }}</span>
+              </p>
+            </div>
+            <button mat-button color="primary" matStepperNext>
+              Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+        }
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedDoctor()">
+            Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 3: Date & Time Slot Selection ── -->
+    <mat-step [completed]="selectedTimeSlot() !== null">
+      <ng-template matStepLabel>Select Date & Time</ng-template>
+
+      <div class="step-container">
+        @if (selectedDoctor(); as doc) {
+          <div class="context-banner">
+            <mat-icon>medical_services</mat-icon>
+            <span
+              >Physician: <strong class="meta-val">{{ doc.name }}</strong> ({{
+                doc.department
+              }})</span
+            >
+          </div>
+        }
+
+        <p class="step-instructions">
+          Select consultation date and pick an available 30-minute time slot:
+        </p>
+
+        <!-- Datepicker -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Appointment Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [min]="minDate"
+            [ngModel]="selectedDate()"
+            (ngModelChange)="onDateChange($event)"
+            placeholder="Choose consultation date"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-hint>Appointments must be scheduled today or in the future</mat-hint>
+        </mat-form-field>
+
+        <!-- Time Slots Container -->
+        <div class="slots-section">
+          <div class="slots-header">
+            <h4>Available Time Slots for {{ selectedDate() | date: 'EEEE, MMMM d, y' }}</h4>
+            @if (selectedTimeSlot()) {
+              <span class="selected-time-pill">
+                <mat-icon>schedule</mat-icon> {{ selectedTimeSlot() }}
+              </span>
+            }
+          </div>
+
+          <!-- Debounced progress spinner (<250ms threshold) -->
+          @if (showSlotSpinner()) {
+            <div class="slot-loading-state">
+              <mat-spinner diameter="32"></mat-spinner>
+              <span>Checking doctor and patient availability...</span>
+            </div>
+          } @else if (timeSlotsResource.isLoading()) {
+            <div class="slot-loading-state silent-loading"></div>
+          } @else if (timeSlots().length === 0) {
+            <div class="empty-state">
+              <mat-icon>event_busy</mat-icon>
+              <p>Please select a date to load available time slots.</p>
+            </div>
+          } @else if (!hasAvailableSlots()) {
+            <div class="no-slots-banner">
+              <mat-icon>event_busy</mat-icon>
+              <div>
+                <strong>No free slots available on this date.</strong>
+                <p>
+                  All time slots are booked for this doctor or patient. Please choose an alternate
+                  date.
+                </p>
+              </div>
+            </div>
+          } @else {
+            <!-- Bounded scroll container preventing overflow -->
+            <div class="time-slots-container">
+              <div class="time-slots-grid">
+                @for (slot of timeSlots(); track slot.time) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="time-slot-btn"
+                    [class.slot-selected]="selectedTimeSlot() === slot.time"
+                    [class.slot-available]="slot.available"
+                    [disabled]="!slot.available"
+                    (click)="selectTimeSlot(slot.time)"
+                  >
+                    <mat-icon class="slot-icon">
+                      {{ selectedTimeSlot() === slot.time ? 'check_circle' : 'schedule' }}
+                    </mat-icon>
+                    <span>{{ slot.time }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedTimeSlot()">
+            Next <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 4: Reason & Confirmation ── -->
+    <mat-step [completed]="bookingSuccess()">
+      <ng-template matStepLabel>Confirm Booking</ng-template>
+
+      <div class="step-container">
+        @if (bookingSuccess()) {
+          <div class="success-box">
+            <mat-icon class="success-icon">check_circle</mat-icon>
+            <h3>Appointment Successfully Scheduled!</h3>
+            @if (createdAppointmentId()) {
+              <div class="appointment-id-badge">Appointment ID: #{{ createdAppointmentId() }}</div>
+            }
+            <p>
+              The appointment has been recorded. Availability slots for the patient and doctor have
+              been updated.
+            </p>
+            <button mat-flat-button color="primary" (click)="resetWorkflow(stepper)">
+              <mat-icon>add</mat-icon> Schedule Another Appointment
+            </button>
+          </div>
+        } @else {
+          <p class="step-instructions">
+            Enter an optional consultation reason and review the appointment details:
+          </p>
+
+          <!-- Reason Field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Consultation Reason (Optional)</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              placeholder="e.g. Routine cardiac checkup, Follow-up consultation, Symptoms discussion..."
+              [ngModel]="reason()"
+              (ngModelChange)="reason.set($event)"
+            ></textarea>
+            <mat-hint>Clinical notes or patient concern</mat-hint>
+          </mat-form-field>
+
+          <!-- Review Summary Card -->
+          <div class="review-summary-card">
+            <div class="summary-header">
+              <mat-icon>fact_check</mat-icon>
+              <h3>Booking Summary</h3>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Patient</span>
+                <span class="summary-val">{{ selectedPatient()?.name }}</span>
+                <span class="summary-sub"
+                  >SSN: {{ selectedPatient()?.ssn }} &bull; {{ selectedPatient()?.insurance }}</span
+                >
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-label">Physician</span>
+                <span class="summary-val">{{ selectedDoctor()?.name }}</span>
+                <span class="summary-sub"
+                  >{{ selectedDoctor()?.specialty }} ({{ selectedDoctor()?.department }})</span
+                >
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-label">Date & Time</span>
+                <span class="summary-val">{{ selectedDate() | date: 'EEEE, MMMM d, y' }}</span>
+                <span class="summary-sub highlight-time">{{ selectedTimeSlot() }} (30 min)</span>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-label">Acting Clerk</span>
+                <span class="summary-val">{{
+                  activeClerk() ? activeClerk()!.name : 'Unassigned'
+                }}</span>
+                @if (activeClerk()) {
+                  <span class="summary-sub">SSN: {{ activeClerk()!.ssn }}</span>
+                }
+              </div>
+
+              @if (reason().trim()) {
+                <div class="summary-item full-width-item">
+                  <span class="summary-label">Consultation Reason</span>
+                  <span class="summary-val reason-text">{{ reason().trim() }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious [disabled]="isSubmitting()">
+              <mat-icon>arrow_back</mat-icon> Back
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="confirmBooking(stepper)"
+              [disabled]="isSubmitting() || !selectedTimeSlot()"
+            >
+              @if (isSubmitting()) {
+                <div class="inline-loading">
+                  <mat-spinner diameter="18"></mat-spinner>
+                  <span>Booking Appointment...</span>
+                </div>
+              } @else {
+                <span class="inline-loading">
+                  <mat-icon>event_available</mat-icon>
+                  <span>Book Appointment</span>
+                </span>
+              }
+            </button>
+          </div>
+        }
+      </div>
+    </mat-step>
+  </mat-stepper>
+</mat-card>

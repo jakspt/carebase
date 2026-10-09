@@ -11,6 +11,8 @@ export const homeRedirectGuardGuard: CanActivateFn = (route, state) => {
       return router.createUrlTree(['/admin']);
     case 'doctor':
       return router.createUrlTree(['/doctor']);
+    case 'clerk':
+      return router.createUrlTree(['/clerk']);
     default:
       break;
   }

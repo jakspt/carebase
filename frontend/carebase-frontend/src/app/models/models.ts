@@ -11,7 +11,68 @@ export interface Patient {
   name: string;
   ssn: string;
   insurance: string;
+  nacaScore?: number;
   appointments?: Appointment[];
+}
+
+export interface Clerk {
+  id: string;
+  name: string;
+  ssn: string;
+}
+
+export interface Doctor {
+  id: string;
+  name: string;
+  ssn: string;
+  specialty: string;
+  position: string;
+  department: string;
+}
+
+export interface TimeSlot {
+  time: string;
+  available: boolean;
+}
+
+export interface CreateAppointmentRequest {
+  patientSsn: string;
+  doctorSsn: string;
+  date: string;
+  time: string;
+  reason?: string;
+  clerkSsn?: string;
+}
+
+export interface CreateAppointmentResponse {
+  success: boolean;
+  appointmentId?: number;
+  message?: string;
+  appointment?: {
+    patientSsn: string;
+    doctorSsn: string;
+    date: string;
+    time: string;
+    reason?: string;
+  };
+  error?: string;
+}
+
+export interface PatientVisitRecord {
+  patientSsn: string;
+  patientName: string;
+  insurance: string;
+  doctorSsn: string;
+  doctorName: string;
+  specialty: string;
+  department: string;
+  visitCount: number;
+}
+
+export interface PatientVisitsReportResponse {
+  startDate: string;
+  endDate: string;
+  results: PatientVisitRecord[];
 }
 
 export interface Medication {
@@ -37,3 +98,4 @@ export interface DoctorEarnings {
 export interface DbStatus {
   dbType: 'MariaDB' | 'MongoDB';
 }
+

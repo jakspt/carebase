@@ -251,12 +251,22 @@ class DataMigrator(SQLBase, MongoBase):
         appointment_collection = self.mongo_db[MongoBase.collection_appointment_name]
 
         for row in rows:
+            appt_time = row[2]
+            if hasattr(appt_time, "total_seconds"):
+                total_seconds = int(appt_time.total_seconds())
+                hours, remainder = divmod(total_seconds, 3600)
+                minutes, _ = divmod(remainder, 60)
+                time_str = f"{hours:02d}:{minutes:02d}"
+            else:
+                parts = str(appt_time).split(":")
+                time_str = f"{int(parts[0]):02d}:{int(parts[1]):02d}"
+
             appointment_doc = {
                 "termin_id": row[0],  # TerminID as unique identifier
                 "datum": datetime.combine(
                     row[1], datetime.min.time()
                 ),  # Store date as datetime
-                "uhrzeit": str(row[2]),
+                "uhrzeit": time_str,
                 "grund": row[3],
                 "patient": {"svnr": row[4], "name": row[5], "versicherung": row[6]},
                 "arzt": {"svnr": row[7], "name": row[8], "fachrichtung": row[9]},

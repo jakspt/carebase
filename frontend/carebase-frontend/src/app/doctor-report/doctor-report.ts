@@ -11,6 +11,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { BarChartModule } from '@swimlane/ngx-charts';
 import { DoctorService } from '../services/doctor-service';
 import { DoctorEarnings } from '../models/models';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { map, of, switchMap, timer } from 'rxjs';
 
 interface ChartDataItem {
   name: string;
@@ -40,12 +42,22 @@ export class DoctorReport {
   readonly currentYear = new Date().getFullYear();
   readonly availableYears: number[] = Array.from(
     { length: this.currentYear - 2020 + 1 },
-    (_, i) => this.currentYear - i
+    (_, i) => this.currentYear - i,
   );
 
   readonly selectedYear = signal<number>(this.currentYear);
 
   readonly reportResource = this.doctorService.getReport(this.selectedYear);
+
+  private readonly spinnerDelayMs = 250;
+  readonly showSpinner = toSignal(
+    toObservable(this.reportResource.isLoading).pipe(
+      switchMap((loading) =>
+        loading ? timer(this.spinnerDelayMs).pipe(map(() => true)) : of(false),
+      ),
+    ),
+    { initialValue: false },
+  );
 
   readonly reportData = computed<DoctorEarnings[]>(() => {
     if (this.reportResource.hasValue()) {

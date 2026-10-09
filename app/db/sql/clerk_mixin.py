@@ -169,7 +169,7 @@ class SQLClerkMixin:
             self._close_connection()
             return {
                 "type": "doctor",
-                "message": "Der Arzt hat bereits einen Termin zu dieser Zeit.",
+                "message": "The doctor already has an appointment scheduled at this time.",
             }
 
         # Check patient conflict
@@ -182,7 +182,7 @@ class SQLClerkMixin:
             self._close_connection()
             return {
                 "type": "patient",
-                "message": "Der Patient hat bereits einen Termin zu dieser Zeit.",
+                "message": "The patient already has an appointment scheduled at this time.",
             }
         
         self._close_connection()
@@ -200,6 +200,7 @@ class SQLClerkMixin:
                 Termin.`SVNr_Arzt` AS Arzt_SVNr,
                 Arzt_Person.`Name` AS Arzt_Name,
                 Arzt.`Fachrichtung` AS Arzt_Fachrichtung,
+                Arzt.`Abteilungsname` AS Arzt_Abteilung,
                 COUNT(Termin.`TerminID`) AS Anzahl_Termine_Jeweiligen_Arzt
                 FROM `Termin`
                 JOIN `Patient` ON Termin.SVNr_Patient = Patient.SVNr
@@ -207,7 +208,9 @@ class SQLClerkMixin:
                 JOIN `Arzt` ON Termin.SVNr_Arzt = Arzt.SVNr 
                 JOIN `Person` AS Arzt_Person ON Arzt.SVNr = Arzt_Person.SVNr
                 WHERE Termin.`Datum` BETWEEN ? AND ?
-                GROUP BY Termin.`SVNr_Patient`, Termin.`SVNr_Arzt`;
+                GROUP BY Termin.`SVNr_Patient`, Patient_Person.`Name`, Patient.`Versicherungsträger`,
+                         Termin.`SVNr_Arzt`, Arzt_Person.`Name`, Arzt.`Fachrichtung`, Arzt.`Abteilungsname`
+                ORDER BY Termin.`SVNr_Patient`, Termin.`SVNr_Arzt`;
         """
 
         self.cursor.execute(query, (start_date, end_date))
@@ -222,7 +225,8 @@ class SQLClerkMixin:
                     "arzt_svnr": row[3],
                     "arzt_name": row[4],
                     "fachrichtung": row[5],
-                    "anzahl_termine": row[6],
+                    "abteilung": row[6],
+                    "anzahl_termine": row[7],
                 }
             )
         self._close_connection()
