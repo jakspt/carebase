@@ -1,24 +1,22 @@
 <mat-card appearance="outlined" class="action-card">
   <div class="card-header-group">
     @if (icon()) {
-      <div class="card-icon-container" [class]="iconColor()" aria-hidden="true">
-        <mat-icon class="card-icon">{{ icon() }}</mat-icon>
-      </div>
+    <div class="card-icon-container" [class]="iconColor()" aria-hidden="true">
+      <mat-icon class="card-icon">{{ icon() }}</mat-icon>
+    </div>
     }
     <div class="card-titles">
       <h2 class="card-title">{{ title() }}</h2>
       @if (description()) {
-        <p class="card-subtitle">{{ description() }}</p>
+      <p class="card-subtitle">{{ description() }}</p>
       }
     </div>
   </div>
 
-  <div class="card-body">
-    <ng-content></ng-content>
-  </div>
+  <div class="card-body"><ng-content></ng-content></div>
 
   <div class="card-actions">
-    <button mat-flat-button color="primary" class="action-btn" (click)="onButtonClick()">
+    <button mat-flat-button color="primary" class="action-btn" (click)="onButtonClick($event)">
       <span>{{ buttonText() }}</span>
       <mat-icon class="action-btn-arrow" aria-hidden="true">arrow_forward</mat-icon>
     </button>

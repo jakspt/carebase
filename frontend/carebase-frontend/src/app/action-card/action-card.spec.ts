@@ -20,4 +20,34 @@ describe('ActionCard', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should emit actionClicked when button is clicked', () => {
+    let emitted = 0;
+    component.actionClicked.subscribe(() => emitted++);
+
+    const button = fixture.nativeElement.querySelector('.action-btn') as HTMLButtonElement;
+    button.click();
+
+    expect(emitted).toBe(1);
+  });
+
+  it('should emit actionClicked when the card surface is clicked', () => {
+    let emitted = 0;
+    component.actionClicked.subscribe(() => emitted++);
+
+    const card = fixture.nativeElement.querySelector('.action-card') as HTMLElement;
+    card.click();
+
+    expect(emitted).toBe(1);
+  });
+
+  it('should not double-emit when the button is clicked', () => {
+    let emitted = 0;
+    component.actionClicked.subscribe(() => emitted++);
+
+    const button = fixture.nativeElement.querySelector('.action-btn') as HTMLButtonElement;
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect(emitted).toBe(1);
+  });
 });

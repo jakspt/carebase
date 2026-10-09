@@ -10,6 +10,9 @@ export type ThemePalette = 'primary' | 'secondary' | 'tertiary' | 'error' | 'neu
   selector: 'app-action-card',
   styleUrl: './action-card.css',
   templateUrl: './action-card.html',
+  host: {
+    '(click)': 'onCardClick($event)',
+  },
 })
 export class ActionCard {
   title = input.required<string>();
@@ -22,14 +25,16 @@ export class ActionCard {
 
   actionClicked = output<void>();
 
-  // The Central "Card" Module. Requires Title, Description an Icon and a Button. Can also take and place content
-  // Used nearly everywhere in this application
-  // Something like: Header -> contains Title
-  // Content -> contains Content (if it exists)
-  // and also the other children (optional)
-  // then the bottom contains the action button
+  protected onCardClick(event: MouseEvent) {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea, [role="button"]')) {
+      return;
+    }
+    this.actionClicked.emit();
+  }
 
-  protected onButtonClick() {
+  protected onButtonClick(event?: MouseEvent) {
+    event?.stopPropagation();
     this.actionClicked.emit();
   }
 }
