@@ -1,24 +1,18 @@
 <mat-card class="container-card" appearance="outlined">
-  <section class="hero-section">
-    <h1>Welcome, Doctor!</h1>
-    <p>Some things you could do here</p>
-  </section>
-  <section class="card-grid" aria-label="Admin-Actions">
-    <app-action-card
-      title="Perform Use Case"
-      description="of adding treatments"
-      icon="auto_fix_high"
-      iconColor="secondary"
-      buttonText="Add Treatment"
-      (actionClicked)="toUseCase()"
-    />
-    <app-action-card
-      title="Create Report"
-      description="Probably containing something special"
-      icon="drive_file_move"
-      iconColor="secondary"
-      buttonText="Create Report"
-      (actionClicked)="toReport()"
-    />
+  <header class="page-header">
+    <h1 class="page-title">Doctor Workstation</h1>
+    <p class="page-subtitle">
+      Document patient encounters, record clinical treatments and medications, and analyze treatment
+      expenditure metrics.
+    </p>
+  </header>
+
+  <section class="card-grid" aria-label="Doctor Actions">
+    <app-action-card title="Document Treatment"
+      description="Look up patient appointments, record diagnosis details, and prescribe formulary medications."
+      icon="medical_services" iconColor="primary" buttonText="Record Treatment" (actionClicked)="toUseCase()" />
+    <app-action-card title="Treatment Expenditure Analytics"
+      description="Review aggregated annual treatment costs and cost distribution across hospital practitioners."
+      icon="query_stats" iconColor="secondary" buttonText="View Cost Report" (actionClicked)="toReport()" />
   </section>
 </mat-card>

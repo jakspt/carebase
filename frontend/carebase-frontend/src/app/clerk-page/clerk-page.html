@@ -1,23 +1,27 @@
 <mat-card class="container-card" appearance="outlined">
-  <section class="hero-section">
-    <h1>Welcome, Hospital Clerk!</h1>
-    <p>Coordinate patient intakes, schedule appointments, and analyze consultation frequencies.</p>
-  </section>
-  <section class="card-grid" aria-label="Clerk-Actions">
+  <header class="page-header">
+    <h1 class="page-title">Hospital Clerk Workspace</h1>
+    <p class="page-subtitle">
+      Coordinate patient intakes, schedule collision-free physician appointments, and monitor
+      consultation volume metrics.
+    </p>
+  </header>
+
+  <section class="card-grid" aria-label="Clerk Actions">
     <app-action-card
       title="Schedule Appointment"
-      description="Book a collision-free doctor consultation for a registered patient."
+      description="Book a conflict-free physician consultation slot for an active patient."
       icon="calendar_month"
       iconColor="primary"
       buttonText="Schedule Appointment"
       (actionClicked)="toUseCase()"
     />
     <app-action-card
-      title="Visit Frequency Report"
-      description="Analyze consultation frequencies and doctor workload over date ranges."
+      title="Visit Frequency Analytics"
+      description="Analyze consultation volumes, patient return frequencies, and physician workload over custom date ranges."
       icon="analytics"
       iconColor="secondary"
-      buttonText="View Report"
+      buttonText="View Frequency Report"
       (actionClicked)="toReport()"
     />
   </section>

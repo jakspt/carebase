@@ -57,8 +57,7 @@ export const routes: Routes = [
           },
           {
             path: 'report',
-            loadComponent: () =>
-              import('./clerk-report/clerk-report').then((m) => m.ClerkReport),
+            loadComponent: () => import('./clerk-report/clerk-report').then((m) => m.ClerkReport),
           },
         ],
       },

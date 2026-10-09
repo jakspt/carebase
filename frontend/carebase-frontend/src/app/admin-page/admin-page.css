@@ -1,4 +1,36 @@
-.hero-section {
-  max-width: 600px;
+.page-header {
+  text-align: center;
+  max-width: 640px;
   margin-bottom: 2.5rem;
+}
+
+.page-title {
+  margin: 0 0 0.625rem;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+  color: var(--mat-sys-on-surface);
+  text-wrap: balance;
+}
+
+.page-subtitle {
+  margin: 0 auto;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  color: var(--mat-sys-on-surface-variant);
+  text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    letter-spacing: -0.018em;
+  }
 }

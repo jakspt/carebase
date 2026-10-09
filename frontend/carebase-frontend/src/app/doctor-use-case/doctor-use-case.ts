@@ -12,7 +12,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { form, FormField, max, min, required, submit } from '@angular/forms/signals';
-import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, distinctUntilChanged, firstValueFrom } from 'rxjs';
 import { Appointment, Medication, Patient } from '../models/models';
 import { DoctorService } from '../services/doctor-service';
 
@@ -46,8 +47,10 @@ export class DoctorUseCase {
   private readonly doctorService = inject(DoctorService);
   private readonly snackBar = inject(MatSnackBar);
 
-  // ── Step 1: Patient Search ──
+  // ── Step 1: Patient Search (Debounced) ──
   readonly searchQuery = signal('');
+  readonly searchInputValue = signal('');
+  private readonly searchSubject$ = new Subject<string>();
   readonly searchResults = this.doctorService.searchPatients(this.searchQuery);
   readonly patients = computed(() => {
     if (this.searchResults.hasValue()) {
@@ -59,6 +62,14 @@ export class DoctorUseCase {
   readonly selectedPatient = signal<Patient | null>(null);
   readonly selectedPatientId = computed(() => this.selectedPatient()?.id ?? null);
   readonly patientDetailsResource = this.doctorService.getPatientDetails(this.selectedPatientId);
+
+  constructor() {
+    this.searchSubject$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => {
+        this.searchQuery.set(query);
+      });
+  }
 
   // Formatter for mat-autocomplete input display
   readonly displayPatient = (patient: Patient | null): string => {
@@ -122,11 +133,14 @@ export class DoctorUseCase {
   // ── Handlers ──
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.searchQuery.set(value);
+    this.searchInputValue.set(value);
+    this.searchSubject$.next(value);
   }
 
   onPatientSelected(patient: Patient, stepper: MatStepper): void {
     this.selectedPatient.set(patient);
+    this.searchInputValue.set(this.displayPatient(patient));
+    this.searchQuery.set(patient ? patient.name : '');
     this.selectedAppointment.set(null);
     this.appointmentPageIndex.set(0);
     stepper.next();
@@ -167,7 +181,7 @@ export class DoctorUseCase {
         };
 
         const res = await firstValueFrom(
-          this.doctorService.addTreatment(patient.id, appt.id, payload)
+          this.doctorService.addTreatment(patient.id, appt.id, payload),
         );
 
         if (res.success) {
@@ -192,6 +206,7 @@ export class DoctorUseCase {
     this.selectedAppointment.set(null);
     this.appointmentPageIndex.set(0);
     this.searchQuery.set('');
+    this.searchInputValue.set('');
     this.treatmentModel.set({
       description: '',
       cost: 0,

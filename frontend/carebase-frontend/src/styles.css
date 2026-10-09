@@ -1,22 +1,103 @@
-/* You can add global styles to this file, and also import other style files */
+/* CareBase Global System Styles (Angular Material 3 Tokens & Plus Jakarta Sans) */
+:root {
+  --font-sans:
+    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, Monaco, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
 body {
-  background-color: var(--mat-sys-surface, #ffffff);
+  font-family: var(--font-sans);
+  background-color: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 
   background-image: radial-gradient(
-    ellipse 90% 60% at 50% 0%,
-    color-mix(in srgb, var(--mat-sys-primary, #6750a4) 28%, transparent) 0%,
-    color-mix(in srgb, var(--mat-sys-primary, #6750a4) 10%, transparent) 50%,
-    transparent 100%
+    ellipse 85% 55% at 50% -10%,
+    color-mix(in srgb, var(--mat-sys-primary) 26%, transparent) 0%,
+    color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 45%,
+    transparent 80%
   );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
 }
-/*
-Card specifics
-*/
+
+/* Browser surface defaults polished from design system */
+::selection {
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 24%, transparent);
+  color: var(--mat-sys-on-surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea,
+optgroup {
+  font-family: inherit;
+}
+
+/* Headings and paragraph optical balance */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.hero-title,
+.page-title,
+.card-title,
+.use-case-title,
+.report-title {
+  font-family: var(--font-sans);
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+p,
+.hero-subtitle,
+.page-subtitle,
+.card-subtitle {
+  text-wrap: pretty;
+}
+
+/* Clinical data alignment with tabular figures */
+.kpi-value,
+.appt-time,
+.db-badge,
+.meta-val,
+.appointment-id-badge,
+.visit-count-badge,
+.mat-mdc-table th,
+.mat-mdc-table td {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Card layout grid */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  gap: 1.75rem;
   width: 100%;
+  align-items: stretch;
 }
 
 mat-card.container-card {
@@ -24,24 +105,43 @@ mat-card.container-card {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 860px;
-  padding: 3.5rem 3rem;
+  max-width: 960px;
+  padding: 3rem 2.5rem 2.5rem;
   border-radius: 24px;
+  background-color: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
   box-sizing: border-box;
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.03),
+    0 12px 32px -12px rgba(0, 0, 0, 0.04);
 }
-/* Dropdown Customization */
+
+@media (max-width: 640px) {
+  mat-card.container-card {
+    padding: 2rem 1.25rem 1.5rem;
+    border-radius: 18px;
+  }
+
+  .card-grid {
+    gap: 1.25rem;
+  }
+}
+
+/* Profile and persona dropdown */
 .mat-mdc-menu-panel.profile-dropdown-menu {
   min-width: 240px !important;
   border-radius: 12px !important;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface-container);
 }
 
 .mat-mdc-menu-panel.profile-dropdown-menu .menu-label-muted {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 700;
-  color: var(--mat-sys-outline, var(--mat-sys-on-surface-variant));
-  padding: 10px 16px 4px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 12px 16px 6px;
 }
 
 .mat-mdc-menu-panel.profile-dropdown-menu .mat-mdc-menu-item.active-role {
@@ -73,3 +173,33 @@ mat-card.container-card {
   margin-right: 0 !important;
   color: var(--mat-sys-primary);
 }
+
+/* Reduced motion support - preserves essential progress feedback while suppressing decorative transitions */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+
+  :not(
+    mat-progress-bar,
+    mat-progress-bar *,
+    mat-spinner,
+    mat-spinner *,
+    mat-progress-spinner,
+    mat-progress-spinner *,
+    .mat-mdc-progress-bar,
+    .mat-mdc-progress-bar *,
+    .mat-mdc-progress-spinner,
+    .mat-mdc-progress-spinner *
+  ) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+

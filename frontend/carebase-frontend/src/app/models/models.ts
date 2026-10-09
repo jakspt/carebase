@@ -98,4 +98,3 @@ export interface DoctorEarnings {
 export interface DbStatus {
   dbType: 'MariaDB' | 'MongoDB';
 }
-

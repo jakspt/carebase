@@ -30,11 +30,11 @@ export class DoctorService {
   addTreatment(
     patientId: string | number,
     appointmentId: number,
-    treatment: Treatment
+    treatment: Treatment,
   ): Observable<{ success: boolean }> {
     return this.http.post<{ success: boolean }>(
       `/api/doctor/patients/${patientId}/appointments/${appointmentId}/treatments`,
-      treatment
+      treatment,
     );
   }
 

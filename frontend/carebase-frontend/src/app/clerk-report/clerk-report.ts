@@ -149,16 +149,16 @@ export class ClerkReport {
 
   readonly customColorScheme: any = {
     domain: [
-      '#0284c7',
-      '#0ea5e9',
-      '#0284c7',
-      '#0369a1',
-      '#2563eb',
-      '#0d9488',
-      '#14b8a6',
-      '#4f46e5',
-      '#6366f1',
-      '#8b5cf6',
+      '#006495',
+      '#0082be',
+      '#009fe8',
+      '#29b4ff',
+      '#5dc4ff',
+      '#8cd3ff',
+      '#bde4ff',
+      '#004b72',
+      '#0073ab',
+      '#003350',
     ],
   };
 

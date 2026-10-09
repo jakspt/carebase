@@ -1,16 +1,26 @@
-<mat-card appearance="raised" class="action-card">
-  <mat-card-header>
+<mat-card appearance="outlined" class="action-card">
+  <div class="card-header-group">
     @if (icon()) {
-      <mat-icon mat-card-avatar class="card-icon" [class]="iconColor()">{{ icon() }}</mat-icon>
+      <div class="card-icon-container" [class]="iconColor()" aria-hidden="true">
+        <mat-icon class="card-icon">{{ icon() }}</mat-icon>
+      </div>
     }
-    <mat-card-title>{{ title() }}</mat-card-title>
-    <mat-card-subtitle>{{ description() }}</mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content class="card-body">
-    <!-- For additional content like filters etc. -->
+    <div class="card-titles">
+      <h2 class="card-title">{{ title() }}</h2>
+      @if (description()) {
+        <p class="card-subtitle">{{ description() }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="card-body">
     <ng-content></ng-content>
-  </mat-card-content>
-  <mat-card-actions align="end">
-    <button matButton (click)="onButtonClick()">{{ buttonText() }}</button>
-  </mat-card-actions>
+  </div>
+
+  <div class="card-actions">
+    <button mat-flat-button color="primary" class="action-btn" (click)="onButtonClick()">
+      <span>{{ buttonText() }}</span>
+      <mat-icon class="action-btn-arrow" aria-hidden="true">arrow_forward</mat-icon>
+    </button>
+  </div>
 </mat-card>

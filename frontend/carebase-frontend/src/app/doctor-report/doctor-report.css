@@ -5,10 +5,10 @@
 }
 
 .report-card {
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--mat-sys-surface, #ffffff);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-sizing: border-box;
 }
 
 .report-header {
@@ -17,25 +17,30 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
+  padding: 1.75rem 2rem;
 }
 
-.header-text h2 {
+.report-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface, #1e293b);
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--mat-sys-on-surface);
+  text-wrap: balance;
 }
 
-.header-text .subtitle {
-  margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  color: var(--mat-sys-on-surface-variant, #64748b);
+.subtitle {
+  margin: 0.375rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--mat-sys-on-surface-variant);
+  text-wrap: pretty;
 }
 
 .year-select-field {
   min-width: 160px;
-  margin-bottom: -1.25em; /* Compensate for Material hint space */
+  margin-bottom: -1.25em;
 }
 
 .report-content {
@@ -66,7 +71,7 @@
 }
 
 .section-title mat-icon {
-  color: var(--mat-sys-primary, #0284c7);
+  color: var(--mat-sys-primary);
   font-size: 22px;
   width: 22px;
   height: 22px;
@@ -75,8 +80,9 @@
 .section-title h3 {
   margin: 0;
   font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--mat-sys-on-surface, #1e293b);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--mat-sys-on-surface);
 }
 
 .chart-container {
@@ -90,26 +96,14 @@
   overflow-x: auto;
   max-height: 420px;
   overflow-y: auto;
-  border-radius: 12px;
-  border: 1px solid var(--mat-sys-outline-variant, #e2e8f0);
-  scrollbar-width: thin;
-  scrollbar-color: var(--mat-sys-outline-variant, #cbd5e1) transparent;
-}
-
-.table-scroll-wrapper::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background-color: var(--mat-sys-outline-variant, #cbd5e1);
-  border-radius: 9999px;
+  border-radius: 14px;
+  border: 1px solid var(--mat-sys-outline-variant);
 }
 
 .report-paginator {
   background: transparent;
   margin-top: 0.5rem;
-  border-top: 1px solid var(--mat-sys-outline-variant, #e2e8f0);
+  border-top: 1px solid var(--mat-sys-outline-variant);
 }
 
 .report-table {
@@ -118,39 +112,43 @@
 
 .report-table th,
 .report-table td {
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
+  padding-left: 0.875rem !important;
+  padding-right: 0.875rem !important;
 }
 
 .report-table th {
-  background-color: var(--mat-sys-surface-container-high, #f8fafc);
-  font-weight: 500;
-  color: var(--mat-sys-on-surface, #1e293b);
-  font-size: 0.8125rem;
+  background-color: var(--mat-sys-surface-container-high);
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
+  height: 44px;
 }
 
 .report-table td {
   font-size: 0.875rem;
-  color: var(--mat-sys-on-surface-variant, #334155);
+  line-height: 1.5;
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .doctor-cell .doctor-name {
-  font-weight: 500;
-  color: var(--mat-sys-on-surface, #0f172a);
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
 }
 
 .cost-header,
 .cost-cell {
   text-align: right;
-  padding-right: 1rem !important;
+  padding-right: 1.25rem !important;
 }
 
 .cost-cell {
-  font-weight: 500;
-  color: var(--mat-sys-primary, #0284c7);
+  font-weight: 700;
+  color: var(--mat-sys-primary);
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .state-container {
@@ -159,9 +157,13 @@
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  color: var(--mat-sys-on-surface-variant, #64748b);
+  color: var(--mat-sys-on-surface-variant);
   gap: 1rem;
   text-align: center;
+}
+
+.state-container.silent-loading {
+  min-height: 200px;
 }
 
 .state-container.empty .state-icon {
@@ -169,13 +171,14 @@
   width: 48px;
   height: 48px;
   opacity: 0.5;
-  color: var(--mat-sys-outline, #94a3b8);
+  color: var(--mat-sys-outline);
 }
 
 .state-container.empty h3 {
   margin: 0;
   font-size: 1.125rem;
-  color: var(--mat-sys-on-surface, #1e293b);
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
 }
 
 .state-container.empty p {

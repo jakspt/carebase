@@ -3,8 +3,10 @@
     <!-- Header with Year Filter -->
     <div class="report-header">
       <div class="header-text">
-        <h2>Treatment Costs by Doctor</h2>
-        <p class="subtitle">Overview of accumulated medical treatment expenditures per practitioner.</p>
+        <h1 class="report-title">Treatment Costs by Doctor</h1>
+        <p class="subtitle">
+          Overview of accumulated medical treatment expenditures per practitioner.
+        </p>
       </div>
       <div class="header-filter">
         <mat-form-field appearance="outline" class="year-select-field">
@@ -22,11 +24,13 @@
 
     <!-- Content Area -->
     <div class="report-content">
-      @if (reportResource.isLoading()) {
+      @if (showSpinner()) {
         <div class="state-container">
           <mat-spinner diameter="40"></mat-spinner>
           <p>Loading report data for {{ selectedYear() }}...</p>
         </div>
+      } @else if (reportResource.isLoading()) {
+        <div class="state-container silent-loading"></div>
       } @else if (reportData().length === 0) {
         <div class="state-container empty">
           <mat-icon class="state-icon">bar_chart</mat-icon>
@@ -67,7 +71,11 @@
             </div>
 
             <div class="table-scroll-wrapper">
-              <table mat-table [dataSource]="pagedReportData()" class="mat-elevation-z0 report-table">
+              <table
+                mat-table
+                [dataSource]="pagedReportData()"
+                class="mat-elevation-z0 report-table"
+              >
                 <!-- ID / SSN Column -->
                 <ng-container matColumnDef="id">
                   <th mat-header-cell *matHeaderCellDef>SSN</th>

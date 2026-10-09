@@ -16,36 +16,37 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 640px) {
+  .main-area {
+    padding: 1.25rem 0.75rem;
+  }
+}
+
 a {
   text-decoration: none;
   display: flex;
   align-items: center;
+  color: inherit;
 }
 
 .app-header {
   display: flex;
   align-items: center;
-
-  color: 'inherit';
-  background: color-mix(in srgb, var(--mat-sys-surface, #ffffff) 75%, transparent);
-
-  /* Softens the gradient and content passing underneath */
+  color: inherit;
+  background: color-mix(in srgb, var(--mat-sys-surface) 85%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
-  /* Subtle border to define the edge against the ambient light */
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--mat-sys-outline-variant, #cbd5e1) 40%, transparent);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
   padding: 0 1.5rem;
   height: 64px;
   flex: 0 0 64px;
+  box-sizing: border-box;
 
   .brand-title {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: -0.02em;
-
-    color: var(--mat-sys-primary, #0284c7);
+    color: var(--mat-sys-primary);
   }
 
   .toolbar-spacer {
@@ -60,13 +61,16 @@ a {
   padding: 0.25rem 0.75rem;
   margin-left: 1rem;
   border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  background-color: var(--mat-sys-surface-container-high, #f1f5f9);
-  color: var(--mat-sys-on-surface-variant, #475569);
-  border: 1px solid var(--mat-sys-outline-variant, #cbd5e1);
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease-in-out;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums lining-nums;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 
   .db-badge-icon {
     font-size: 16px;
@@ -75,12 +79,12 @@ a {
   }
 
   &.mongo {
-    background-color: var(--mat-sys-primary-container, #e0f2fe);
-    color: var(--mat-sys-on-primary-container, #0369a1);
-    border-color: color-mix(in srgb, var(--mat-sys-primary, #0284c7) 35%, transparent);
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    border-color: color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
 
     .db-badge-icon {
-      color: var(--mat-sys-primary, #0284c7);
+      color: var(--mat-sys-primary);
     }
   }
 }
@@ -91,7 +95,9 @@ a {
   height: 44px;
   padding: 0 0.75rem !important;
   border-radius: 9999px;
-  border: 1px solid var(--mat-sys-outline-variant, #e2e8f0);
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 
   .avatar-circle {
     display: inline-flex;
@@ -100,37 +106,18 @@ a {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background-color: var(--mat-sys-primary-container, #e0f2fe);
-    color: var(--mat-sys-primary, #0284c7);
-    font-weight: 500;
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    font-weight: 600;
     font-size: 0.75rem;
     margin-right: 0.5rem;
-  }
-
-  .user-meta {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    line-height: 1.2;
-    margin-right: 0.25rem;
-
-    .user-name {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--mat-sys-on-surface, #1e293b);
-    }
-
-    .user-role {
-      font-size: 0.7rem;
-      color: var(--mat-sys-on-surface-variant, #64748b);
-    }
   }
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: var(--mat-sys-on-surface-variant, #64748b);
+    color: var(--mat-sys-on-surface-variant);
   }
 }
 
@@ -138,19 +125,29 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  margin-right: 0.5rem;
+  margin-right: 0.625rem;
   background-color: var(--mat-sys-primary-container);
-  color: var(--mat-sys-primary, #0284c7);
-
-  box-shadow: 0 4px 14px 0 rgba(2, 132, 199, 0.15);
+  color: var(--mat-sys-primary);
   border: 1px solid var(--mat-sys-outline-variant);
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-header {
+    padding: 0 0.75rem;
+  }
+
+  .db-badge {
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
   }
 }

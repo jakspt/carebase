@@ -1,78 +1,156 @@
-mat-card-title {
-  color: var(--mat-sys-on-surface);
-}
-
-mat-card-subtitle {
-  color: var(--mat-sys-on-surface-variant);
-}
-
-/* For custom content projected into <ng-content> */
-.card-body {
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 1rem 0;
+:host {
+  display: block;
+  height: 100%;
 }
 
 .action-card {
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  padding: 1.5rem;
+  padding: 1.875rem 1.75rem 1.5rem;
+  border-radius: 18px;
+  background-color: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-sizing: border-box;
+  position: relative;
+  transition:
+    border-color 0.22s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.22s cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* Primary role */
-.card-icon.primary {
-  color: var(--mat-sys-on-primary-container);
-  background-color: var(--mat-sys-primary-container);
+.action-card:hover {
+  border-color: color-mix(in srgb, var(--mat-sys-primary) 55%, transparent);
+  box-shadow:
+    0 12px 28px -6px rgba(0, 0, 0, 0.08),
+    0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  transform: translateY(-2px);
 }
 
-/* Secondary role */
-.card-icon.secondary {
-  color: var(--mat-sys-on-secondary-container);
-  background-color: var(--mat-sys-secondary-container);
+.card-header-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.125rem;
 }
 
-/* Tertiary role (great for magic wands, AI, stars) */
-.card-icon.tertiary {
-  color: var(--mat-sys-on-tertiary-container);
-  background-color: var(--mat-sys-tertiary-container);
-}
-
-/* Error / Danger */
-.card-icon.error {
-  color: var(--mat-sys-on-error-container);
-  background-color: var(--mat-sys-error-container);
-}
-
-/* Neutral / Default */
-.card-icon.neutral {
-  color: var(--mat-sys-on-surface-variant);
-  background-color: var(--mat-sys-surface-container-high);
-}
-.card-icon {
-  /* Dimensions for mat-card-avatar */
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-
-  /* Icon sizing inside the circle */
-  font-size: 1.5rem;
+.card-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.card-body {
-  flex: 1 1 auto;
-}
-.card-actions {
-  margin-top: auto;
-  display: flex;
-  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
 }
 
-:host {
-  display: block; /* Allows the host tag to take 100% width of the parent cell */
-  height: 100%; /* Ensures uniform card heights in a row */
+.action-card:hover .card-icon-container {
+  transform: scale(1.05);
+}
+
+.card-icon-container .card-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.card-icon-container.primary {
+  color: var(--mat-sys-on-primary-container);
+  background-color: var(--mat-sys-primary-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 22%, transparent);
+}
+
+.card-icon-container.secondary {
+  color: var(--mat-sys-on-secondary-container);
+  background-color: var(--mat-sys-secondary-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-secondary) 22%, transparent);
+}
+
+.card-icon-container.tertiary {
+  color: var(--mat-sys-on-tertiary-container);
+  background-color: var(--mat-sys-tertiary-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 22%, transparent);
+}
+
+.card-icon-container.error {
+  color: var(--mat-sys-on-error-container);
+  background-color: var(--mat-sys-error-container);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-error) 22%, transparent);
+}
+
+.card-icon-container.neutral {
+  color: var(--mat-sys-on-surface-variant);
+  background-color: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.018em;
+  color: var(--mat-sys-on-surface);
+  text-wrap: balance;
+}
+
+.card-subtitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  color: var(--mat-sys-on-surface-variant);
+  text-wrap: pretty;
+}
+
+.card-body {
+  margin-top: 0.75rem;
+  flex: 1 1 auto;
+}
+
+.card-body:empty {
+  display: none;
+  margin: 0;
+}
+
+.card-actions {
+  margin-top: 1.75rem;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.action-btn {
+  font-family: var(--font-sans);
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  height: 40px !important;
+  padding: 0 1.25rem !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.375rem !important;
+}
+
+.action-btn .action-btn-arrow {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.action-card:hover .action-btn .action-btn-arrow {
+  transform: translateX(3px);
 }

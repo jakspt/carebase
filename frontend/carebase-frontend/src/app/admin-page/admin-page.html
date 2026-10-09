@@ -1,22 +1,27 @@
 <mat-card class="container-card" appearance="outlined">
-  <section class="hero-section">
-    <h1>System Configuration</h1>
-  </section>
-  <section class="card-grid" aria-label="Admin-Actions">
+  <header class="page-header">
+    <h1 class="page-title">System Administration & Data Operations</h1>
+    <p class="page-subtitle">
+      Populate synthetic clinical datasets for load evaluation and execute live runtime schema
+      migration from MariaDB to MongoDB.
+    </p>
+  </header>
+
+  <section class="card-grid" aria-label="Administrative Actions">
     <app-action-card
       title="Seed Test Database"
-      description="Populates the environment with randomized mock datasets"
-      icon="auto_fix_high"
+      description="Generate randomized synthetic patients, physicians, appointments, and treatments via bulk insertion."
+      icon="dataset"
       iconColor="secondary"
       buttonText="Seed Database"
       (actionClicked)="seedDb()"
     />
     <app-action-card
-      title="Migrate to MongoDB"
-      description="Extracts relational schemas and rows from MariaDB, transforms them into optimized MongoDB document collections, and builds production indexes."
-      icon="drive_file_move"
-      iconColor="secondary"
-      buttonText="Run Migration"
+      title="Execute NoSQL Migration"
+      description="Transform relational SQL tables into optimized MongoDB document collections and swap active repository strategy."
+      icon="storage"
+      iconColor="primary"
+      buttonText="Run Live Migration"
       (actionClicked)="migrateDb()"
     />
   </section>

@@ -3,40 +3,27 @@
     <!-- Hero Section -->
     <header class="hero-section">
       <div class="hero-icon-wrapper">
-        <mat-icon>healing</mat-icon>
+        <mat-icon aria-hidden="true">healing</mat-icon>
       </div>
-      <h1 class="mat-headline-large">Welcome to CareBase</h1>
-      <p class="mat-body-large hero-subtitle">
-        Secure portal access for medical staff and system administrators.
+      <h1 class="hero-title">CareBase Hospital Information System</h1>
+      <p class="hero-subtitle">
+        Unified portal for clinical documentation, collision-free appointment scheduling, and
+        dual-database administration.
       </p>
     </header>
 
     <!-- Card Grid -->
-    <section class="card-grid" aria-label="Portals">
-      <app-action-card
-        title="Doctor Login"
-        description="Add treatments to appointments and view reports."
-        icon="vaccines"
-        iconColor="primary"
-        buttonText="Login as Doctor"
-        (actionClicked)="visitDoctorSite()"
-      />
-      <app-action-card
-        title="Clerk Login"
-        description="Schedule appointments and view visit frequency reports."
-        icon="calendar_month"
-        iconColor="primary"
-        buttonText="Login as Clerk"
-        (actionClicked)="visitClerkSite()"
-      />
-      <app-action-card
-        title="Admin Login"
-        description="Seed and migrate the database."
-        icon="admin_panel_settings"
-        iconColor="secondary"
-        buttonText="Login as Admin"
-        (actionClicked)="visitAdminSite()"
-      />
+    <section class="card-grid" aria-label="Workstation Portals">
+      <app-action-card title="Doctor Portal"
+        description="Review patient consultation histories, document diagnoses, and prescribe medications."
+        icon="vaccines" iconColor="primary" buttonText="Enter as Doctor" (actionClicked)="visitDoctorSite()" />
+      <app-action-card title="Hospital Clerk"
+        description="Manage patient intake, book collision-free appointments, and analyze consultation frequencies."
+        icon="calendar_month" iconColor="primary" buttonText="Enter as Clerk" (actionClicked)="visitClerkSite()" />
+      <app-action-card title="System Administration"
+        description="Populate test datasets and orchestrate live runtime database migration between SQL and MongoDB."
+        icon="admin_panel_settings" iconColor="secondary" buttonText="Enter as Admin"
+        (actionClicked)="visitAdminSite()" />
     </section>
   </mat-card>
 </main>
