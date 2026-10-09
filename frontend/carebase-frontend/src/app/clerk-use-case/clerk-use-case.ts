@@ -180,7 +180,12 @@ export class ClerkUseCase {
     { initialValue: false },
   );
 
+  // Signal used for tests or explicit mock data
+  readonly timeSlotsSignal = signal<TimeSlot[] | null>(null);
   readonly timeSlots = computed<TimeSlot[]>(() => {
+    if (this.timeSlotsSignal()) {
+      return this.timeSlotsSignal()!;
+    }
     if (this.timeSlotsResource.hasValue()) {
       return this.timeSlotsResource.value()?.slots ?? [];
     }
@@ -189,6 +194,31 @@ export class ClerkUseCase {
 
   readonly hasAvailableSlots = computed<boolean>(() => {
     return this.timeSlots().some((s) => s.available);
+  });
+
+  // Signal used for tests or proactive guidance override
+  readonly nextAvailableDateSignal = signal<string | null>(null);
+  readonly nextAvailableDate = computed<string | null>(() => {
+    if (this.nextAvailableDateSignal() !== null) {
+      return this.nextAvailableDateSignal();
+    }
+    if (this.timeSlotsResource.hasValue()) {
+      return this.timeSlotsResource.value()?.nextAvailableDate ?? null;
+    }
+    return null;
+  });
+
+  readonly parsedNextAvailableDate = computed<Date | null>(() => {
+    const dateStr = this.nextAvailableDate();
+    if (!dateStr) return null;
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      return new Date(year, month, day, 12, 0, 0);
+    }
+    return new Date(dateStr);
   });
 
   // ── Step 4: Reason & Booking Review ──
@@ -269,6 +299,29 @@ export class ClerkUseCase {
     this.selectedTimeSlot.set(null);
   }
 
+  selectNextAvailableDate(dateVal?: string | Date | null): void {
+    const target = dateVal ?? this.parsedNextAvailableDate() ?? this.nextAvailableDate();
+    if (!target) return;
+    let targetDate: Date;
+    if (typeof target === 'string') {
+      const parts = target.split('-');
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        targetDate = new Date(year, month, day);
+      } else {
+        targetDate = new Date(target);
+      }
+    } else {
+      targetDate = new Date(target);
+    }
+    targetDate.setHours(0, 0, 0, 0);
+    this.nextAvailableDateSignal.set(null);
+    this.timeSlotsSignal.set(null);
+    this.onDateChange(targetDate);
+  }
+
   selectTimeSlot(time: string, stepper?: MatStepper): void {
     if (this.selectedTimeSlot() === time) {
       this.selectedTimeSlot.set(null);
@@ -341,6 +394,8 @@ export class ClerkUseCase {
     this.selectedDoctor.set(null);
     this.selectedDate.set(this.minDate);
     this.selectedTimeSlot.set(null);
+    this.timeSlotsSignal.set(null);
+    this.nextAvailableDateSignal.set(null);
     this.reason.set('');
     this.bookingSuccess.set(false);
     this.createdAppointmentId.set(null);

@@ -400,4 +400,74 @@ describe('ClerkUseCase', () => {
     expect(step2NextBtn).toBeTruthy();
     expect(step2NextBtn.disabled).toBe(false);
   });
+
+  it('should render neutralized no-slots banner when all slots are booked', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectPatient(mockPatient);
+    component.selectDoctor(mockDoctors[0]);
+    component.timeSlotsSignal.set([
+      { time: '08:00', available: false },
+      { time: '08:30', available: false },
+    ]);
+    fixture.detectChanges();
+    stepper.selectedIndex = 2;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const banner = fixture.nativeElement.querySelector('.no-slots-banner');
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('No available slots on this date');
+    expect(banner.classList.contains('mat-sys-error-container')).toBe(false);
+    expect(banner.classList.contains('error')).toBe(false);
+  });
+
+  it('should display proactive guidance with next available date and allow one-click selection', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectPatient(mockPatient);
+    component.selectDoctor(mockDoctors[0]);
+    // 2025-10-16 is Thursday, Oct 16
+    component.nextAvailableDateSignal.set('2025-10-16');
+    component.timeSlotsSignal.set([
+      { time: '08:00', available: false },
+      { time: '08:30', available: false },
+    ]);
+    fixture.detectChanges();
+    stepper.selectedIndex = 2;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const banner = fixture.nativeElement.querySelector('.no-slots-banner');
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('No available slots on this date.');
+    expect(banner.textContent).toContain('Next available: Thursday, Oct 16');
+
+    // Click next available date button
+    const nextBtn = banner.querySelector('.next-available-btn') as HTMLButtonElement;
+    expect(nextBtn).toBeTruthy();
+    nextBtn.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.formattedDate()).toBe('2025-10-16');
+  });
+
+  it('should display neutral fallback guidance when no next available date is specified', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectPatient(mockPatient);
+    component.selectDoctor(mockDoctors[0]);
+    component.nextAvailableDateSignal.set(null);
+    component.timeSlotsSignal.set([
+      { time: '08:00', available: false },
+    ]);
+    fixture.detectChanges();
+    stepper.selectedIndex = 2;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const banner = fixture.nativeElement.querySelector('.no-slots-banner');
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('No available slots on this date.');
+    expect(banner.textContent).toContain('All time slots are booked for this doctor');
+    expect(banner.querySelector('.next-available-btn')).toBeNull();
+  });
 });

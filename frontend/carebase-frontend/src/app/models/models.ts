@@ -35,6 +35,14 @@ export interface TimeSlot {
   available: boolean;
 }
 
+export interface TimeSlotsResponse {
+  date: string;
+  doctorSsn: string;
+  patientSsn?: string;
+  slots: TimeSlot[];
+  nextAvailableDate?: string | null;
+}
+
 export interface CreateAppointmentRequest {
   patientSsn: string;
   doctorSsn: string;

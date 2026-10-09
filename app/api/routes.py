@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from flask import jsonify, request
 
 from app.db import MongoDBStrategy, get_db, switch_to_mongo
@@ -267,11 +268,28 @@ def clerk_get_time_slots():
                 "available": time_str not in unavailable_slots,
             })
 
+    next_available_date = None
+    if not any(s["available"] for s in all_slots):
+        try:
+            curr_date = datetime.strptime(date, "%Y-%m-%d").date()
+            for offset in range(1, 15):
+                candidate_date = curr_date + timedelta(days=offset)
+                candidate_str = candidate_date.strftime("%Y-%m-%d")
+                d_booked = db.get_doctor_booked_slots(doctor_ssn, candidate_str)
+                p_booked = db.get_patient_booked_slots(patient_ssn, candidate_str) if patient_ssn else []
+                booked_count = len(set(d_booked + p_booked))
+                if booked_count < 19:
+                    next_available_date = candidate_str
+                    break
+        except Exception:
+            pass
+
     return jsonify({
         "date": date,
         "doctorSsn": doctor_ssn,
         "patientSsn": patient_ssn,
         "slots": all_slots,
+        "nextAvailableDate": next_available_date,
     })
 
 

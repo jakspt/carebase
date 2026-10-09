@@ -6,6 +6,7 @@ import {
   Doctor,
   Patient,
   TimeSlot,
+  TimeSlotsResponse,
   CreateAppointmentRequest,
   CreateAppointmentResponse,
   PatientVisitsReportResponse,
@@ -78,7 +79,7 @@ export class ClerkService {
   }
 
   getTimeSlots(params: () => { date: string; doctorSsn: string; patientSsn?: string } | undefined) {
-    return httpResource<{ date: string; doctorSsn: string; patientSsn: string; slots: TimeSlot[] }>(
+    return httpResource<TimeSlotsResponse>(
       () => {
         const p = params();
         if (!p || !p.date || !p.doctorSsn) return undefined;

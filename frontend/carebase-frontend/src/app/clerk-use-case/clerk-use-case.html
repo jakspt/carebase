@@ -280,14 +280,32 @@
             <p>Please select a date to load available time slots.</p>
           </div>
           } @else if (!hasAvailableSlots()) {
-          <div class="no-slots-banner">
-            <mat-icon>event_busy</mat-icon>
-            <div>
-              <strong>No free slots available on this date.</strong>
-              <p>
-                All time slots are booked for this doctor or patient. Please choose an alternate
-                date.
+          <div class="no-slots-banner" role="status" aria-live="polite">
+            <mat-icon class="no-slots-icon" aria-hidden="true">event_busy</mat-icon>
+            <div class="no-slots-content">
+              <strong class="no-slots-title">No available slots on this date.</strong>
+              @if (parsedNextAvailableDate(); as nextDate) {
+              <p class="no-slots-guidance">
+                <span class="next-available-label">
+                  Next available: {{ nextDate | date: 'EEEE, MMM d' }}
+                </span>
+                <button
+                  type="button"
+                  mat-stroked-button
+                  class="next-available-btn"
+                  (click)="selectNextAvailableDate(nextDate)"
+                  [matTooltip]="'Switch consultation date to ' + (nextDate | date: 'EEEE, MMMM d, y')"
+                  [attr.aria-label]="'Select next available date: ' + (nextDate | date: 'EEEE, MMMM d, y')"
+                >
+                  <mat-icon aria-hidden="true">event_available</mat-icon>
+                  <span>Select Date</span>
+                </button>
               </p>
+              } @else {
+              <p class="no-slots-guidance">
+                All time slots are booked for this doctor on the selected date. Please choose an alternate date.
+              </p>
+              }
             </div>
           </div>
           } @else {
