@@ -470,4 +470,137 @@ describe('ClerkUseCase', () => {
     expect(banner.textContent).toContain('All time slots are booked for this doctor');
     expect(banner.querySelector('.next-available-btn')).toBeNull();
   });
+
+  it('should render active clerk card with structured entity card grammar and Change action', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const clerkCard = fixture.nativeElement.querySelector('.active-clerk-card');
+    expect(clerkCard).toBeTruthy();
+    expect(clerkCard.classList.contains('active-clerk-badge')).toBe(true);
+
+    const clerkLabel = clerkCard.querySelector('.clerk-label');
+    expect(clerkLabel).toBeTruthy();
+    expect(clerkLabel.textContent).toContain('Acting Clerk');
+
+    const clerkName = clerkCard.querySelector('.clerk-name');
+    expect(clerkName).toBeTruthy();
+    expect(clerkName.textContent).toContain('Erika Mustermann');
+    expect(clerkName.textContent).toContain('1001');
+
+    const changeBtn = clerkCard.querySelector('.change-clerk-btn') as HTMLButtonElement;
+    expect(changeBtn).toBeTruthy();
+    expect(changeBtn.getAttribute('aria-label')).toBe('Change acting clerk');
+    expect(changeBtn.textContent).toContain('Change');
+    expect(changeBtn.querySelector('mat-icon')?.textContent).toContain('edit');
+  });
+
+  it('should shift focus to clerk search input when clearing clerk', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.activeClerk()).toEqual(mockClerk);
+    component.clearClerk();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const input = fixture.nativeElement.querySelector('.clerk-picker input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('should trigger clearClerk and focus input when clicking Change button in active clerk card', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const changeBtn = fixture.nativeElement.querySelector('.change-clerk-btn') as HTMLButtonElement;
+    expect(changeBtn).toBeTruthy();
+
+    changeBtn.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.activeClerk()).toBeNull();
+    const input = fixture.nativeElement.querySelector('.clerk-picker input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('should not contain invalid density attribute on mat-form-field when clerk is unselected', async () => {
+    component.clearClerk();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const formField = fixture.nativeElement.querySelector('.clerk-select-field');
+    expect(formField).toBeTruthy();
+    expect(formField.getAttribute('density')).toBeNull();
+    const subscript = formField.querySelector('.mat-mdc-form-field-subscript-wrapper');
+    expect(subscript).toBeTruthy();
+  });
+
+  it('should support full clerk change cycle: select, clear, and reselect another clerk', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Initially active clerk is mockClerk (1001)
+    expect(component.activeClerk()?.name).toBe('Erika Mustermann');
+
+    // User clicks change
+    component.clearClerk();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.activeClerk()).toBeNull();
+    expect(fixture.nativeElement.querySelector('.clerk-picker')).toBeTruthy();
+
+    // User selects a different clerk
+    const secondClerk: Clerk = { id: '1002', name: 'Max Mustermann', ssn: '1002' };
+    component.selectClerk(secondClerk);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.activeClerk()).toEqual(secondClerk);
+    const updatedCard = fixture.nativeElement.querySelector('.active-clerk-card');
+    expect(updatedCard).toBeTruthy();
+    expect(updatedCard.querySelector('.clerk-name')?.textContent).toContain('Max Mustermann');
+    expect(updatedCard.querySelector('.clerk-name')?.getAttribute('title')).toBe('Max Mustermann (SSN: 1002)');
+  });
+
+  it('should display full clerk name and SSN in title tooltip for long clerk names', async () => {
+    const longNameClerk: Clerk = {
+      id: '1003',
+      name: 'Dr. Maximilian Alexander Bartholomew Constantine von Hapsburg',
+      ssn: '1003',
+    };
+    component.selectClerk(longNameClerk);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const clerkCard = fixture.nativeElement.querySelector('.active-clerk-card');
+    const clerkNameEl = clerkCard.querySelector('.clerk-name') as HTMLElement;
+    expect(clerkNameEl).toBeTruthy();
+    expect(clerkNameEl.getAttribute('title')).toBe(
+      'Dr. Maximilian Alexander Bartholomew Constantine von Hapsburg (SSN: 1003)',
+    );
+    expect(clerkNameEl.textContent).toContain('Dr. Maximilian Alexander');
+  });
+
+  it('should preserve .clerk-context-box container in both selected and unselected states', async () => {
+    // Selected state
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const contextBoxSelected = fixture.nativeElement.querySelector('.clerk-context-box');
+    expect(contextBoxSelected).toBeTruthy();
+    expect(contextBoxSelected.querySelector('.active-clerk-card')).toBeTruthy();
+    expect(contextBoxSelected.querySelector('.clerk-picker')).toBeNull();
+
+    // Unselected state
+    component.clearClerk();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const contextBoxUnselected = fixture.nativeElement.querySelector('.clerk-context-box');
+    expect(contextBoxUnselected).toBeTruthy();
+    expect(contextBoxUnselected.querySelector('.active-clerk-card')).toBeNull();
+    expect(contextBoxUnselected.querySelector('.clerk-picker')).toBeTruthy();
+  });
 });

@@ -20,7 +20,13 @@
 
 .card-header-bar {
   padding: 1.75rem 2rem 1.25rem;
-  align-items: flex-start;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.header-titles {
+  flex: 1 1 auto;
+  min-width: 240px;
 }
 
 .use-case-title {
@@ -48,6 +54,8 @@
 }
 
 .clerk-context-box,
+.clerk-picker,
+.active-clerk-card,
 .active-clerk-badge,
 .patient-option-row,
 .selected-time-pill,
@@ -60,22 +68,53 @@
   align-items: center;
 }
 
+.clerk-context-box {
+  width: 320px;
+  min-height: 56px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.clerk-picker {
+  width: 100%;
+  min-width: 0;
+}
+
+.clerk-select-field {
+  width: 100%;
+  margin: 0;
+}
+
+.active-clerk-card,
 .active-clerk-badge {
-  gap: 0.5rem;
-  padding: 0.3rem 0.875rem;
-  border-radius: 9999px;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
   background: var(--mat-sys-surface-container-high);
   border: 1px solid var(--mat-sys-outline-variant);
+  min-width: 0;
 }
 
 .clerk-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
   color: var(--mat-sys-primary);
+  flex-shrink: 0;
 }
 
-.clerk-info,
+.clerk-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  gap: 0.125rem;
+}
+
 .patient-primary,
 .summary-item,
 .slot-loading-state,
@@ -92,9 +131,29 @@
   letter-spacing: 0.06em;
   color: var(--mat-sys-on-surface-variant);
   font-weight: 700;
+  line-height: 1.2;
+}
+
+.clerk-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  line-height: 1.35;
 }
 
 .clerk-name,
+.patient-name,
+.patient-meta,
+.summary-sub,
+.col-name,
+.col-meta,
+.entity-details h4,
+.entity-details p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .patient-name,
 .meta-val,
 .summary-val {
@@ -122,14 +181,38 @@
   letter-spacing: -0.015em;
 }
 
-.change-clerk-btn {
-  min-width: 44px;
-  min-height: 44px;
-  margin-left: 0.25rem;
+.change-clerk-btn,
+.next-available-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 0.625rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  border-radius: 8px !important;
+  border-color: var(--mat-sys-outline-variant) !important;
+  color: var(--mat-sys-primary) !important;
 }
 
-.clerk-select-field {
-  min-width: 220px;
+.change-clerk-btn:hover,
+.next-available-btn:hover {
+  background: var(--mat-sys-surface-container-highest) !important;
+  border-color: var(--mat-sys-outline) !important;
+}
+
+.change-clerk-btn mat-icon,
+.next-available-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.change-clerk-btn {
+  background: var(--mat-sys-surface) !important;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .stepper-content {
@@ -155,8 +238,6 @@
 }
 
 .patient-option-row {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: 0.75rem;
@@ -165,27 +246,15 @@
 }
 
 .patient-primary {
-  display: flex;
-  flex-direction: column;
   line-height: 1.35;
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
 }
-
-.patient-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .patient-meta,
 .summary-sub {
   font-size: 0.8125rem;
   color: var(--mat-sys-on-surface-variant);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .naca-chip {
@@ -213,9 +282,6 @@
   border-color: var(--mat-sys-outline);
 }
 
-.naca-icon {
-  display: none;
-}
 
 .selected-entity-card {
   gap: 1rem;
@@ -243,12 +309,6 @@
   min-width: 0;
 }
 
-.entity-details h4,
-.entity-details p {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .clinical-summary-strip {
   display: flex;
@@ -319,9 +379,6 @@
 .col-name {
   font-weight: 700;
   color: var(--mat-sys-on-surface);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .col-sep {
@@ -329,12 +386,6 @@
   font-size: 0.6875rem;
   user-select: none;
   flex-shrink: 0;
-}
-
-.col-meta {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .unselected-doc {
@@ -349,6 +400,17 @@
 }
 
 @media (max-width: 680px) {
+  .card-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.25rem 1rem 1rem;
+  }
+
+  .clerk-context-box {
+    width: 100%;
+  }
+
   .clinical-summary-strip {
     flex-direction: column;
     align-items: stretch;
@@ -438,8 +500,6 @@
 }
 
 .no-slots-banner {
-  display: flex;
-  align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
   border-radius: 12px;
@@ -486,29 +546,8 @@
 }
 
 .next-available-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 32px;
-  height: 32px;
-  padding: 0 0.625rem !important;
-  font-size: 0.75rem !important;
-  font-weight: 600;
-  border-radius: 8px !important;
-  border-color: var(--mat-sys-outline-variant) !important;
-  color: var(--mat-sys-primary) !important;
   background: var(--mat-sys-surface-container-high) !important;
-}
-
-.next-available-btn:hover {
-  background: var(--mat-sys-surface-container-highest) !important;
-  border-color: var(--mat-sys-outline) !important;
-}
-
-.next-available-btn mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  gap: 0.375rem;
 }
 
 .review-summary-card {

@@ -1,4 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -58,10 +66,12 @@ import { ClerkService } from '../services/clerk-service';
 export class ClerkUseCase {
   private readonly clerkService = inject(ClerkService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // ── Clerk Profile ──
   readonly activeClerk = this.clerkService.getActiveClerk();
   readonly clerkSearchQuery = signal('');
+  readonly clerkInput = viewChild<ElementRef<HTMLInputElement>>('clerkInput');
   readonly clerkSearchResults = this.clerkService.searchClerks(this.clerkSearchQuery);
   readonly availableClerks = computed<Clerk[]>(() => {
     if (this.clerkSearchResults.hasValue()) {
@@ -242,6 +252,13 @@ export class ClerkUseCase {
   clearClerk(): void {
     this.clerkService.setActiveClerk(null);
     this.clerkSearchQuery.set('');
+    this.cdr.detectChanges();
+    const inputEl = this.clerkInput()?.nativeElement;
+    if (inputEl) {
+      inputEl.focus();
+    } else {
+      setTimeout(() => this.clerkInput()?.nativeElement?.focus(), 0);
+    }
   }
 
   onPatientSearchInput(event: Event): void {

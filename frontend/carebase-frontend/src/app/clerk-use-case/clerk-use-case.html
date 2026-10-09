@@ -9,21 +9,22 @@
     <!-- Active Clerk Session Header -->
     <div class="clerk-context-box">
       @if (activeClerk(); as clerk) {
-      <div class="active-clerk-badge" matTooltip="Logged-in Clerk attached to bookings">
-        <mat-icon class="clerk-icon">badge</mat-icon>
+      <div class="active-clerk-card active-clerk-badge" matTooltip="Logged-in Clerk attached to bookings">
+        <mat-icon class="clerk-icon" aria-hidden="true">badge</mat-icon>
         <div class="clerk-info">
           <span class="clerk-label">Acting Clerk</span>
-          <span class="clerk-name">{{ clerk.name }} (SSN: {{ clerk.ssn }})</span>
+          <span class="clerk-name" [title]="clerk.name + ' (SSN: ' + clerk.ssn + ')'">{{ clerk.name }} (SSN: {{ clerk.ssn }})</span>
         </div>
-        <button mat-icon-button (click)="clearClerk()" class="change-clerk-btn" aria-label="Change Clerk">
-          <mat-icon>swap_horiz</mat-icon>
+        <button mat-stroked-button type="button" (click)="clearClerk()" class="change-clerk-btn" aria-label="Change acting clerk">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          <span>Change</span>
         </button>
       </div>
       } @else {
       <div class="clerk-picker">
-        <mat-form-field appearance="outline" density="compact" class="clerk-select-field" subscriptSizing="dynamic">
+        <mat-form-field appearance="outline" class="clerk-select-field" subscriptSizing="dynamic">
           <mat-label>Assign Acting Clerk</mat-label>
-          <input matInput placeholder="Search clerk name/SSN..." [value]="clerkSearchQuery()"
+          <input #clerkInput matInput placeholder="Search clerk name/SSN..." [value]="clerkSearchQuery()"
             (input)="onClerkSearchInput($event)" [matAutocomplete]="clerkAuto" />
           <mat-icon matPrefix>badge</mat-icon>
         </mat-form-field>
