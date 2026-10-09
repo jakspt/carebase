@@ -1,14 +1,14 @@
 <mat-card appearance="outlined" class="action-card">
   <div class="card-header-group">
     @if (icon()) {
-    <div class="card-icon-container" [class]="iconColor()" aria-hidden="true">
-      <mat-icon class="card-icon">{{ icon() }}</mat-icon>
-    </div>
+      <div class="card-icon-container" [class]="iconColor()" aria-hidden="true">
+        <mat-icon class="card-icon">{{ icon() }}</mat-icon>
+      </div>
     }
     <div class="card-titles">
       <h2 class="card-title">{{ title() }}</h2>
       @if (description()) {
-      <p class="card-subtitle">{{ description() }}</p>
+        <p class="card-subtitle">{{ description() }}</p>
       }
     </div>
   </div>

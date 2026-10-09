@@ -15,6 +15,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   Subject,
@@ -46,6 +47,7 @@ import { ClerkService } from '../services/clerk-service';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatTooltipModule,
     DatePipe,
   ],
   providers: [provideNativeDateAdapter()],
@@ -242,6 +244,11 @@ export class ClerkUseCase {
 
   isSevereNaca(score?: number | null): boolean {
     return score !== undefined && score !== null && score >= 5;
+  }
+
+  getNacaTooltip(score?: number | null): string {
+    if (score === undefined || score === null) return '';
+    return `NACA ${score}: Pre-hospital severity score (0: Minor to VII: Lethal)`;
   }
 
   onDepartmentChange(dept: string): void {

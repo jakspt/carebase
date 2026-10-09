@@ -6,6 +6,8 @@ import { ClerkUseCase } from './clerk-use-case';
 import { ClerkService } from '../services/clerk-service';
 import { of, throwError } from 'rxjs';
 import { Clerk, Doctor, Patient } from '../models/models';
+import { By } from '@angular/platform-browser';
+import { MatStepper } from '@angular/material/stepper';
 
 describe('ClerkUseCase', () => {
   let component: ClerkUseCase;
@@ -230,5 +232,118 @@ describe('ClerkUseCase', () => {
     component.resetWorkflow();
     expect(component.patientInputValue()).toBe('');
     expect(component.patientSearchQuery()).toBe('');
+  });
+
+  it('should return informative NACA tooltip text', () => {
+    expect(component.getNacaTooltip(undefined)).toBe('');
+    expect(component.getNacaTooltip(null)).toBe('');
+    expect(component.getNacaTooltip(2)).toContain('NACA 2: Pre-hospital severity score');
+    expect(component.getNacaTooltip(6)).toContain('NACA 6: Pre-hospital severity score');
+  });
+
+  it('should render a quiet, de-escalated NACA chip in the selected patient card without alarm icons', async () => {
+    const severePatient: Patient = {
+      id: '9999',
+      name: 'Severe Record Patient',
+      ssn: '9999',
+      insurance: 'ÖGK',
+      nacaScore: 6,
+    };
+    component.selectPatient(severePatient);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const card = fixture.nativeElement.querySelector('.selected-entity-card');
+    expect(card).toBeTruthy();
+
+    const nacaChip = card.querySelector('.naca-chip');
+    expect(nacaChip).toBeTruthy();
+    expect(nacaChip.textContent).toContain('NACA 6');
+
+    // Emergency alarm icon and critical class should NOT be present
+    expect(card.querySelector('.naca-icon')).toBeNull();
+    expect(nacaChip.classList.contains('naca-critical')).toBe(false);
+  });
+
+  it('should render the persistent clinical summary strip in Step 2 with patient details and unselected doctor placeholder', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectedPatient.set(mockPatient);
+    fixture.detectChanges();
+    stepper.selectedIndex = 1;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(stepper.selectedIndex).toBe(1);
+    const strip = fixture.nativeElement.querySelector('.clinical-summary-strip');
+    expect(strip).toBeTruthy();
+
+    const patientCol = strip.querySelector('.patient-col');
+    expect(patientCol.textContent).toContain('Johann Schmidt');
+    expect(patientCol.textContent).toContain('2041');
+    expect(patientCol.textContent).toContain('ÖGK');
+
+    const doctorCol = strip.querySelector('.doctor-col');
+    expect(doctorCol.textContent).toContain('Not selected');
+  });
+
+  it('should eliminate the Step 3 memory bridge by displaying both patient and doctor context persistently', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectedPatient.set(mockPatient);
+    component.selectedDoctor.set(mockDoctors[0]);
+    fixture.detectChanges();
+    stepper.selectedIndex = 2;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(stepper.selectedIndex).toBe(2);
+    const strip = fixture.nativeElement.querySelector('.clinical-summary-strip');
+    expect(strip).toBeTruthy();
+
+    // Patient context is fully preserved (no memory bridge!)
+    const patientCol = strip.querySelector('.patient-col');
+    expect(patientCol.textContent).toContain('Johann Schmidt');
+    expect(patientCol.textContent).toContain('2041');
+    expect(patientCol.textContent).toContain('ÖGK');
+
+    // Doctor context is also visible simultaneously
+    const doctorCol = strip.querySelector('.doctor-col');
+    expect(doctorCol.textContent).toContain('Dr. Sarah Connor');
+    expect(doctorCol.textContent).toContain('Cardiology');
+  });
+
+  it('should maintain the persistent clinical summary strip in Step 4', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectedPatient.set(mockPatient);
+    component.selectedDoctor.set(mockDoctors[0]);
+    component.selectedTimeSlot.set('09:00');
+    fixture.detectChanges();
+    stepper.selectedIndex = 3;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(stepper.selectedIndex).toBe(3);
+    const strip = fixture.nativeElement.querySelector('.clinical-summary-strip');
+    expect(strip).toBeTruthy();
+
+    expect(strip.querySelector('.patient-col').textContent).toContain('Johann Schmidt');
+    expect(strip.querySelector('.doctor-col').textContent).toContain('Dr. Sarah Connor');
+  });
+
+  it('should remove clinical summary strip when workflow is reset', async () => {
+    const stepper = fixture.debugElement.query(By.directive(MatStepper)).componentInstance as MatStepper;
+    component.selectedPatient.set(mockPatient);
+    component.selectedDoctor.set(mockDoctors[0]);
+    fixture.detectChanges();
+    stepper.selectedIndex = 2;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.clinical-summary-strip')).toBeTruthy();
+
+    component.resetWorkflow(stepper);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.clinical-summary-strip')).toBeNull();
   });
 });

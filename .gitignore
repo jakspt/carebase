@@ -215,3 +215,6 @@ mongodb_data/
 .agents/
 .codex/
 skills-lock.json
+.impeccable/
+PRODUCT.md
+.idea/
