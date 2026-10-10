@@ -176,18 +176,23 @@ p,
   color: var(--mat-sys-primary);
 }
 
-/* Reduced motion support - preserves essential progress feedback while suppressing decorative transitions */
+/* Progress bar GPU compositor optimization (resolves Firefox subpixel scaleX jitter) */
+.mat-mdc-progress-bar .mdc-linear-progress__bar,
+.mat-mdc-progress-bar .mdc-linear-progress__bar-inner {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Reduced motion support:
+   Honors user motion sensitivity by eliminating disorienting spatial movement,
+   transform translations, and decorative animation loops, while preserving
+   intentional opacity, color, and state feedback for clear interaction legibility. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto !important;
   }
 
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-  }
-
+  /* Suppress non-essential keyframe animations while preserving critical loading indicators */
   :not(
     mat-progress-bar,
     mat-progress-bar *,
@@ -200,7 +205,26 @@ p,
     .mat-mdc-progress-spinner,
     .mat-mdc-progress-spinner *
   ) {
-    animation-duration: 0.01ms !important;
+    animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* Suppress spatial translations, hover lifts, and scale shifts */
+  .action-card:hover,
+  .action-card:active,
+  .action-card:hover .card-icon-container,
+  .action-card:hover .action-btn .action-btn-arrow,
+  .appointment-card:hover,
+  .kpi-card:hover {
+    transform: none !important;
+  }
+
+  /* Maintain a calm, gentle duration for state transitions (opacity, color, border, elevation)
+     so interactive feedback remains legible without disorienting motion */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 150ms !important;
+    transition-delay: 0s !important;
   }
 }
