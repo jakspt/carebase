@@ -3,10 +3,9 @@ import { ActionCard } from '../action-card/action-card';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../services/user-service';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  imports: [ActionCard, MatIconModule, MatCardModule],
+  imports: [ActionCard, MatIconModule],
   selector: 'app-landing-page',
   styleUrl: './landing-page.css',
   templateUrl: './landing-page.html',

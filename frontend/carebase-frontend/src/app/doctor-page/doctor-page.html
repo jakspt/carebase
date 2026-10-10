@@ -1,5 +1,8 @@
-<mat-card class="container-card" appearance="outlined">
+<div class="hub-container">
   <header class="page-header">
+    <div class="page-icon-wrapper">
+      <mat-icon aria-hidden="true">medical_services</mat-icon>
+    </div>
     <h1 class="page-title">Doctor Workstation</h1>
     <p class="page-subtitle">
       Document patient encounters, record clinical treatments and medications, and analyze treatment
@@ -8,11 +11,21 @@
   </header>
 
   <section class="card-grid" aria-label="Doctor Actions">
-    <app-action-card title="Document Treatment"
+    <app-action-card
+      title="Document Treatment"
       description="Look up patient appointments, record diagnosis details, and prescribe formulary medications."
-      icon="medical_services" iconColor="primary" buttonText="Record Treatment" (actionClicked)="toUseCase()" />
-    <app-action-card title="Treatment Expenditure Analytics"
+      icon="medical_services"
+      iconColor="primary"
+      buttonText="Record Treatment"
+      (actionClicked)="toUseCase()"
+    />
+    <app-action-card
+      title="Treatment Expenditure Analytics"
       description="Review aggregated annual treatment costs and cost distribution across hospital practitioners."
-      icon="query_stats" iconColor="secondary" buttonText="View Cost Report" (actionClicked)="toReport()" />
+      icon="query_stats"
+      iconColor="secondary"
+      buttonText="View Cost Report"
+      (actionClicked)="toReport()"
+    />
   </section>
-</mat-card>
+</div>

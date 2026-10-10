@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { ActionCard } from '../action-card/action-card';
-import { MatCard, MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 @Component({
-  imports: [ActionCard, MatCardModule],
+  imports: [ActionCard, MatIconModule],
   selector: 'app-doctor-page',
   styleUrl: './doctor-page.css',
   templateUrl: './doctor-page.html',

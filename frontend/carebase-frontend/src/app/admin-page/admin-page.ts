@@ -3,10 +3,10 @@ import { ActionCard } from '../action-card/action-card';
 import { AdminService } from '../services/admin-service';
 import { TransactionDialog } from '../transaction-dialog/transaction-dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  imports: [ActionCard, MatCardModule],
+  imports: [ActionCard, MatIconModule],
   selector: 'app-admin-page',
   styleUrl: './admin-page.css',
   templateUrl: './admin-page.html',

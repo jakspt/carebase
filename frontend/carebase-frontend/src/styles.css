@@ -112,28 +112,18 @@ p,
   }
 }
 
-mat-card.container-card {
+/* Hub layout container (replaces nested mat-card.container-card) */
+.hub-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 960px;
-  padding: 3rem 2.5rem 2.5rem;
-  border-radius: 24px;
-  background-color: var(--mat-sys-surface);
-  border: 1px solid var(--mat-sys-outline-variant);
+  max-width: 860px;
+  margin: 0 auto;
   box-sizing: border-box;
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.03),
-    0 12px 32px -12px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 640px) {
-  mat-card.container-card {
-    padding: 2rem 1.25rem 1.5rem;
-    border-radius: 18px;
-  }
-
   .card-grid {
     gap: 1.25rem;
   }
